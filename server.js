@@ -76,9 +76,28 @@ app.post('/api/login', (req, res) => {
         }
         if (user.totp_secret) {
             if (!totp) return res.json({ success: false, requireTotp: true });
-            if (!authenticator.verify({ token: totp, secret: user.totp_secret })) {
-                return res.status(401).json({ success: false, message: 'Invalid 2FA code' });
+
+            // First try TOTP
+            if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
+                setAuthCookie(res, user.id, user.username);
+                return res.json({ success: true });
             }
+
+            // Fallback: try recovery code
+            const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
+            const codeHash = crypto.createHash('sha256').update(normalised).digest('hex');
+            db.get(
+                'SELECT * FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0',
+                [user.id, codeHash],
+                (err2, rc) => {
+                    if (!rc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                    // Mark as used
+                    db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [rc.id]);
+                    setAuthCookie(res, user.id, user.username);
+                    res.json({ success: true, usedRecoveryCode: true });
+                }
+            );
+            return;
         }
         setAuthCookie(res, user.id, user.username);
         res.json({ success: true });
@@ -140,10 +159,136 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
 });
 
 /* ---- ADMIN ROUTES ---- */
+
+/* Change username */
+app.post('/api/change-username', authenticateJWT, (req, res) => {
+    // currentPassword required to confirm identity
+    const { newUsername, currentPassword } = req.body;
+    const trimmed = (newUsername || '').trim();
+    if (!trimmed) return res.status(400).json({ success: false, message: '用户名不能为空' });
+    if (trimmed.length > 64) return res.status(400).json({ success: false, message: '用户名过长' });
+
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+        if (user.password !== hashPassword(currentPassword || ''))
+            return res.status(401).json({ success: false, message: '当前密码错误' });
+
+        db.run('UPDATE users SET username = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
+            if (e) return res.status(500).json({ success: false, message: '用户名已被占用' });
+            res.json({ success: true });
+        });
+    });
+});
+
+/* Change password */
+app.post('/api/change-password', authenticateJWT, (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    // newPassword is received as raw string — JSON handles all special chars correctly
+    if (!newPassword || newPassword.length < 1)
+        return res.status(400).json({ success: false, message: '新密码不能为空' });
+    if (newPassword.length > 128)
+        return res.status(400).json({ success: false, message: '密码过长（最多128位）' });
+
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+        if (user.password !== hashPassword(currentPassword || ''))
+            return res.status(401).json({ success: false, message: '当前密码错误' });
+
+        db.run('UPDATE users SET password = ? WHERE id = ?', [hashPassword(newPassword), req.user.id], (e) => {
+            if (e) return res.status(500).json({ success: false, message: '数据库错误' });
+            res.json({ success: true });
+        });
+    });
+});
+
 app.get('/api/totp/generate', authenticateJWT, (req, res) => {
+
     const secret = authenticator.generateSecret();
     const otpauth = authenticator.keyuri(req.user.user, RP_NAME, secret);
     qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret, qr: imageUrl }));
+});
+
+app.post('/api/totp/disable', authenticateJWT, (req, res) => {
+    db.run('UPDATE users SET totp_secret = NULL WHERE id = ?', [req.user.id], (err) => {
+        if (err) return res.status(500).json({ success: false, message: 'Database error' });
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/status', authenticateJWT, (req, res) => {
+    db.get('SELECT totp_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        db.all('SELECT id, name, created_at FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
+            db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err3, rc) => {
+                res.json({
+                    hasTOTP: !!(user && user.totp_secret),
+                    passkeyCount: keys ? keys.length : 0,
+                    passkeys: keys || [],
+                    recoveryCodesRemaining: rc ? rc.total : 0
+                });
+            });
+        });
+    });
+});
+
+/* List passkeys */
+app.get('/api/passkeys', authenticateJWT, (req, res) => {
+    db.all('SELECT id, name, created_at FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err, keys) => {
+        res.json(keys || []);
+    });
+});
+
+/* Delete a passkey */
+app.delete('/api/passkeys/:id', authenticateJWT, (req, res) => {
+    db.run('DELETE FROM passkeys WHERE id = ? AND user_id = ?', [req.params.id, req.user.id], function(err) {
+        if (err) return res.status(500).json({ success: false });
+        if (this.changes === 0) return res.status(404).json({ success: false, message: 'Not found' });
+        res.json({ success: true });
+    });
+});
+
+/* Rename a passkey */
+app.patch('/api/passkeys/:id', authenticateJWT, (req, res) => {
+    const name = (req.body.name || '').trim().slice(0, 40);
+    if (!name) return res.status(400).json({ success: false });
+    db.run('UPDATE passkeys SET name = ? WHERE id = ? AND user_id = ?', [name, req.params.id, req.user.id], function(err) {
+        if (err || this.changes === 0) return res.status(404).json({ success: false });
+        res.json({ success: true });
+    });
+});
+
+/* Generate recovery codes — invalidates old ones, returns plaintext once */
+app.post('/api/recovery-codes/generate', authenticateJWT, (req, res) => {
+    const COUNT = 8;
+    // Generate COUNT codes in format XXXXX-XXXXX (10 uppercase alphanumeric chars)
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/I/1 ambiguity
+    const codes = [];
+    for (let i = 0; i < COUNT; i++) {
+        let raw = '';
+        for (let j = 0; j < 10; j++) raw += chars[Math.floor(Math.random() * chars.length)];
+        codes.push(raw.slice(0, 5) + '-' + raw.slice(5)); // display: XXXXX-XXXXX
+    }
+
+    // Delete old codes, insert new hashed ones
+    db.run('DELETE FROM recovery_codes WHERE user_id = ?', [req.user.id], () => {
+        const stmt = db.prepare('INSERT INTO recovery_codes (user_id, code_hash, used) VALUES (?, ?, 0)');
+        codes.forEach(c => {
+            const normalised = c.replace(/-/g, ''); // store hash of raw 10-char form
+            stmt.run([req.user.id, crypto.createHash('sha256').update(normalised).digest('hex')]);
+        });
+        stmt.finalize();
+        res.json({ success: true, codes }); // plaintext returned ONCE
+    });
+});
+
+/* Recovery code status */
+app.get('/api/recovery-codes/status', authenticateJWT, (req, res) => {
+    db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err, row) => {
+        db.get('SELECT COUNT(*) as usedCount FROM recovery_codes WHERE user_id = ? AND used = 1', [req.user.id], (err2, row2) => {
+            const total = row ? row.total : 0;
+            const used = row2 ? row2.usedCount : 0;
+            res.json({ remaining: total, used, hasAny: (total + used) > 0 });
+        });
+    });
 });
 
 app.post('/api/totp/verify', authenticateJWT, (req, res) => {
@@ -178,8 +323,15 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
         
         if (verification.verified) {
             const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
-            db.run('INSERT INTO passkeys (user_id, credential_id, public_key, counter) VALUES (?, ?, ?, ?)',
-                [req.user.id, Buffer.from(credentialID).toString('base64url'), Buffer.from(credentialPublicKey).toString('base64url'), counter]);
+            const name = req.body._passkeyName || '通行密钥';
+            const createdAt = new Date().toISOString();
+            db.run(
+                'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                [req.user.id,
+                 Buffer.from(credentialID).toString('base64url'),
+                 Buffer.from(credentialPublicKey).toString('base64url'),
+                 counter, name, createdAt]
+            );
             delete userChallenges[req.user.id];
             return res.json({ verified: true });
         }

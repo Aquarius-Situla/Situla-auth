@@ -5,20 +5,26 @@
     font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ===== Full-screen layout: 3-part flex column ===== */
+/* ===== Base ===== */
 html, body {
-    height: 100%;
-    /* Use dvh so mobile address bar doesn't cause overflow */
-    height: 100dvh;
-    overflow: hidden;
-    overscroll-behavior: none;
     background-color: #ffffff;
     color: #1d1d1f;
 }
 
+/* ===== Login pages only: full-screen locked layout ===== */
+html.login-html {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
 body.login-page {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 
 /* Top gray bar */
@@ -245,16 +251,17 @@ input:focus {
     background: #000;
 }
 
-/* Back button (TOTP page) */
+/* Back button (TOTP page) — Apple-style secondary/cancel */
 .back-btn {
-    background: #e5e5ea;
-    color: #1d1d1f;
+    background: #f2f2f7;
+    color: #3c3c43;
+    border: 1px solid #e5e5ea;
 }
 .back-btn:hover {
-    background: #d1d1d6;
+    background: #e9e9ef;
 }
 .back-btn:active {
-    background: #c7c7cc;
+    background: #dfdfe5;
 }
 
 /* ===== Mobile responsive ===== */
@@ -289,5 +296,114 @@ input:focus {
 @media (min-width: 501px) {
     .or-divider {
         display: none;
+    }
+}
+
+/* =====================================================
+   Dark Mode — follows system preference automatically
+   Uses Apple's dark mode system color palette
+   ===================================================== */
+@media (prefers-color-scheme: dark) {
+
+    /* Base */
+    html, body {
+        background-color: #000000;
+        color: #ffffff;
+    }
+
+    /* Nav / gray bars */
+    .gray-top-bar,
+    .gray-bottom-bar {
+        background-color: #1c1c1e;
+        border-color: #3a3a3c;
+    }
+    .nav-title {
+        color: #ffffff;
+    }
+    .gray-top-bar svg,
+    .gray-bottom-bar svg {
+        stroke: rgba(255,255,255,0.75);
+    }
+    /* Nav icon (filled svg) */
+    .gray-top-bar svg path {
+        fill: rgba(255,255,255,0.75);
+    }
+
+    /* Headings & text */
+    h1 { color: #ffffff; }
+    p  { color: #aeaeb2; }
+
+    /* Unified input card */
+    .input-card {
+        border-color: #3a3a3c;
+        background-color: #1c1c1e;
+    }
+    .input-card.focused {
+        border-color: #0a84ff;
+        box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.22);
+    }
+
+    /* Inputs */
+    input {
+        background-color: #1c1c1e;
+        color: #ffffff;
+    }
+    input::placeholder {
+        color: #636366;
+    }
+
+    /* Divider line between username/password */
+    .input-divider {
+        background: #3a3a3c;
+    }
+
+    /* Primary button */
+    .btn-primary {
+        background: #1a3a5c;   /* dim state */
+        color: #5b9bd5;
+    }
+    .btn-primary.active {
+        background: #0a84ff;   /* Apple dark-mode blue */
+        color: #ffffff;
+    }
+    .btn-primary.active:hover  { background: #1a90ff; }
+    .btn-primary.active:active { background: #0070e0; }
+
+    /* Passkey button */
+    .passkey-btn {
+        background: #2c2c2e;
+        color: #ffffff;
+    }
+    .passkey-btn:hover  { background: #3a3a3c; }
+    .passkey-btn:active { background: #48484a; }
+
+    /* Back button */
+    .back-btn {
+        background: #2c2c2e;
+        color: #aeaeb2;
+        border-color: #3a3a3c;
+    }
+    .back-btn:hover  { background: #3a3a3c; }
+    .back-btn:active { background: #48484a; }
+
+    /* Or divider text */
+    .or-divider { color: #636366; }
+
+    /* Error message */
+    .error-message { color: #ff453a; }
+
+    /* TOTP digit boxes (defined inline in totp.html, override here) */
+    .totp-digit {
+        background: #1c1c1e;
+        border-color: #3a3a3c;
+        color: #ffffff;
+    }
+    .totp-digit:focus {
+        border-color: #0a84ff;
+        box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.22);
+    }
+    .totp-digit.filled {
+        border-color: #0a84ff;
+        background: #0d2a4a;
     }
 }

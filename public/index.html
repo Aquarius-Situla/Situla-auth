@@ -28,7 +28,13 @@
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
                 <h1>登录</h1>
-                <p>管理你的账户</p>
+                <p id="subtitle">管理你的账户</p>
+                <script>
+                    // Hide subtitle when used as forward auth (rd param present)
+                    if (new URLSearchParams(window.location.search).get('rd')) {
+                        document.getElementById('subtitle').style.display = 'none';
+                    }
+                </script>
             </div>
 
             <form id="loginForm">

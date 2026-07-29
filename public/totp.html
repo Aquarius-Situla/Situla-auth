@@ -55,6 +55,19 @@
                 gap: 7px;
             }
         }
+
+        /* Mobile: verify on top, back on bottom */
+        @media (max-width: 500px) {
+            .totp-buttons {
+                flex-direction: column;
+            }
+            .totp-buttons #verifyBtn {
+                order: 1;
+            }
+            .totp-buttons #backBtn {
+                order: 2;
+            }
+        }
     </style>
 </head>
 <body class="login-page">
@@ -80,25 +93,46 @@
                     <polyline points="9 12 11 14 15 10"/>
                 </svg>
                 <h1>二步验证</h1>
-                <p>请输入 Authenticator 中的 6 位验证码</p>
+                <p id="totpSubtitle">请输入授权应用中显示的 6 位验证码</p>
             </div>
 
             <form id="totpForm">
-                <!-- 6 individual digit boxes -->
-                <div class="totp-boxes" id="totpBoxes">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d0">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d1">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d2">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d3">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d4">
-                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d5">
+                <!-- 6-box TOTP input (default) -->
+                <div id="totpBoxSection">
+                    <div class="totp-boxes" id="totpBoxes">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                    </div>
                 </div>
 
-                <div id="errorMessage" class="error-message" style="text-align:center; margin-top:14px;"></div>
+                <!-- Recovery code input (hidden by default) -->
+                <div id="rcSection" style="display:none;">
+                    <input type="text" id="rcInput"
+                        style="width:100%; padding:14px; border:1.5px solid #d2d2d7; border-radius:10px;
+                               font-size:16px; text-align:center; letter-spacing:2px; outline:none;
+                               font-family:monospace; transition:border-color 0.18s, box-shadow 0.18s;"
+                        placeholder="XXXXX-XXXXX"
+                        autocomplete="off" spellcheck="false"
+                        oninput="this.value=this.value.toUpperCase()"
+                    >
+                </div>
+
+                <!-- Toggle link -->
+                <div style="text-align:center; margin-top:14px;">
+                    <a id="toggleRcLink" href="#" style="font-size:13px; color:#0071e3; text-decoration:none;">
+                        使用恢复码登录
+                    </a>
+                </div>
+
+                <div id="totpError" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:10px;"></div>
 
                 <div class="button-row totp-buttons" style="margin-top:20px;">
                     <button type="button" class="login-btn back-btn" id="backBtn">返回</button>
-                    <button type="submit" class="login-btn btn-primary" id="verifyBtn">验证</button>
+                    <button type="submit" class="login-btn btn-primary active" id="verifyBtn">继续</button>
                 </div>
             </form>
         </div>
@@ -115,10 +149,28 @@
             window.location.href = '/';
         }
 
-        const digits = Array.from(document.querySelectorAll('.totp-digit'));
-        const errMsg = document.getElementById('errorMessage');
+        const digits    = [...document.querySelectorAll('.totp-digit')];
+        const form      = document.getElementById('totpForm');
+        const errMsg    = document.getElementById('totpError');
         const verifyBtn = document.getElementById('verifyBtn');
-        const form = document.getElementById('totpForm');
+        let usingRc     = false;
+
+        /* ── Recovery code toggle ── */
+        document.getElementById('toggleRcLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            usingRc = !usingRc;
+            document.getElementById('totpBoxSection').style.display = usingRc ? 'none' : '';
+            document.getElementById('rcSection').style.display      = usingRc ? '' : 'none';
+            document.getElementById('totpSubtitle').textContent     = usingRc
+                ? '请输入恢复码（格式：XXXXX-XXXXX）'
+                : '请输入授权应用中显示的 6 位验证码';
+            document.getElementById('toggleRcLink').textContent     = usingRc
+                ? '使用验证码登录'
+                : '使用恢复码登录';
+            errMsg.textContent = '';
+            if (usingRc) document.getElementById('rcInput').focus();
+            else digits[0].focus();
+        });
 
         // Focus first box
         digits[0].focus();
@@ -197,10 +249,17 @@
         // Submit
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const totp = digits.map(d => d.value).join('');
-            if (totp.length < 6) return;
-
             errMsg.textContent = '';
+
+            let totp;
+            if (usingRc) {
+                totp = document.getElementById('rcInput').value.trim();
+                if (!totp) return;
+            } else {
+                totp = digits.map(d => d.value).join('');
+                if (totp.length < 6) return;
+            }
+
             verifyBtn.textContent = '验证中...';
             verifyBtn.disabled = true;
 
@@ -216,21 +275,25 @@
                 if (data.success) {
                     sessionStorage.removeItem('username');
                     sessionStorage.removeItem('password');
+                    if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
                     const rd = new URLSearchParams(window.location.search).get('rd');
                     window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
                 } else {
-                    errMsg.textContent = data.message || '验证码错误，请重试';
-                    digits.forEach(d => { d.value = ''; d.classList.remove('filled'); });
-                    verifyBtn.textContent = '验证';
+                    errMsg.textContent = data.message || '验证失败，请重试';
+                    if (!usingRc) {
+                        digits.forEach(d => { d.value = ''; d.classList.remove('filled'); });
+                        digits[0].focus();
+                    }
+                    verifyBtn.textContent = '继续';
                     verifyBtn.disabled = false;
-                    digits[0].focus();
                 }
             } catch (err) {
                 errMsg.textContent = '网络错误，请稍后重试';
-                verifyBtn.textContent = '验证';
+                verifyBtn.textContent = '继续';
                 verifyBtn.disabled = false;
             }
         });
+
     </script>
 </body>
 </html>

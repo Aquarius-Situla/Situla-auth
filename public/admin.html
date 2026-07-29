@@ -8,173 +8,772 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@simplewebauthn/browser@9.0.1/dist/bundle/index.umd.min.js"></script>
     <style>
-        body { background-color: #f5f5f7; display: block; height: auto; min-height: 100vh; }
-        .apple-container { max-width: 600px; padding: 60px 20px; margin: 0 auto; width: 100%; display: block; flex: none; text-align: left; }
-        
+        body {
+            background-color: #f5f5f7;
+            display: block;
+            height: auto;
+            min-height: 100vh;
+        }
+        .apple-container {
+            max-width: 600px;
+            padding: 60px 20px;
+            margin: 0 auto;
+            width: 100%;
+            display: block;
+            flex: none;
+            text-align: left;
+        }
         .logo-container { margin-bottom: 40px; text-align: center; }
-        .logo-container svg { margin-bottom: 16px; }
-        .logo-container h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; color: #1d1d1f; }
-        
+        .logo-container h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; color: #1d1d1f; margin-top: 12px; }
+
+        /* Settings group card */
         .settings-group {
             background: #ffffff;
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
             margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
-        
-        .section { 
-            padding: 24px;
-            border-bottom: 1px solid #d2d2d7; 
+        .section {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
         }
         .section:last-child { border-bottom: none; }
-        
-        .section h3 { font-size: 17px; margin-bottom: 8px; color: #1d1d1f; font-weight: 600; }
-        .section p { font-size: 15px; margin-bottom: 16px; color: #86868b; line-height: 1.4; }
-        
-        .qr-container { display: flex; align-items: center; gap: 20px; margin-top: 15px; background: #f5f5f7; padding: 16px; border-radius: 12px; margin-bottom: 20px; }
-        .qr-container img { border-radius: 8px; border: 1px solid #d2d2d7; background: #fff; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 120px; height: 120px; }
-        
-        .btn-outline { background: transparent; border: 1px solid #0071e3; color: #0071e3; border-radius: 8px; font-size: 15px; cursor: pointer; padding: 10px 20px; transition: background 0.2s, color 0.2s; outline: none; }
+
+        /* Section header row */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .section h3 { font-size: 17px; color: #1d1d1f; font-weight: 600; margin: 0; }
+        .section .desc { font-size: 14px; color: #86868b; line-height: 1.4; margin: 4px 0 16px; }
+
+        /* Status badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .badge-enabled {
+            background: #d1f5d3;
+            color: #1a7f2e;
+        }
+        .badge-disabled {
+            background: #f0f0f0;
+            color: #86868b;
+        }
+        .badge svg { width: 11px; height: 11px; }
+
+        /* Passkey count badge */
+        .badge-count {
+            background: #e8f0fe;
+            color: #0057b8;
+        }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #0071e3;
+            color: #0071e3;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 9px 18px;
+            transition: background 0.2s, color 0.2s;
+            outline: none;
+        }
         .btn-outline:hover { background: #0071e3; color: #fff; }
-        
-        .btn-solid { background: #0071e3; border: none; color: white; border-radius: 8px; font-size: 15px; cursor: pointer; padding: 12px 24px; transition: background 0.2s; outline: none; }
+        .btn-solid {
+            background: #0071e3;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 10px 22px;
+            transition: background 0.2s;
+            outline: none;
+        }
         .btn-solid:hover { background: #0077ed; }
-        
-        .danger { color: #ff3b30; cursor: pointer; text-decoration: none; font-size: 15px; font-weight: 500; display: inline-block; padding: 10px; }
-        .danger:hover { text-decoration: underline; }
-        
-        .code-input { width: 140px; padding: 12px 16px; border-radius: 8px; border: 1px solid #d2d2d7; font-size: 17px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; text-align: center; letter-spacing: 2px; }
-        .code-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2); }
-        
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ff3b30;
+            color: #ff3b30;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 9px 18px;
+            transition: background 0.2s, color 0.2s;
+            outline: none;
+        }
+        .btn-danger:hover { background: #ff3b30; color: #fff; }
+
+        /* QR setup panel */
+        .setup-panel {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .qr-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f5f5f7;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 12px 0 18px;
+        }
+        .qr-container img {
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            background: #fff;
+            padding: 4px;
+            width: 110px;
+            height: 110px;
+            flex-shrink: 0;
+        }
+        .secret-label { font-size: 12px; color: #86868b; margin-bottom: 4px; }
+        .secret-key {
+            font-family: monospace;
+            font-size: 14px;
+            color: #1d1d1f;
+            word-break: break-all;
+            user-select: all;
+            cursor: copy;
+        }
+        .setup-step { font-size: 14px; font-weight: 500; color: #1d1d1f; margin-bottom: 10px; }
+        .code-row { display: flex; gap: 12px; align-items: center; }
+        .code-input {
+            width: 130px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            font-size: 18px;
+            outline: none;
+            text-align: center;
+            letter-spacing: 3px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .code-input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0,113,227,0.18); }
+
+        .msg { margin-top: 10px; font-size: 13px; min-height: 18px; }
+        .msg-ok  { color: #1a7f2e; }
+        .msg-err { color: #ff3b30; }
+
+        /* Logout */
+        .logout-row { text-align: center; margin-top: 32px; }
+        .danger-link { color: #ff3b30; cursor: pointer; font-size: 15px; font-weight: 500; text-decoration: none; padding: 8px; }
+        .danger-link:hover { text-decoration: underline; }
+
+        /* Form fields (stacked inputs) */
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .field-input {
+            width: 100%;
+            padding: 13px 14px;
+            border: none;
+            border-bottom: 1px solid #d2d2d7;
+            border-radius: 0;
+            font-size: 15px;
+            background: #ffffff;
+            color: #1d1d1f;
+            outline: none;
+            transition: background 0.15s;
+        }
+        .field-input:last-child { border-bottom: none; }
+        .field-input:focus { background: #f5f8ff; }
+        .field-input::placeholder { color: #86868b; }
+
+        /* Passkey list items */
+        .passkey-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .passkey-item:last-child { border-bottom: none; }
+        .passkey-icon {
+            width: 36px;
+            height: 36px;
+            background: #f0f0f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #6e6e73;
+        }
+        .passkey-icon svg { width: 18px; height: 18px; }
+        .passkey-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .passkey-name {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1d1d1f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .passkey-date {
+            display: block;
+            font-size: 12px;
+            color: #86868b;
+            margin-top: 2px;
+        }
+        .passkey-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .pk-btn {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .pk-rename {
+            background: #f0f0f5;
+            color: #3c3c43;
+        }
+        .pk-rename:hover { background: #e0e0e8; }
+        .pk-delete {
+            background: #fff0f0;
+            color: #ff3b30;
+        }
+        .pk-delete:hover { background: #ff3b30; color: #fff; }
+
         @media (max-width: 480px) {
             .qr-container { flex-direction: column; align-items: flex-start; }
             .apple-container { padding: 40px 16px; }
+        }
+
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #000000; }
+            .settings-group { background: #1c1c1e; box-shadow: none; }
+            .section { border-bottom-color: #2c2c2e; }
+            .section h3 { color: #ffffff; }
+            .section .desc { color: #636366; }
+            .logo-container h2 { color: #ffffff; }
+            .badge-disabled { background: #2c2c2e; color: #636366; }
+            .badge-enabled { background: #0d3318; color: #30d158; }
+            .badge-count { background: #0d2a4a; color: #0a84ff; }
+            .qr-container { background: #2c2c2e; }
+            .secret-key { color: #ebebf5; }
+            .secret-label { color: #636366; }
+            .setup-step { color: #ebebf5; }
+            .setup-panel { border-top-color: #2c2c2e; }
+            .code-input { background: #1c1c1e; border-color: #3a3a3c; color: #ffffff; }
+            .code-input:focus { border-color: #0a84ff; box-shadow: 0 0 0 3px rgba(10,132,255,0.22); }
+            .btn-outline { border-color: #0a84ff; color: #0a84ff; }
+            .btn-outline:hover { background: #0a84ff; color: #fff; }
+            .btn-solid { background: #0a84ff; }
+            .btn-solid:hover { background: #1a90ff; }
+            .msg-ok { color: #30d158; }
+            .form-fields { border-color: #3a3a3c; }
+            .field-input { background: #1c1c1e; color: #ffffff; border-bottom-color: #3a3a3c; }
+            .field-input:focus { background: #0d2040; }
+            .field-input::placeholder { color: #636366; }
+            .passkey-item { border-bottom-color: #2c2c2e; }
+            .passkey-icon { background: #2c2c2e; color: #aeaeb2; }
+            .passkey-name { color: #ffffff; }
+            .passkey-date { color: #636366; }
+            .pk-rename { background: #2c2c2e; color: #aeaeb2; }
+            .pk-rename:hover { background: #3a3a3c; }
+            .pk-delete { background: #2c1a1a; color: #ff453a; }
+            .pk-delete:hover { background: #ff453a; color: #fff; }
+
         }
     </style>
 </head>
 <body>
     <div class="apple-container">
+        <!-- Header -->
         <div class="logo-container">
-            <svg viewBox="0 0 24 24" width="80" height="80" fill="#1d1d1f">
+            <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#1d1d1f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
             <h2>安全设置</h2>
         </div>
-        
+
         <div class="settings-group">
+            <!-- Change username -->
             <div class="section">
-                <h3>Passkeys (通行密钥)</h3>
-                <p>使用面容、指纹或设备密码安全登录。更快捷，更安全。</p>
-                <button class="btn-outline" id="regPasskeyBtn">创建 Passkey</button>
-                <div id="passkeyMsg" style="margin-top:12px; font-size: 14px;"></div>
+                <h3>修改用户名</h3>
+                <p class="desc">更改后需使用新用户名登录。</p>
+                <div class="form-fields">
+                    <input type="text" class="field-input" id="newUsername" placeholder="新用户名" autocomplete="off">
+                    <input type="password" class="field-input" id="usernameConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                </div>
+                <div class="btn-row" style="margin-top:12px;">
+                    <button class="btn-solid" id="changeUsernameBtn">保存用户名</button>
+                </div>
+                <div class="msg" id="usernameMsg"></div>
             </div>
 
+            <!-- Change password -->
             <div class="section">
-                <h3>双重身份验证 (2FA)</h3>
-                <p>使用身份验证器应用 (如 Google Authenticator 或 iOS Passwords) 来生成验证码，保护你的账户安全。</p>
-                <button class="btn-outline" id="setup2faBtn">设置 2FA</button>
-                
-                <div id="totpSetup" style="display:none; margin-top: 24px; padding-top: 20px; border-top: 1px solid #d2d2d7;">
-                    <p style="font-size: 15px; margin-bottom: 12px; font-weight: 500; color: #1d1d1f;">1. 使用你的 Authenticator 应用扫描下方二维码：</p>
+                <h3>修改密码</h3>
+                <p class="desc">支持任意特殊字符，包括 &amp; # @ * 等。</p>
+                <div class="form-fields">
+                    <input type="password" class="field-input" id="currentPassword" placeholder="当前密码" autocomplete="current-password">
+                    <input type="password" class="field-input" id="newPassword" placeholder="新密码" autocomplete="new-password">
+                    <input type="password" class="field-input" id="confirmPassword" placeholder="再次输入新密码" autocomplete="new-password">
+                </div>
+                <div class="btn-row" style="margin-top:12px;">
+                    <button class="btn-solid" id="changePasswordBtn">保存密码</button>
+                </div>
+                <div class="msg" id="passwordMsg"></div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <!-- Passkey section -->
+            <div class="section" id="passkeySection">
+                <div class="section-header">
+                    <h3>Passkeys（通行密钥）</h3>
+                    <span class="badge badge-disabled" id="passkeyBadge">未添加</span>
+                </div>
+                <p class="desc">使用面容、指纹或设备密码安全登录，更快捷，更安全。</p>
+
+                <!-- Passkey list -->
+                <div id="passkeyList"></div>
+
+                <div class="btn-row" style="margin-top:12px;">
+                    <button class="btn-outline" id="regPasskeyBtn">＋ 添加通行密钥</button>
+                </div>
+                <div class="msg" id="passkeyMsg"></div>
+            </div>
+
+            <!-- 2FA section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3>双重身份验证（2FA）</h3>
+                    <span class="badge badge-disabled" id="totpBadge">
+                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
+                        </svg>
+                        未启用
+                    </span>
+                </div>
+                <p class="desc">使用 Authenticator 应用（如 Google Authenticator 或 iOS 密码）生成动态验证码，为账户加一道防护。</p>
+
+                <!-- State: disabled -->
+                <div id="totpDisabledUI" class="btn-row">
+                    <button class="btn-outline" id="setup2faBtn">设置 2FA</button>
+                </div>
+
+                <!-- State: enabled -->
+                <div id="totpEnabledUI" class="btn-row" style="display:none;">
+                    <button class="btn-outline" id="reset2faBtn">重新设置</button>
+                    <button class="btn-danger" id="disable2faBtn">禁用 2FA</button>
+                </div>
+
+                <!-- QR / setup panel -->
+                <div class="setup-panel" id="totpSetup">
+                    <p class="setup-step">1. 使用 Authenticator 扫描下方二维码：</p>
                     <div class="qr-container">
                         <img id="qrCode" src="" alt="QR Code">
                         <div>
-                            <p style="font-size: 13px; color: #86868b; margin-bottom: 4px;">设置密钥</p>
-                            <p style="font-family: monospace; font-size: 15px; user-select: all; color: #1d1d1f; word-break: break-all;" id="secretKey"></p>
+                            <p class="secret-label">手动输入密钥</p>
+                            <p class="secret-key" id="secretKey" title="点击复制"></p>
                         </div>
                     </div>
-                    <p style="font-size: 15px; margin-bottom: 12px; font-weight: 500; color: #1d1d1f;">2. 输入应用中显示的 6 位验证码：</p>
-                    <div style="display:flex; gap:12px; align-items: center;">
-                        <input type="text" id="totpCode" class="code-input" placeholder="000 000">
-                        <button class="btn-solid" id="verify2faBtn">验证</button>
+                    <p class="setup-step">2. 输入应用中的 6 位验证码：</p>
+                    <div class="code-row">
+                        <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
+                        <button class="btn-solid" id="verify2faBtn">验证并启用</button>
                     </div>
-                    <div id="totpMsg" style="margin-top:12px; font-size: 14px;"></div>
+                    <div class="msg" id="totpMsg"></div>
                 </div>
             </div>
         </div>
 
-        <div style="text-align:center; margin-top:32px;">
-            <span class="danger" id="logoutBtn">退出登录</span>
+        <!-- Recovery codes card -->
+        <div class="settings-group" id="rcCard" style="display:none;">
+            <div class="section">
+                <div class="section-header">
+                    <h3>恢复码</h3>
+                    <span class="badge badge-disabled" id="rcBadge">未生成</span>
+                </div>
+                <p class="desc">当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。</p>
+                <div class="btn-row">
+                    <button class="btn-outline" id="genRcBtn">生成恢复码</button>
+                </div>
+
+                <!-- Codes reveal panel -->
+                <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
+                    <p class="setup-step" style="color:#ff9500; margin-bottom:12px;">
+                        ⚠️ 请立即将这些恢复码保存到安全的地方，它们只会显示一次。
+                    </p>
+                    <div id="rcList" style="
+                        background:#f5f5f7; border-radius:10px; padding:16px;
+                        font-family:monospace; font-size:16px; line-height:2;
+                        letter-spacing:1px; color:#1d1d1f;
+                    "></div>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button class="btn-outline" id="copyRcBtn">复制全部</button>
+                    </div>
+                    <div class="msg" id="rcMsg"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="logout-row">
+            <span class="danger-link" id="logoutBtn">退出登录</span>
         </div>
     </div>
 
     <script>
         const { startRegistration } = SimpleWebAuthnBrowser;
 
-        /* Passkey Registration */
+        /* ── Helpers ── */
+        function setTotpBadge(enabled) {
+            const badge = document.getElementById('totpBadge');
+            if (enabled) {
+                badge.className = 'badge badge-enabled';
+                badge.innerHTML = `
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="2,6 5,9 10,3"/>
+                    </svg>已启用`;
+            } else {
+                badge.className = 'badge badge-disabled';
+                badge.innerHTML = `
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
+                    </svg>未启用`;
+            }
+            document.getElementById('totpDisabledUI').style.display = enabled ? 'none' : 'flex';
+            document.getElementById('totpEnabledUI').style.display  = enabled ? 'flex' : 'none';
+            if (!enabled) document.getElementById('totpSetup').style.display = 'none';
+        }
+
+        function setPasskeyBadge(count) {
+            const badge = document.getElementById('passkeyBadge');
+            badge.textContent = count > 0 ? `${count} 个通行密钥` : '未添加';
+            badge.className = count > 0 ? 'badge badge-count' : 'badge badge-disabled';
+        }
+
+        /* ── Passkey list ── */
+        function fmtDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        function renderPasskeys(keys) {
+            const list = document.getElementById('passkeyList');
+            const badge = document.getElementById('passkeyBadge');
+            if (!keys || keys.length === 0) {
+                list.innerHTML = '';
+                badge.textContent = '未添加';
+                badge.className = 'badge badge-disabled';
+                return;
+            }
+            badge.textContent = `${keys.length} 把`;
+            badge.className = 'badge badge-count';
+            list.innerHTML = keys.map(k => `
+                <div class="passkey-item" id="pk-${k.id}">
+                    <div class="passkey-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="8" cy="9" r="3.5"/>
+                            <path d="M2 20c0-3.5 2.5-5.5 6-5.5 2.5 0 4 1 5 3"/>
+                            <path d="M15 13l1.5 1.5L19 12m0 3v3h2v-3" />
+                        </svg>
+                    </div>
+                    <div class="passkey-info">
+                        <span class="passkey-name" id="pk-name-${k.id}">${k.name || '通行密钥'}</span>
+                        <span class="passkey-date">${fmtDate(k.created_at)}</span>
+                    </div>
+                    <div class="passkey-actions">
+                        <button class="pk-btn pk-rename" onclick="renamePasskey(${k.id})">重命名</button>
+                        <button class="pk-btn pk-delete" onclick="deletePasskey(${k.id})">删除</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        async function loadStatus() {
+            try {
+                const res = await fetch('/api/status');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                setTotpBadge(data.hasTOTP);
+                renderPasskeys(data.passkeys);
+                // Show recovery code card only when 2FA is enabled
+                updateRcCard(data.hasTOTP, data.recoveryCodesRemaining);
+            } catch {
+                renderPasskeys([]);
+                setTotpBadge(false);
+            }
+        }
+        loadStatus();
+
+        function updateRcCard(hasTOTP, remaining) {
+            document.getElementById('rcCard').style.display = hasTOTP ? '' : 'none';
+            const badge = document.getElementById('rcBadge');
+            if (!hasTOTP) return;
+            if (remaining === 0) {
+                badge.textContent = '未生成';
+                badge.className = 'badge badge-disabled';
+            } else {
+                badge.textContent = `剩余 ${remaining} 个`;
+                badge.className = remaining <= 2 ? 'badge badge-warn' : 'badge badge-count';
+            }
+        }
+
+        async function deletePasskey(id) {
+            if (!confirm('确定要删除这把通行密钥吗？')) return;
+            const res = await fetch(`/api/passkeys/${id}`, { method: 'DELETE' });
+            if ((await res.json()).success) {
+                document.getElementById(`pk-${id}`)?.remove();
+                // refresh badge
+                const remaining = document.querySelectorAll('[id^="pk-"]').length;
+                const badge = document.getElementById('passkeyBadge');
+                if (remaining === 0) {
+                    badge.textContent = '未添加'; badge.className = 'badge badge-disabled';
+                } else {
+                    badge.textContent = `${remaining} 把`;
+                }
+            }
+        }
+
+        async function renamePasskey(id) {
+            const current = document.getElementById(`pk-name-${id}`)?.textContent || '通行密钥';
+            const newName = prompt('请输入新名称：', current);
+            if (!newName || newName.trim() === current) return;
+            const res = await fetch(`/api/passkeys/${id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: newName.trim() })
+            });
+            if ((await res.json()).success) {
+                const el = document.getElementById(`pk-name-${id}`);
+                if (el) el.textContent = newName.trim();
+            }
+        }
+
+        /* ── Passkey registration ── */
         document.getElementById('regPasskeyBtn').addEventListener('click', async () => {
             const msg = document.getElementById('passkeyMsg');
-            msg.textContent = '准备中...';
-            msg.style.color = '#1d1d1f';
-            
+            const nameInput = prompt('给这把通行密钥起个名字（可留空）：', '');
+            if (nameInput === null) return; // cancelled
+            const passkeyName = nameInput.trim() || '通行密钥';
+
+            msg.textContent = '准备中…';
+            msg.className = 'msg';
             try {
-                const resp = await fetch('/api/webauthn/register-options');
-                if (!resp.ok) {
-                    const errText = await resp.text();
-                    throw new Error(`API Error ${resp.status}: ${errText}`);
-                }
-                const options = await resp.json();
-                
+                const options = await (await fetch('/api/webauthn/register-options')).json();
                 const attResp = await startRegistration(options);
-                
-                const verificationResp = await fetch('/api/webauthn/register-verify', {
+                // Attach chosen name so server can save it
+                attResp._passkeyName = passkeyName;
+                const result = await (await fetch('/api/webauthn/register-verify', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(attResp)
-                });
-                
-                const verificationJSON = await verificationResp.json();
-                if (verificationJSON && verificationJSON.verified) {
-                    msg.textContent = 'Passkey 创建成功！';
-                    msg.style.color = '#34c759';
+                })).json();
+
+                if (result.verified) {
+                    msg.textContent = `✓ 「${passkeyName}」添加成功！`;
+                    msg.className = 'msg msg-ok';
+                    loadStatus();
                 } else {
-                    msg.textContent = '验证失败';
-                    msg.style.color = '#ff3b30';
+                    throw new Error('验证失败');
                 }
-            } catch (error) {
-                msg.textContent = '错误: ' + error.message;
-                msg.style.color = '#ff3b30';
+            } catch (e) {
+                msg.textContent = '错误：' + (e.message || '操作取消');
+                msg.className = 'msg msg-err';
             }
         });
 
-        /* 2FA Setup */
+        /* ── 2FA setup ── */
         let currentSecret = '';
-        document.getElementById('setup2faBtn').addEventListener('click', async () => {
-            const resp = await fetch('/api/totp/generate');
-            const data = await resp.json();
+
+        async function openSetupPanel() {
+            const res  = await fetch('/api/totp/generate');
+            const data = await res.json();
             currentSecret = data.secret;
             document.getElementById('qrCode').src = data.qr;
             document.getElementById('secretKey').textContent = data.secret;
+            document.getElementById('totpCode').value = '';
+            document.getElementById('totpMsg').textContent = '';
+            document.getElementById('totpMsg').className = 'msg';
             document.getElementById('totpSetup').style.display = 'block';
-            document.getElementById('setup2faBtn').style.display = 'none';
-        });
+            // hide both action rows while setup is open
+            document.getElementById('totpDisabledUI').style.display = 'none';
+            document.getElementById('totpEnabledUI').style.display  = 'none';
+        }
+
+        document.getElementById('setup2faBtn').addEventListener('click', openSetupPanel);
+        document.getElementById('reset2faBtn').addEventListener('click', openSetupPanel);
 
         document.getElementById('verify2faBtn').addEventListener('click', async () => {
-            let code = document.getElementById('totpCode').value;
-            code = code.replace(/\s/g, ''); /* Remove spaces if user types them */
-            const msg = document.getElementById('totpMsg');
-            const resp = await fetch('/api/totp/verify', {
+            const code = document.getElementById('totpCode').value.replace(/\s/g, '');
+            const msg  = document.getElementById('totpMsg');
+            if (code.length !== 6) {
+                msg.textContent = '请输入 6 位验证码';
+                msg.className = 'msg msg-err';
+                return;
+            }
+            const data = await (await fetch('/api/totp/verify', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ token: code, secret: currentSecret })
-            });
-            const data = await resp.json();
-            if(data.success) {
-                msg.textContent = '两步验证 (2FA) 配置成功！';
-                msg.style.color = '#34c759';
-                document.getElementById('totpSetup').style.opacity = '0.5';
-                document.getElementById('totpCode').disabled = true;
-                document.getElementById('verify2faBtn').disabled = true;
+            })).json();
+
+            if (data.success) {
+                msg.textContent = '✓ 双重验证已成功启用';
+                msg.className = 'msg msg-ok';
+                setTimeout(() => {
+                    document.getElementById('totpSetup').style.display = 'none';
+                    setTotpBadge(true);
+                }, 1200);
             } else {
-                msg.textContent = '验证码错误，请重试。';
-                msg.style.color = '#ff3b30';
+                msg.textContent = '验证码错误，请重试';
+                msg.className = 'msg msg-err';
             }
         });
 
+        /* ── Disable 2FA ── */
+        document.getElementById('disable2faBtn').addEventListener('click', async () => {
+            if (!confirm('确定要禁用双重验证吗？这会降低账户安全性。')) return;
+            const data = await (await fetch('/api/totp/disable', { method: 'POST' })).json();
+            if (data.success) {
+                setTotpBadge(false);
+            }
+        });
+
+        /* ── Copy secret on click ── */
+        document.getElementById('secretKey').addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent).then(() => {
+                this.style.color = '#34c759';
+                setTimeout(() => this.style.color = '', 1000);
+            });
+        });
+
+        /* ── Change username ── */
+        document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
+            const msg = document.getElementById('usernameMsg');
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const currentPassword = document.getElementById('usernameConfirmPwd').value;
+            msg.textContent = '';
+            if (!newUsername) { msg.textContent = '请输入新用户名'; msg.className = 'msg msg-err'; return; }
+            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
+
+            try {
+                const res = await fetch('/api/change-username', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    // JSON.stringify handles all special characters in passwords automatically
+                    body: JSON.stringify({ newUsername, currentPassword })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = `✓ 用户名已更改为「${newUsername}」，下次登录请使用新用户名`;
+                    msg.className = 'msg msg-ok';
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('usernameConfirmPwd').value = '';
+                } else {
+                    msg.textContent = data.message || '修改失败';
+                    msg.className = 'msg msg-err';
+                }
+            } catch {
+                msg.textContent = '网络错误，请重试';
+                msg.className = 'msg msg-err';
+            }
+        });
+
+        /* ── Change password ── */
+        document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+            const msg = document.getElementById('passwordMsg');
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            msg.textContent = '';
+
+            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
+            if (!newPassword)     { msg.textContent = '请输入新密码'; msg.className = 'msg msg-err'; return; }
+            if (newPassword !== confirmPassword) { msg.textContent = '两次输入的密码不一致'; msg.className = 'msg msg-err'; return; }
+            if (newPassword === currentPassword) { msg.textContent = '新密码不能与当前密码相同'; msg.className = 'msg msg-err'; return; }
+
+            try {
+                const res = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    // Raw string via JSON — &, #, *, @, \, " etc. all safe
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = '✓ 密码已成功更改';
+                    msg.className = 'msg msg-ok';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    msg.textContent = data.message || '修改失败';
+                    msg.className = 'msg msg-err';
+                }
+            } catch {
+                msg.textContent = '网络错误，请重试';
+                msg.className = 'msg msg-err';
+            }
+        });
+
+        /* ── Recovery codes ── */
+        document.getElementById('genRcBtn').addEventListener('click', async () => {
+            const hasExisting = document.getElementById('rcBadge').textContent.includes('剩余');
+            if (hasExisting) {
+                if (!confirm('生成新恢复码将使旧恢复码全部失效，确定继续吗？')) return;
+            }
+            const res  = await fetch('/api/recovery-codes/generate', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) return;
+
+            // Display codes
+            const listEl = document.getElementById('rcList');
+            listEl.innerHTML = data.codes.map(c => `<div>${c}</div>`).join('');
+            document.getElementById('rcPanel').style.display = 'block';
+            document.getElementById('rcMsg').textContent = '';
+            updateRcCard(true, data.codes.length);
+        });
+
+        document.getElementById('copyRcBtn').addEventListener('click', () => {
+            const codes = [...document.querySelectorAll('#rcList div')].map(d => d.textContent).join('\n');
+            navigator.clipboard.writeText(codes).then(() => {
+                const msg = document.getElementById('rcMsg');
+                msg.textContent = '✓ 已复制到剪贴板';
+                msg.className = 'msg msg-ok';
+            });
+        });
+
+        /* ── Logout ── */
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await fetch('/api/logout', { method: 'POST' });
             window.location.href = '/';
         });
+
     </script>
 </body>
 </html>

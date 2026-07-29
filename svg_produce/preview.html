@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #333; /* Dark background */
+            /* Checkered pattern to clearly show transparency */
+            background-image: 
+                linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444), 
+                linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+        .container {
+            border: 2px dashed #888;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        img {
+            max-width: 500px;
+            max-height: 500px;
+        }
+        p {
+            color: #ddd;
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container">
+            <!-- Loading the generated SVG -->
+            <img src="vector_output.svg" alt="Your Vector SVG">
+        </div>
+        <p>如果你能清晰地看到白色的主体，并且深色网格背景能透过线条和周围透出来，<br>说明透明（镂空）效果非常完美！</p>
+    </div>
+</body>
+</html>
