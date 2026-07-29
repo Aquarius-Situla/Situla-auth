@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment variables (never commit secrets)
+.env
+
+# SQLite database (generated at runtime)
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# Temp
+*.tar.gz
+*.zip

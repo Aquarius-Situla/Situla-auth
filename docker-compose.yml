@@ -1,0 +1,13 @@
+services:
+  situla-auth:
+    build: .
+    container_name: situla-auth
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - npm_default
+
+networks:
+  npm_default:
+    external: true

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="login-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二步验证</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ===== TOTP 6-box input ===== */
+        .totp-boxes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .totp-digit {
+            width: 46px;
+            height: 52px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 10px;
+            background: #ffffff;
+            font-size: 24px;
+            font-weight: 500;
+            color: #1d1d1f;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            caret-color: #0071e3;
+            /* Remove spinners */
+            -moz-appearance: textfield;
+        }
+        .totp-digit::-webkit-outer-spin-button,
+        .totp-digit::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+        .totp-digit:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.18);
+        }
+        .totp-digit.filled {
+            border-color: #0071e3;
+            background: #f0f6ff;
+        }
+
+        @media (max-width: 400px) {
+            .totp-digit {
+                width: 40px;
+                height: 46px;
+                font-size: 20px;
+                border-radius: 8px;
+            }
+            .totp-boxes {
+                gap: 7px;
+            }
+        }
+    </style>
+</head>
+<body class="login-page">
+
+    <!-- Top gray bar with nav -->
+    <div class="gray-top-bar">
+        <div class="nav-content">
+            <!-- Apple-style thin shield icon -->
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(0,0,0,0.75)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L4 5.5V11c0 4.8 3.4 9.3 8 10.4C17.6 20.3 21 15.8 21 11V5.5L12 2z"/>
+            </svg>
+            <span class="nav-title">二步验证</span>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="apple-container">
+            <div class="logo-container">
+                <!-- Apple-style thin shield icon (large) -->
+                <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="#1d1d1f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:14px;">
+                    <path d="M12 2L4 5.5V11c0 4.8 3.4 9.3 8 10.4C17.6 20.3 21 15.8 21 11V5.5L12 2z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                </svg>
+                <h1>二步验证</h1>
+                <p>请输入 Authenticator 中的 6 位验证码</p>
+            </div>
+
+            <form id="totpForm">
+                <!-- 6 individual digit boxes -->
+                <div class="totp-boxes" id="totpBoxes">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d0">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d1">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d2">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d3">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d4">
+                    <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" id="d5">
+                </div>
+
+                <div id="errorMessage" class="error-message" style="text-align:center; margin-top:14px;"></div>
+
+                <div class="button-row totp-buttons" style="margin-top:20px;">
+                    <button type="button" class="login-btn back-btn" id="backBtn">返回</button>
+                    <button type="submit" class="login-btn btn-primary" id="verifyBtn">验证</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom gray bar -->
+    <div class="gray-bottom-bar"></div>
+
+    <script>
+        const storedUser = sessionStorage.getItem('username');
+        const storedPass = sessionStorage.getItem('password');
+
+        if (!storedUser || !storedPass) {
+            window.location.href = '/';
+        }
+
+        const digits = Array.from(document.querySelectorAll('.totp-digit'));
+        const errMsg = document.getElementById('errorMessage');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const form = document.getElementById('totpForm');
+
+        // Focus first box
+        digits[0].focus();
+
+        // Update filled styling
+        function updateFilled() {
+            digits.forEach(d => {
+                d.classList.toggle('filled', d.value !== '');
+            });
+            const allFilled = digits.every(d => d.value !== '');
+            verifyBtn.classList.toggle('active', allFilled);
+        }
+
+        // Handle digit input
+        digits.forEach((input, i) => {
+            input.addEventListener('input', (e) => {
+                // Allow only digits
+                input.value = input.value.replace(/\D/g, '').slice(-1);
+                updateFilled();
+
+                if (input.value && i < digits.length - 1) {
+                    digits[i + 1].focus();
+                }
+
+                // Auto-submit when all 6 filled
+                const code = digits.map(d => d.value).join('');
+                if (code.length === 6) {
+                    setTimeout(() => form.requestSubmit(), 120);
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace') {
+                    if (input.value) {
+                        input.value = '';
+                        updateFilled();
+                    } else if (i > 0) {
+                        digits[i - 1].focus();
+                        digits[i - 1].value = '';
+                        updateFilled();
+                    }
+                } else if (e.key === 'ArrowLeft' && i > 0) {
+                    digits[i - 1].focus();
+                } else if (e.key === 'ArrowRight' && i < digits.length - 1) {
+                    digits[i + 1].focus();
+                }
+            });
+
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData)
+                    .getData('text')
+                    .replace(/\D/g, '')
+                    .slice(0, 6);
+                pasted.split('').forEach((ch, j) => {
+                    if (digits[j]) digits[j].value = ch;
+                });
+                updateFilled();
+                const next = Math.min(pasted.length, digits.length - 1);
+                digits[next].focus();
+
+                if (pasted.length === 6) {
+                    setTimeout(() => form.requestSubmit(), 120);
+                }
+            });
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('password');
+            window.location.href = '/';
+        });
+
+        // Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const totp = digits.map(d => d.value).join('');
+            if (totp.length < 6) return;
+
+            errMsg.textContent = '';
+            verifyBtn.textContent = '验证中...';
+            verifyBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: storedUser, password: storedPass, totp })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    sessionStorage.removeItem('username');
+                    sessionStorage.removeItem('password');
+                    const rd = new URLSearchParams(window.location.search).get('rd');
+                    window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
+                } else {
+                    errMsg.textContent = data.message || '验证码错误，请重试';
+                    digits.forEach(d => { d.value = ''; d.classList.remove('filled'); });
+                    verifyBtn.textContent = '验证';
+                    verifyBtn.disabled = false;
+                    digits[0].focus();
+                }
+            } catch (err) {
+                errMsg.textContent = '网络错误，请稍后重试';
+                verifyBtn.textContent = '验证';
+                verifyBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

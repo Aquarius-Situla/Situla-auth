@@ -1,0 +1,293 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===== Full-screen layout: 3-part flex column ===== */
+html, body {
+    height: 100%;
+    /* Use dvh so mobile address bar doesn't cause overflow */
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background-color: #ffffff;
+    color: #1d1d1f;
+}
+
+body.login-page {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top gray bar */
+.gray-top-bar {
+    flex: 0 0 auto;
+    width: 100%;
+    background-color: #f5f5f7;
+    border-bottom: 1px solid #d2d2d7;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav-content {
+    width: 100%;
+    max-width: 980px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav-title {
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #1d1d1f;
+}
+
+/* Main scrollable area */
+.main-content {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bottom gray bar */
+.gray-bottom-bar {
+    flex: 0 0 auto;
+    width: 100%;
+    background-color: #f5f5f7;
+    border-top: 1px solid #d2d2d7;
+    min-height: 48px;
+}
+
+/* ===== Main Container ===== */
+.apple-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.logo-container {
+    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: #1d1d1f;
+    margin-bottom: 8px;
+}
+
+p {
+    font-size: 17px;
+    color: #6e6e73;
+    font-weight: 400;
+    letter-spacing: -0.011em;
+}
+
+/* ===== Form ===== */
+form {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.input-group {
+    margin-bottom: 0;
+}
+
+/* ===== Unified input card ===== */
+.input-card {
+    border: 1px solid #d2d2d7;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.input-card.focused {
+    border-color: #0071e3;
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.18);
+}
+
+input {
+    width: 100%;
+    padding: 16px 14px;
+    border: none;           /* border handled by .input-card */
+    border-radius: 0;
+    background: #ffffff;
+    font-size: 17px;
+    color: #1d1d1f;
+    outline: none;
+    display: block;
+}
+
+input:focus {
+    outline: none;          /* focus ring shown on .input-card instead */
+}
+
+/* Username top-input: no extra rounding needed (card handles it) */
+.top-input {
+    /* no additional styles needed */
+}
+
+/* ===== Divider between username and password ===== */
+.input-divider-wrap {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease;
+}
+.input-divider-wrap.show {
+    max-height: 2px;
+}
+.input-divider {
+    height: 1px;
+    background: #d2d2d7;
+    width: 100%;
+}
+
+/* ===== Password reveal animation ===== */
+.reveal-group {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+        max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.30s ease 0.05s,
+        transform 0.30s ease 0.05s;
+}
+.reveal-group.show {
+    max-height: 80px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== Error message ===== */
+.error-message {
+    color: #ff3b30;
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 18px;
+    text-align: left;
+    padding-left: 2px;
+}
+.error-message:empty {
+    display: none;
+}
+
+/* ===== Button Row ===== */
+.button-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+    width: 100%;
+    align-items: center;
+}
+
+.or-divider {
+    color: #86868b;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.login-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: background 0.18s, opacity 0.18s;
+}
+
+/* Primary button: dim until user types, then solid blue */
+.btn-primary {
+    background: #c8dcf5;
+    color: #ffffff;
+}
+.btn-primary.active {
+    background: #0071e3;
+}
+.btn-primary.active:hover {
+    background: #0077ed;
+}
+.btn-primary.active:active {
+    background: #006ad6;
+}
+
+/* Passkey button */
+.passkey-btn {
+    background: #1d1d1f;
+    color: #ffffff;
+}
+.passkey-btn:hover {
+    background: #333;
+}
+.passkey-btn:active {
+    background: #000;
+}
+
+/* Back button (TOTP page) */
+.back-btn {
+    background: #e5e5ea;
+    color: #1d1d1f;
+}
+.back-btn:hover {
+    background: #d1d1d6;
+}
+.back-btn:active {
+    background: #c7c7cc;
+}
+
+/* ===== Mobile responsive ===== */
+@media (max-width: 500px) {
+    .button-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .or-divider {
+        display: flex;
+    }
+    .login-btn {
+        width: 100%;
+        flex: none;
+    }
+    .apple-container {
+        padding: 24px 16px;
+    }
+    h1 {
+        font-size: 24px;
+    }
+    p {
+        font-size: 15px;
+    }
+    input {
+        font-size: 16px;
+        padding: 14px 12px;
+    }
+}
+
+/* Desktop: hide or-divider, side by side buttons */
+@media (min-width: 501px) {
+    .or-divider {
+        display: none;
+    }
+}
