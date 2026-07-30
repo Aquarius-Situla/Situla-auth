@@ -360,7 +360,7 @@ input:focus {
     /* Primary button */
     .btn-primary {
         background: #2c2c2e;   /* dim state */
-        color: #ffffff;
+        color: #636366;
     }
     .btn-primary.active {
         background: #0a84ff;   /* Apple dark-mode blue */
