@@ -104,6 +104,20 @@ location @error401 {
 auth_request /_auth;
 ```
 
+### SSO (Single Sign-On) with HTTP Auth
+Situla Auth passes the authenticated username in the `X-Remote-User` header. If you are protecting a service that supports HTTP Authentication (like **FreshRSS**), you can forward this header to the backend to achieve true Single Sign-On without needing to log in twice.
+
+In your Nginx Proxy Manager **Custom Location** (or Advanced tab) where you enforce `auth_request`, add the header forwarding rules:
+
+```nginx
+auth_request /_auth;
+# Extract the header from Situla Auth's /verify response
+auth_request_set $auth_user $upstream_http_x_remote_user;
+# Forward it to your backend service (e.g. FreshRSS)
+proxy_set_header Remote-User $auth_user;
+proxy_set_header X-Remote-User $auth_user;
+```
+
 > [!IMPORTANT]
 > Both `situla-auth` and your NPM container must be on the same Docker network (e.g., `npm_default`) to resolve internal hostnames like `http://situla-auth:3000`.
 

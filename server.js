@@ -99,7 +99,12 @@ app.get('/verify', (req, res) => {
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).send('Unauthorized');
     try {
-        jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        // Inject SSO headers for reverse proxies (like FreshRSS HTTP_AUTH)
+        if (decoded && decoded.user) {
+            res.setHeader('X-Remote-User', decoded.user);
+            res.setHeader('Remote-User', decoded.user);
+        }
         res.status(200).send('OK');
     } catch (err) {
         res.status(401).send('Unauthorized');
