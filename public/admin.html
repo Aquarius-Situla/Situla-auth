@@ -364,6 +364,20 @@
                 <div class="btn-row" style="margin-top:12px;">
                     <button class="btn-outline" id="regPasskeyBtn">＋ 添加通行密钥</button>
                 </div>
+
+                <!-- Inline naming panel (shown instead of prompt) -->
+                <div id="passkeyNamePanel" style="display:none; margin-top:14px;">
+                    <div class="form-fields" style="margin-bottom:10px;">
+                        <input type="text" class="field-input" id="passkeyNameInput"
+                               placeholder="给这把通行密钥起个名字（可留空）"
+                               autocomplete="off" maxlength="64">
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-solid" id="confirmAddPasskeyBtn">确认并注册</button>
+                        <button class="btn-outline" id="cancelAddPasskeyBtn">取消</button>
+                    </div>
+                </div>
+
                 <div class="msg" id="passkeyMsg"></div>
             </div>
 
@@ -575,11 +589,28 @@
         }
 
         /* ── Passkey registration ── */
-        document.getElementById('regPasskeyBtn').addEventListener('click', async () => {
+        // Step 1: Show the inline naming panel (avoids focus-stealing prompt())
+        document.getElementById('regPasskeyBtn').addEventListener('click', () => {
+            document.getElementById('passkeyNameInput').value = '';
+            document.getElementById('passkeyMsg').textContent = '';
+            document.getElementById('passkeyMsg').className = 'msg';
+            document.getElementById('passkeyNamePanel').style.display = 'block';
+            document.getElementById('regPasskeyBtn').style.display = 'none';
+            document.getElementById('passkeyNameInput').focus();
+        });
+
+        document.getElementById('cancelAddPasskeyBtn').addEventListener('click', () => {
+            document.getElementById('passkeyNamePanel').style.display = 'none';
+            document.getElementById('regPasskeyBtn').style.display = '';
+        });
+
+        // Step 2: User clicks confirm — document is still focused, WebAuthn works fine
+        document.getElementById('confirmAddPasskeyBtn').addEventListener('click', async () => {
             const msg = document.getElementById('passkeyMsg');
-            const nameInput = prompt('给这把通行密钥起个名字（可留空）：', '');
-            if (nameInput === null) return; // cancelled
-            const passkeyName = nameInput.trim() || '通行密钥';
+            const passkeyName = document.getElementById('passkeyNameInput').value.trim() || '通行密钥';
+
+            document.getElementById('passkeyNamePanel').style.display = 'none';
+            document.getElementById('regPasskeyBtn').style.display = '';
 
             msg.textContent = '准备中…';
             msg.className = 'msg';
@@ -605,6 +636,11 @@
                 msg.textContent = '错误：' + (e.message || '操作取消');
                 msg.className = 'msg msg-err';
             }
+        });
+
+        // Allow pressing Enter in the name input to confirm
+        document.getElementById('passkeyNameInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('confirmAddPasskeyBtn').click();
         });
 
         /* ── 2FA setup ── */
