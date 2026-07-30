@@ -1,9 +1,9 @@
 # 🔐 Situla Auth 2.0
 
-![License](https://img.shields.io/badge/License-AGPL%203.0-blue?style=flat&logo=open-source-initiative)
-![Node.js](https://img.shields.io/badge/Powered_by-Node.js-339933?style=flat&logo=node.js)
-![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker)
-![Nginx Proxy Manager](https://img.shields.io/badge/NPM-Forward_Auth-009639?style=flat&logo=nginx)
+[![License](https://img.shields.io/badge/License-AGPL%203.0-blue?style=flat&logo=open-source-initiative)](https://github.com/Aquarius-Situla/Situla-auth/blob/main/LICENSE)
+[![Node.js](https://img.shields.io/badge/Powered_by-Node.js-339933?style=flat&logo=node.js)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+[![Nginx Proxy Manager](https://img.shields.io/badge/NPM-Forward_Auth-009639?style=flat&logo=nginx)](https://nginxproxymanager.com/)
 
 A lightweight, Apple-style authentication portal supporting Passkeys (WebAuthn), TOTP (2FA), and standard password login. Designed to be deployed with Nginx Proxy Manager as a Forward Auth provider.
 
