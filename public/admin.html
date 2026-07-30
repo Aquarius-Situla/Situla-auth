@@ -198,6 +198,12 @@
             outline: none;
             transition: background 0.15s;
         }
+        
+        .form-panel {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
         .field-input:last-child { border-bottom: none; }
         .field-input:focus { background: #f5f8ff; }
         .field-input::placeholder { color: #86868b; }
@@ -301,6 +307,7 @@
             .setup-panel { border-top-color: #2c2c2e; }
             .code-input { background: #1c1c1e; border-color: #3a3a3c; color: #ffffff; }
             .code-input:focus { border-color: #0a84ff; box-shadow: 0 0 0 3px rgba(10,132,255,0.22); }
+            .form-panel { border-top-color: #2c2c2e; }
             .btn-outline { border-color: #0a84ff; color: #0a84ff; }
             .btn-outline:hover { background: #0a84ff; color: #fff; }
             .btn-solid { background: #0a84ff; }
@@ -335,31 +342,49 @@
         <div class="settings-group">
             <!-- Change username -->
             <div class="section">
-                <h3>修改用户名</h3>
-                <p class="desc">更改后需使用新用户名登录。</p>
-                <div class="form-fields">
-                    <input type="text" class="field-input" id="newUsername" placeholder="新用户名" autocomplete="off">
-                    <input type="password" class="field-input" id="usernameConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                <div class="section-header" style="margin-bottom:0;">
+                    <div>
+                        <h3>修改用户名</h3>
+                        <p class="desc" style="margin-bottom:0;">更改后需使用新用户名登录。</p>
+                    </div>
+                    <button class="btn-outline" id="showUsernameFormBtn">更改...</button>
                 </div>
-                <div class="btn-row" style="margin-top:12px;">
-                    <button class="btn-solid" id="changeUsernameBtn">保存用户名</button>
+                
+                <div id="usernameFormPanel" class="form-panel" style="display:none;">
+                    <div class="form-fields">
+                        <input type="text" class="field-input" id="newUsername" placeholder="新用户名" autocomplete="off">
+                        <input type="password" class="field-input" id="usernameConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                    </div>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button class="btn-solid" id="changeUsernameBtn">保存用户名</button>
+                        <button class="btn-outline" id="cancelUsernameBtn">取消</button>
+                    </div>
+                    <div class="msg" id="usernameMsg"></div>
                 </div>
-                <div class="msg" id="usernameMsg"></div>
             </div>
 
             <!-- Change password -->
             <div class="section">
-                <h3>修改密码</h3>
-                <p class="desc">支持任意特殊字符，包括 &amp; # @ * 等。</p>
-                <div class="form-fields">
-                    <input type="password" class="field-input" id="currentPassword" placeholder="当前密码" autocomplete="current-password">
-                    <input type="password" class="field-input" id="newPassword" placeholder="新密码" autocomplete="new-password">
-                    <input type="password" class="field-input" id="confirmPassword" placeholder="再次输入新密码" autocomplete="new-password">
+                <div class="section-header" style="margin-bottom:0;">
+                    <div>
+                        <h3>修改密码</h3>
+                        <p class="desc" style="margin-bottom:0;">支持任意特殊字符，包括 &amp; # @ * 等。</p>
+                    </div>
+                    <button class="btn-outline" id="showPasswordFormBtn">更改...</button>
                 </div>
-                <div class="btn-row" style="margin-top:12px;">
-                    <button class="btn-solid" id="changePasswordBtn">保存密码</button>
+                
+                <div id="passwordFormPanel" class="form-panel" style="display:none;">
+                    <div class="form-fields">
+                        <input type="password" class="field-input" id="currentPassword" placeholder="当前密码" autocomplete="current-password">
+                        <input type="password" class="field-input" id="newPassword" placeholder="新密码" autocomplete="new-password">
+                        <input type="password" class="field-input" id="confirmPassword" placeholder="再次输入新密码" autocomplete="new-password">
+                    </div>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button class="btn-solid" id="changePasswordBtn">保存密码</button>
+                        <button class="btn-outline" id="cancelPasswordBtn">取消</button>
+                    </div>
+                    <div class="msg" id="passwordMsg"></div>
                 </div>
-                <div class="msg" id="passwordMsg"></div>
             </div>
         </div>
 
@@ -735,6 +760,19 @@
         });
 
         /* ── Change username ── */
+        document.getElementById('showUsernameFormBtn').addEventListener('click', () => {
+            document.getElementById('usernameFormPanel').style.display = 'block';
+            document.getElementById('showUsernameFormBtn').style.display = 'none';
+        });
+
+        document.getElementById('cancelUsernameBtn').addEventListener('click', () => {
+            document.getElementById('usernameFormPanel').style.display = 'none';
+            document.getElementById('showUsernameFormBtn').style.display = '';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('usernameConfirmPwd').value = '';
+            document.getElementById('usernameMsg').textContent = '';
+        });
+
         document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
             const msg = document.getElementById('usernameMsg');
             const newUsername = document.getElementById('newUsername').value.trim();
@@ -767,6 +805,20 @@
         });
 
         /* ── Change password ── */
+        document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
+            document.getElementById('passwordFormPanel').style.display = 'block';
+            document.getElementById('showPasswordFormBtn').style.display = 'none';
+        });
+
+        document.getElementById('cancelPasswordBtn').addEventListener('click', () => {
+            document.getElementById('passwordFormPanel').style.display = 'none';
+            document.getElementById('showPasswordFormBtn').style.display = '';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordMsg').textContent = '';
+        });
+
         document.getElementById('changePasswordBtn').addEventListener('click', async () => {
             const msg = document.getElementById('passwordMsg');
             const currentPassword = document.getElementById('currentPassword').value;
