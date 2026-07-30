@@ -1,6 +1,6 @@
 # 🔐 Situla Auth 2.0
 
-![Private Repository](https://img.shields.io/badge/Status-Private-red?style=flat&logo=github)
+![License](https://img.shields.io/badge/License-AGPL%203.0-blue?style=flat&logo=open-source-initiative)
 ![Node.js](https://img.shields.io/badge/Powered_by-Node.js-339933?style=flat&logo=node.js)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker)
 ![Nginx Proxy Manager](https://img.shields.io/badge/NPM-Forward_Auth-009639?style=flat&logo=nginx)
@@ -94,3 +94,9 @@ docker compose up -d --build
 ### 💾 Data Persistence
 
 The SQLite database is stored at `./data/database.sqlite` on the host and mounted into the container as a volume. It survives image rebuilds automatically.
+
+---
+
+## 📄 License
+
+This project is open-sourced under the **AGPL-3.0 License**.
