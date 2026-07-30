@@ -53,8 +53,8 @@ docker compose up -d --build
 | `ADMIN_USER`    | Default login username                                   | `admin`                    |
 | `ADMIN_PASS`    | Default login password                                   | `mysecretpassword`         |
 | `JWT_SECRET`    | Cookie signing secret. **Auto-generated** if left blank. | *(leave blank)*            |
-| `COOKIE_DOMAIN` | Domain scope for the session cookie                      | `.aquarius2009.me`         |
-| `RP_ID`         | WebAuthn Relying Party ID (your auth page hostname)      | `auth.aquarius2009.me`     |
+| `COOKIE_DOMAIN` | Domain scope for the session cookie                      | `.example.com`             |
+| `RP_ID`         | WebAuthn Relying Party ID (your auth page hostname)      | `auth.example.com`         |
 | `PORT`          | Internal port (default: `3000`)                          | `3000`                     |
 
 > [!NOTE]

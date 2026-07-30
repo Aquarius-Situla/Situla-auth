@@ -40,11 +40,11 @@ if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET === DEFAULT_LEGACY) 
 }
 const ADMIN_USER = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || '').replace(/^['\"]|['\"]$/g, '');
-const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.aquarius2009.me';
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.example.com';
 const COOKIE_NAME = 'situla_session';
-const RP_ID = process.env.RP_ID || 'auth.aquarius2009.me';
+const RP_ID = process.env.RP_ID || 'auth.example.com';
 const RP_NAME = 'Situla Auth';
-/* In Nginx reverse proxy, the client origin is usually https://auth.aquarius2009.me */
+/* In Nginx reverse proxy, the client origin is usually https://auth.example.com */
 const ORIGIN = `https://${RP_ID}`;
 
 function hashPassword(pass) {
