@@ -137,7 +137,7 @@ app.get('/api/webauthn/login-options', (req, res) => {
             const options = await generateAuthenticationOptions({
                 rpID: RP_ID,
                 allowCredentials: keys.map(k => ({
-                    id: Buffer.from(k.credential_id, 'base64url'),
+                    id: k.credential_id,
                     type: 'public-key'
                 })),
                 userVerification: 'preferred'
@@ -150,10 +150,15 @@ app.get('/api/webauthn/login-options', (req, res) => {
 
 /* Passkey Verify */
 app.post('/api/webauthn/login-verify', async (req, res) => {
+    console.log('[Login Verify] req.body.id:', req.body.id);
     db.get('SELECT * FROM users WHERE username = ?', [ADMIN_USER], (err, user) => {
         db.all('SELECT * FROM passkeys WHERE user_id = ?', [user.id], async (err, keys) => {
+            console.log('[Login Verify] DB keys:', keys.map(k => k.credential_id));
             const passkey = keys.find(k => k.credential_id === req.body.id);
-            if (!passkey) return res.status(400).json({ error: 'Key not found' });
+            if (!passkey) {
+                console.error('[Login Verify] Key not found!');
+                return res.status(400).json({ error: 'Key not found' });
+            }
             
             try {
                 const verification = await verifyAuthenticationResponse({
