@@ -51,12 +51,10 @@ function hashPassword(pass) {
     return crypto.createHash('sha256').update(pass).digest('hex');
 }
 
-db.get('SELECT * FROM users WHERE username = ?', [ADMIN_USER], (err, row) => {
+db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', (err, row) => {
     if (err) { console.error(err); return; }
     if (!row) {
         db.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USER, hashPassword(ADMIN_PASS_RAW)]);
-    } else {
-        db.run('UPDATE users SET password = ? WHERE username = ?', [hashPassword(ADMIN_PASS_RAW), ADMIN_USER]);
     }
 });
 
@@ -131,7 +129,7 @@ const userChallenges = {};
 
 /* Passkey Login Options */
 app.get('/api/webauthn/login-options', (req, res) => {
-    db.get('SELECT * FROM users WHERE username = ?', [ADMIN_USER], async (err, user) => {
+    db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, user) => {
         if (!user) return res.status(400).json({ error: 'User not found' });
         db.all('SELECT * FROM passkeys WHERE user_id = ?', [user.id], async (err, keys) => {
             const options = await generateAuthenticationOptions({
@@ -151,15 +149,15 @@ app.get('/api/webauthn/login-options', (req, res) => {
 /* Passkey Verify */
 app.post('/api/webauthn/login-verify', async (req, res) => {
     console.log('[Login Verify] req.body.id:', req.body.id);
-    db.get('SELECT * FROM users WHERE username = ?', [ADMIN_USER], (err, user) => {
-        db.all('SELECT * FROM passkeys WHERE user_id = ?', [user.id], async (err, keys) => {
-            console.log('[Login Verify] DB keys:', keys.map(k => k.credential_id));
-            const passkey = keys.find(k => k.credential_id === req.body.id);
-            if (!passkey) {
-                console.error('[Login Verify] Key not found!');
-                return res.status(400).json({ error: 'Key not found' });
-            }
-            
+    db.get('SELECT * FROM passkeys WHERE credential_id = ?', [req.body.id], (err, passkey) => {
+        if (!passkey) {
+            console.error('[Login Verify] Key not found!');
+            return res.status(400).json({ error: 'Key not found' });
+        }
+        
+        db.get('SELECT * FROM users WHERE id = ?', [passkey.user_id], async (err, user) => {
+            if (!user) return res.status(400).json({ error: 'User not found' });
+
             try {
                 const verification = await verifyAuthenticationResponse({
                     response: req.body,
