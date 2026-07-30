@@ -175,6 +175,7 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
                     return res.json({ verified: true });
                 }
             } catch (error) {
+                console.error('[WebAuthn Login Error]:', error.message, error);
                 return res.status(400).json({ error: error.message });
             }
         });
@@ -359,6 +360,7 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
             return res.json({ verified: true });
         }
     } catch (error) {
+        console.error('[WebAuthn Register Error]:', error.message, error);
         return res.status(400).json({ error: error.message });
     }
 });
