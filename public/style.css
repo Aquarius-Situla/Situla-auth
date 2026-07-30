@@ -226,8 +226,8 @@ input:focus {
 
 /* Primary button: dim until user types, then solid blue */
 .btn-primary {
-    background: #c8dcf5;
-    color: #ffffff;
+    background: #e5e5ea;
+    color: #86868b;
 }
 .btn-primary.active {
     background: #0071e3;
@@ -359,8 +359,8 @@ input:focus {
 
     /* Primary button */
     .btn-primary {
-        background: #1a3a5c;   /* dim state */
-        color: #5b9bd5;
+        background: #2c2c2e;   /* dim state */
+        color: #636366;
     }
     .btn-primary.active {
         background: #0a84ff;   /* Apple dark-mode blue */

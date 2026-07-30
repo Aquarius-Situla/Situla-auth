@@ -46,6 +46,14 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 4px;
+            gap: 12px;
+        }
+        .section-header > div {
+            flex: 1;
+            min-width: 0;
+        }
+        .section-header .btn-outline {
+            flex-shrink: 0;
         }
         .section h3 { font-size: 17px; color: #1d1d1f; font-weight: 600; margin: 0; }
         .section .desc { font-size: 14px; color: #86868b; line-height: 1.4; margin: 4px 0 16px; }
@@ -347,7 +355,7 @@
                         <h3>修改用户名</h3>
                         <p class="desc" style="margin-bottom:0;">更改后需使用新用户名登录。</p>
                     </div>
-                    <button class="btn-outline" id="showUsernameFormBtn">更改...</button>
+                    <button class="btn-outline" id="showUsernameFormBtn">更改</button>
                 </div>
                 
                 <div id="usernameFormPanel" class="form-panel" style="display:none;">
@@ -370,7 +378,7 @@
                         <h3>修改密码</h3>
                         <p class="desc" style="margin-bottom:0;">支持任意特殊字符，包括 &amp; # @ * 等。</p>
                     </div>
-                    <button class="btn-outline" id="showPasswordFormBtn">更改...</button>
+                    <button class="btn-outline" id="showPasswordFormBtn">更改</button>
                 </div>
                 
                 <div id="passwordFormPanel" class="form-panel" style="display:none;">
