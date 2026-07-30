@@ -78,7 +78,31 @@ docker compose up -d --build
 ## 🛡️ Nginx Proxy Manager Setup
 
 1. Add a new **Proxy Host** for your protected service.
-2. Go to the **Advanced** tab and use the `auth_request` configuration to point to Situla Auth.
+2. Go to the **Advanced** tab (the gear icon) and paste the following configuration:
+
+```nginx
+# 1. Define the internal auth route pointing to Situla Auth
+location /_auth {
+    internal;
+    proxy_pass http://situla-auth:3000/verify;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_set_header X-Original-URI $request_uri;
+}
+
+# 2. Catch 401 Unauthorized errors and redirect to the login page
+error_page 401 = @error401;
+location @error401 {
+    # Replace auth.example.com with your actual Situla Auth domain
+    return 302 https://auth.example.com/?rd=https://$http_host$request_uri;
+}
+```
+
+3. Finally, to enforce the protection, add the following line either directly in the same **Advanced** tab (to protect the entire site) or inside a specific **Custom Location** configuration (via the gear icon in the Custom Locations tab):
+
+```nginx
+auth_request /_auth;
+```
 
 > [!IMPORTANT]
 > Both `situla-auth` and your NPM container must be on the same Docker network (e.g., `npm_default`) to resolve internal hostnames like `http://situla-auth:3000`.
