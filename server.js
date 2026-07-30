@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load .env at startup — enables docker compose restart to pick up changes
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
