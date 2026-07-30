@@ -131,18 +131,13 @@ const userChallenges = {};
 app.get('/api/webauthn/login-options', (req, res) => {
     db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, user) => {
         if (!user) return res.status(400).json({ error: 'User not found' });
-        db.all('SELECT * FROM passkeys WHERE user_id = ?', [user.id], async (err, keys) => {
-            const options = await generateAuthenticationOptions({
-                rpID: RP_ID,
-                allowCredentials: keys.map(k => ({
-                    id: k.credential_id,
-                    type: 'public-key'
-                })),
-                userVerification: 'preferred'
-            });
-            userChallenges[user.id] = options.challenge;
-            res.json(options);
+        
+        const options = await generateAuthenticationOptions({
+            rpID: RP_ID,
+            userVerification: 'preferred'
         });
+        userChallenges[user.id] = options.challenge;
+        res.json(options);
     });
 });
 
