@@ -222,6 +222,9 @@ input:focus {
     justify-content: center;
     white-space: nowrap;
     transition: background 0.18s, opacity 0.18s;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.2;
 }
 
 /* Primary button: dim until user types, then solid blue */
