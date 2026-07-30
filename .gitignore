@@ -4,15 +4,19 @@ node_modules/
 # Environment variables (never commit secrets)
 .env
 
-# SQLite database (generated at runtime)
-*.sqlite
-*.sqlite3
-*.db
+# Runtime data — SQLite DB and auto-generated files
+data/
 
 # Logs
 logs/
 *.log
 
-# Temp
+# Build / temp artifacts
 *.tar.gz
 *.zip
+*.sqlite
+*.sqlite3
+*.db
+
+# Tools used during development (not part of the app)
+svg_produce/

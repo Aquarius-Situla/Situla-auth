@@ -37,20 +37,27 @@ fi
 echo -e "${YELLOW}[3/5] Setting up environment variables...${NC}"
 if [ ! -f ".env" ]; then
     cp .env.example .env
-    echo -e "${RED}"
-    echo "  ┌──────────────────────────────────────────────────┐"
-    echo "  │  IMPORTANT: Please edit .env before continuing!  │"
-    echo "  │  Fill in: ADMIN_USER, ADMIN_PASS, JWT_SECRET,    │"
-    echo "  │           COOKIE_DOMAIN, RP_ID                   │"
-    echo "  └──────────────────────────────────────────────────┘"
+    echo -e "${YELLOW}"
+    echo "  ┌─────────────────────────────────────────────────────┐"
+    echo "  │  Please fill in the following fields in .env:       │"
+    echo "  │    ADMIN_USER   — your login username               │"
+    echo "  │    ADMIN_PASS   — your login password               │"
+    echo "  │    COOKIE_DOMAIN — e.g. .yourdomain.com            │"
+    echo "  │    RP_ID        — e.g. auth.yourdomain.com         │"
+    echo "  │                                                     │"
+    echo "  │  JWT_SECRET will be auto-generated on first start.  │"
+    echo "  └─────────────────────────────────────────────────────┘"
     echo -e "${NC}"
-    read -r -p "  Press ENTER to open nano, or Ctrl+C to exit and edit manually: "
+    read -r -p "  Press ENTER to open nano, or Ctrl+C to edit manually: "
     nano .env
 else
     echo -e "${GREEN}.env already exists, skipping.${NC}"
 fi
 
-# ── 4. Build and start containers ────────────────────────────
+# ── 4. Create data directory (persists SQLite DB) ────────────
+mkdir -p data
+
+# ── 5. Build and start containers ────────────────────────────
 echo -e "${YELLOW}[4/5] Building and starting containers...${NC}"
 docker compose up -d --build
 
@@ -63,7 +70,10 @@ echo ""
 echo -e "${GREEN}✅ Deploy complete!${NC}"
 echo ""
 echo "  Next steps:"
-echo "  - Point your reverse proxy (e.g. Nginx Proxy Manager) to port 3000"
-echo "    of the situla-auth container"
-echo "  - Set Forward Auth URL to: http://situla-auth:3000/verify"
+echo "  1. In Nginx Proxy Manager, add a proxy host:"
+echo "     - Forward Hostname: situla-auth"
+echo "     - Forward Port:     3000"
+echo "     - Forward Scheme:   http"
+echo "  2. Set Forward Auth URL to: http://situla-auth:3000/verify"
+echo "  3. To apply .env changes later, run: docker compose restart"
 echo ""
