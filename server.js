@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
@@ -14,7 +15,28 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 
-const JWT_SECRET = process.env.JWT_SECRET || 'situla_default_secret_please_change';
+/* ── Auto-generate JWT_SECRET if missing or still at placeholder ── */
+const PLACEHOLDER = 'change_this_to_a_long_random_secret';
+const DEFAULT_LEGACY = 'situla_default_secret_please_change';
+let JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET === DEFAULT_LEGACY) {
+    JWT_SECRET = crypto.randomBytes(32).toString('hex');
+    console.log('[startup] JWT_SECRET not set — generated a new random secret.');
+    // Persist to .env so the secret survives container restarts
+    const envPath = path.join(__dirname, '.env');
+    try {
+        let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+        if (/^JWT_SECRET=.*/m.test(envContent)) {
+            envContent = envContent.replace(/^JWT_SECRET=.*/m, `JWT_SECRET=${JWT_SECRET}`);
+        } else {
+            envContent += `\nJWT_SECRET=${JWT_SECRET}\n`;
+        }
+        fs.writeFileSync(envPath, envContent, 'utf8');
+        console.log('[startup] JWT_SECRET written to .env for persistence.');
+    } catch (e) {
+        console.warn('[startup] Could not write JWT_SECRET to .env:', e.message);
+    }
+}
 const ADMIN_USER = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || '').replace(/^['\"]|['\"]$/g, '');
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.aquarius2009.me';
