@@ -53,6 +53,7 @@ db.serialize(() => {
     )`);
 
     // Migrations: add columns if they don't exist yet (errors are safely ignored)
+    db.run(`ALTER TABLE users ADD COLUMN email TEXT DEFAULT ''`, () => {});
     db.run(`ALTER TABLE passkeys ADD COLUMN name TEXT DEFAULT '通行密钥'`, () => {});
     db.run(`ALTER TABLE passkeys ADD COLUMN created_at TEXT DEFAULT ''`, () => {});
 

@@ -397,6 +397,29 @@
                 </div>
             </div>
 
+            <!-- Change email -->
+            <div class="section">
+                <div class="section-header" style="margin-bottom:0;">
+                    <div>
+                        <h3>绑定邮箱</h3>
+                        <p class="desc" style="margin-bottom:0;">用于单点登录 (SSO) 时识别身份。</p>
+                    </div>
+                    <button class="btn-outline" id="showEmailFormBtn">更改</button>
+                </div>
+                
+                <div id="emailFormPanel" class="form-panel" style="display:none;">
+                    <div class="form-fields">
+                        <input type="email" class="field-input" id="newEmail" placeholder="你的邮箱地址" autocomplete="email">
+                        <input type="password" class="field-input" id="emailConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                    </div>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button class="btn-solid" id="changeEmailBtn">保存邮箱</button>
+                        <button class="btn-outline" id="cancelEmailBtn">取消</button>
+                    </div>
+                    <div class="msg" id="emailMsg"></div>
+                </div>
+            </div>
+
             <!-- Change password -->
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
@@ -620,6 +643,10 @@
                 const res = await fetch('/api/status');
                 if (!res.ok) throw new Error();
                 const data = await res.json();
+                
+                if (data.email) {
+                    document.getElementById('newEmail').value = data.email;
+                }
                 setTotpBadge(data.hasTOTP);
                 renderPasskeys(data.passkeys);
                 // Show recovery code card only when 2FA is enabled
@@ -830,6 +857,57 @@
                     msg.className = 'msg msg-ok';
                     document.getElementById('newUsername').value = '';
                     document.getElementById('usernameConfirmPwd').value = '';
+                } else {
+                    msg.textContent = data.message || '修改失败';
+                    msg.className = 'msg msg-err';
+                }
+            } catch {
+                msg.textContent = '网络错误，请重试';
+                msg.className = 'msg msg-err';
+            }
+        });
+
+        /* ── Change email ── */
+        document.getElementById('showEmailFormBtn').addEventListener('click', () => {
+            document.getElementById('emailFormPanel').style.display = 'block';
+            document.getElementById('showEmailFormBtn').style.display = 'none';
+        });
+
+        document.getElementById('cancelEmailBtn').addEventListener('click', () => {
+            document.getElementById('emailFormPanel').style.display = 'none';
+            document.getElementById('showEmailFormBtn').style.display = '';
+            document.getElementById('emailConfirmPwd').value = '';
+            document.getElementById('emailMsg').textContent = '';
+        });
+
+        document.getElementById('changeEmailBtn').addEventListener('click', async () => {
+            const msg = document.getElementById('emailMsg');
+            const newEmail = document.getElementById('newEmail').value.trim();
+            const currentPassword = document.getElementById('emailConfirmPwd').value;
+            msg.textContent = '';
+            if (!newEmail) { msg.textContent = '请输入邮箱'; msg.className = 'msg msg-err'; return; }
+            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
+
+            // Basic regex format validation
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                msg.textContent = '邮箱格式不正确'; 
+                msg.className = 'msg msg-err'; 
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/change-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ newEmail, currentPassword })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = `✓ 邮箱已更新，请重新登录！`;
+                    msg.className = 'msg msg-ok';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 } else {
                     msg.textContent = data.message || '修改失败';
                     msg.className = 'msg msg-err';

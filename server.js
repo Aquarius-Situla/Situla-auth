@@ -87,8 +87,8 @@ function authenticateJWT(req, res, next) {
     }
 }
 
-function setAuthCookie(res, userId, username) {
-    const token = jwt.sign({ id: userId, user: username }, JWT_SECRET, { expiresIn: '7d' });
+function setAuthCookie(res, user) {
+    const token = jwt.sign({ id: user.id, user: user.username, email: user.email || '' }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true, secure: true, domain: COOKIE_DOMAIN, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'Lax'
     });
@@ -104,6 +104,10 @@ app.get('/verify', (req, res) => {
         if (decoded && decoded.user) {
             res.setHeader('X-Remote-User', decoded.user);
             res.setHeader('Remote-User', decoded.user);
+        }
+        if (decoded && decoded.email) {
+            res.setHeader('X-Remote-Email', decoded.email);
+            res.setHeader('Remote-Email', decoded.email);
         }
         res.status(200).send('OK');
     } catch (err) {
@@ -123,7 +127,7 @@ app.post('/api/login', (req, res) => {
 
             // First try TOTP
             if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
-                setAuthCookie(res, user.id, user.username);
+                setAuthCookie(res, user);
                 return res.json({ success: true });
             }
 
@@ -137,13 +141,13 @@ app.post('/api/login', (req, res) => {
                     if (!rc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
                     // Mark as used
                     db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [rc.id]);
-                    setAuthCookie(res, user.id, user.username);
+                    setAuthCookie(res, user);
                     res.json({ success: true, usedRecoveryCode: true });
                 }
             );
             return;
         }
-        setAuthCookie(res, user.id, user.username);
+        setAuthCookie(res, user);
         res.json({ success: true });
     });
 });
@@ -191,7 +195,7 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
                 
                 if (verification.verified) {
                     db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, passkey.id]);
-                    setAuthCookie(res, user.id, user.username);
+                    setAuthCookie(res, user);
                     delete userChallenges[user.id];
                     return res.json({ verified: true });
                 }
@@ -246,6 +250,33 @@ app.post('/api/change-password', authenticateJWT, (req, res) => {
     });
 });
 
+/* Change email */
+app.post('/api/change-email', authenticateJWT, (req, res) => {
+    const { newEmail, currentPassword } = req.body;
+    const trimmed = (newEmail || '').trim();
+    if (!trimmed) return res.status(400).json({ success: false, message: '邮箱不能为空' });
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+        return res.status(400).json({ success: false, message: '邮箱格式不正确' });
+    }
+
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+        if (user.password !== hashPassword(currentPassword || ''))
+            return res.status(401).json({ success: false, message: '当前密码错误' });
+
+        db.run('UPDATE users SET email = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
+            if (e) return res.status(500).json({ success: false, message: '数据库错误' });
+            // Force re-login on success
+            res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
+            res.json({ success: true });
+        });
+    });
+});
+
+
 app.get('/api/totp/generate', authenticateJWT, (req, res) => {
 
     const secret = authenticator.generateSecret();
@@ -261,10 +292,11 @@ app.post('/api/totp/disable', authenticateJWT, (req, res) => {
 });
 
 app.get('/api/status', authenticateJWT, (req, res) => {
-    db.get('SELECT totp_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT totp_secret, email FROM users WHERE id = ?', [req.user.id], (err, user) => {
         db.all('SELECT id, name, created_at FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
             db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err3, rc) => {
                 res.json({
+                    email: user ? (user.email || '') : '',
                     hasTOTP: !!(user && user.totp_secret),
                     passkeyCount: keys ? keys.length : 0,
                     passkeys: keys || [],
