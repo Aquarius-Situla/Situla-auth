@@ -175,7 +175,9 @@
                     // Navigate to TOTP page
                     sessionStorage.setItem('username', u);
                     sessionStorage.setItem('password', p);
-                    window.location.href = '/totp.html';
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const rd = urlParams.get('rd');
+                    window.location.href = rd ? '/totp.html?rd=' + encodeURIComponent(rd) : '/totp.html';
                     return;
                 }
 
