@@ -19,6 +19,17 @@ A lightweight, Apple-style authentication portal supporting Passkeys (WebAuthn),
 
 ---
 
+## 💡 Why Situla Auth? (开发目的)
+
+Mature authentication solutions like **authentik** or **Authelia** are incredibly powerful, but they are also resource-heavy—authentik typically requires **at least 2GB of RAM** to run smoothly. 
+
+**Situla Auth** was created for **extremely lightweight servers** (e.g., small VPS instances with 512MB-1GB RAM). It is strictly designed for **single-user personal use** or homelab environments where minimalism and low resource consumption are the highest priorities.
+
+> [!NOTE]
+> For professional, multi-user, or enterprise scenarios, we highly recommend using mature open-source projects like [authentik](https://goauthentik.io/).
+
+---
+
 ## ✨ Features
 
 - **Passkey (WebAuthn)**: Passwordless login via Face ID, Touch ID, Windows Hello, or hardware keys.

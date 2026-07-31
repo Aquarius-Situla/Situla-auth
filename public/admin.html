@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@simplewebauthn/browser@9.0.1/dist/bundle/index.umd.min.js"></script>
+    <script src="i18n.js"></script>
     <style>
         body {
             background-color: #f5f5f7;
@@ -363,14 +364,14 @@
         }
     </style>
 </head>
-<body>
+<body data-page-title-key="admin_doc_title">
     <div class="apple-container">
         <!-- Header -->
         <div class="logo-container">
             <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
-            <h2>安全设置</h2>
+            <h2 data-i18n="admin_title">安全设置</h2>
         </div>
 
         <div class="settings-group">
@@ -378,20 +379,20 @@
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
-                        <h3>修改用户名</h3>
-                        <p class="desc" style="margin-bottom:0;">更改后需使用新用户名登录。</p>
+                        <h3 data-i18n="section_username_title">修改用户名</h3>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
                     </div>
-                    <button class="btn-outline" id="showUsernameFormBtn">更改</button>
+                    <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
                 </div>
                 
                 <div id="usernameFormPanel" class="form-panel" style="display:none;">
                     <div class="form-fields">
-                        <input type="text" class="field-input" id="newUsername" placeholder="新用户名" autocomplete="off">
-                        <input type="password" class="field-input" id="usernameConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                        <input type="text" class="field-input" id="newUsername" data-i18n-placeholder="placeholder_new_username" placeholder="新用户名" autocomplete="off">
+                        <input type="password" class="field-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
                     </div>
                     <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-solid" id="changeUsernameBtn">保存用户名</button>
-                        <button class="btn-outline" id="cancelUsernameBtn">取消</button>
+                        <button class="btn-solid" id="changeUsernameBtn" data-i18n="btn_save_username">保存用户名</button>
+                        <button class="btn-outline" id="cancelUsernameBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                     <div class="msg" id="usernameMsg"></div>
                 </div>
@@ -401,20 +402,20 @@
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
-                        <h3>绑定邮箱</h3>
-                        <p class="desc" style="margin-bottom:0;">用于单点登录 (SSO) 时识别身份。</p>
+                        <h3 data-i18n="section_email_title">绑定邮箱</h3>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份。</p>
                     </div>
-                    <button class="btn-outline" id="showEmailFormBtn">更改</button>
+                    <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
                 </div>
                 
                 <div id="emailFormPanel" class="form-panel" style="display:none;">
                     <div class="form-fields">
-                        <input type="email" class="field-input" id="newEmail" placeholder="你的邮箱地址" autocomplete="email">
-                        <input type="password" class="field-input" id="emailConfirmPwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                        <input type="email" class="field-input" id="newEmail" data-i18n-placeholder="placeholder_new_email" placeholder="你的邮箱地址" autocomplete="email">
+                        <input type="password" class="field-input" id="emailConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
                     </div>
                     <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-solid" id="changeEmailBtn">保存邮箱</button>
-                        <button class="btn-outline" id="cancelEmailBtn">取消</button>
+                        <button class="btn-solid" id="changeEmailBtn" data-i18n="btn_save_email">保存邮箱</button>
+                        <button class="btn-outline" id="cancelEmailBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                     <div class="msg" id="emailMsg"></div>
                 </div>
@@ -424,21 +425,21 @@
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
-                        <h3>修改密码</h3>
-                        <p class="desc" style="margin-bottom:0;">支持任意特殊字符，包括 &amp; # @ * 等。</p>
+                        <h3 data-i18n="section_password_title">修改密码</h3>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_password_desc">支持任意特殊字符，包括 &amp; # @ * 等。</p>
                     </div>
-                    <button class="btn-outline" id="showPasswordFormBtn">更改</button>
+                    <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
                 </div>
                 
                 <div id="passwordFormPanel" class="form-panel" style="display:none;">
                     <div class="form-fields">
-                        <input type="password" class="field-input" id="currentPassword" placeholder="当前密码" autocomplete="current-password">
-                        <input type="password" class="field-input" id="newPassword" placeholder="新密码" autocomplete="new-password">
-                        <input type="password" class="field-input" id="confirmPassword" placeholder="再次输入新密码" autocomplete="new-password">
+                        <input type="password" class="field-input" id="currentPassword" data-i18n-placeholder="placeholder_current_pwd_only" placeholder="当前密码" autocomplete="current-password">
+                        <input type="password" class="field-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
+                        <input type="password" class="field-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
                     </div>
                     <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-solid" id="changePasswordBtn">保存密码</button>
-                        <button class="btn-outline" id="cancelPasswordBtn">取消</button>
+                        <button class="btn-solid" id="changePasswordBtn" data-i18n="btn_save_password">保存密码</button>
+                        <button class="btn-outline" id="cancelPasswordBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                     <div class="msg" id="passwordMsg"></div>
                 </div>
@@ -449,28 +450,29 @@
             <!-- Passkey section -->
             <div class="section" id="passkeySection">
                 <div class="section-header">
-                    <h3>Passkeys（通行密钥）</h3>
-                    <span class="badge badge-disabled" id="passkeyBadge">未添加</span>
+                    <h3 data-i18n="section_pk_title">Passkeys（通行密钥）</h3>
+                    <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
                 </div>
-                <p class="desc">使用面容、指纹或设备密码安全登录，更快捷，更安全。</p>
+                <p class="desc" data-i18n="section_pk_desc">使用面容、指纹或设备密码安全登录，更快捷，更安全。</p>
 
                 <!-- Passkey list -->
                 <div id="passkeyList"></div>
 
                 <div class="btn-row" style="margin-top:12px;">
-                    <button class="btn-outline" id="regPasskeyBtn">＋ 添加通行密钥</button>
+                    <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
                 </div>
 
                 <!-- Inline naming panel (shown instead of prompt) -->
                 <div id="passkeyNamePanel" style="display:none; margin-top:14px;">
                     <div class="form-fields" style="margin-bottom:10px;">
                         <input type="text" class="field-input" id="passkeyNameInput"
+                               data-i18n-placeholder="placeholder_pk_name"
                                placeholder="给这把通行密钥起个名字（可留空）"
                                autocomplete="off" maxlength="64">
                     </div>
                     <div class="btn-row">
-                        <button class="btn-solid" id="confirmAddPasskeyBtn">确认并注册</button>
-                        <button class="btn-outline" id="cancelAddPasskeyBtn">取消</button>
+                        <button class="btn-solid" id="confirmAddPasskeyBtn" data-i18n="btn_confirm_add_pk">确认并注册</button>
+                        <button class="btn-outline" id="cancelAddPasskeyBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                 </div>
 
@@ -480,41 +482,41 @@
             <!-- 2FA section -->
             <div class="section">
                 <div class="section-header">
-                    <h3>双重身份验证（2FA）</h3>
+                    <h3 data-i18n="section_2fa_title">双重身份验证（2FA）</h3>
                     <span class="badge badge-disabled" id="totpBadge">
                         <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                             <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
                         </svg>
-                        未启用
+                        <span data-i18n="badge_disabled">未启用</span>
                     </span>
                 </div>
-                <p class="desc">使用 Authenticator 应用（如 Google Authenticator 或 iOS 密码）生成动态验证码，为账户加一道防护。</p>
+                <p class="desc" data-i18n="section_2fa_desc">使用 Authenticator 应用（如 Google Authenticator 或 iOS 密码）生成动态验证码，为账户加一道防护。</p>
 
                 <!-- State: disabled -->
                 <div id="totpDisabledUI" class="btn-row">
-                    <button class="btn-outline" id="setup2faBtn">设置 2FA</button>
+                    <button class="btn-outline" id="setup2faBtn" data-i18n="btn_setup_2fa">设置 2FA</button>
                 </div>
 
                 <!-- State: enabled -->
                 <div id="totpEnabledUI" class="btn-row" style="display:none;">
-                    <button class="btn-outline" id="reset2faBtn">重新设置</button>
-                    <button class="btn-danger" id="disable2faBtn">禁用 2FA</button>
+                    <button class="btn-outline" id="reset2faBtn" data-i18n="btn_reset_2fa">重新设置</button>
+                    <button class="btn-danger" id="disable2faBtn" data-i18n="btn_disable_2fa">禁用 2FA</button>
                 </div>
 
                 <!-- QR / setup panel -->
                 <div class="setup-panel" id="totpSetup">
-                    <p class="setup-step">1. 使用 Authenticator 扫描下方二维码：</p>
+                    <p class="setup-step" data-i18n="step_1_scan">1. 使用 Authenticator 扫描下方二维码：</p>
                     <div class="qr-container">
                         <img id="qrCode" src="" alt="QR Code">
                         <div>
-                            <p class="secret-label">手动输入密钥</p>
+                            <p class="secret-label" data-i18n="label_manual_secret">手动输入密钥</p>
                             <p class="secret-key" id="secretKey" title="点击复制"></p>
                         </div>
                     </div>
-                    <p class="setup-step">2. 输入应用中的 6 位验证码：</p>
+                    <p class="setup-step" data-i18n="step_2_enter">2. 输入应用中的 6 位验证码：</p>
                     <div class="code-row">
                         <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
-                        <button class="btn-solid" id="verify2faBtn">验证并启用</button>
+                        <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
                     </div>
                     <div class="msg" id="totpMsg"></div>
                 </div>
@@ -525,17 +527,17 @@
         <div class="settings-group" id="rcCard" style="display:none;">
             <div class="section">
                 <div class="section-header">
-                    <h3>恢复码</h3>
-                    <span class="badge badge-disabled" id="rcBadge">未生成</span>
+                    <h3 data-i18n="section_rc_title">恢复码</h3>
+                    <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
                 </div>
-                <p class="desc">当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。</p>
+                <p class="desc" data-i18n="section_rc_desc">当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。</p>
                 <div class="btn-row">
-                    <button class="btn-outline" id="genRcBtn">生成恢复码</button>
+                    <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
                 </div>
 
                 <!-- Codes reveal panel -->
                 <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
-                    <p class="setup-step" style="color:#ff9500; margin-bottom:12px;">
+                    <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
                         ⚠️ 请立即将这些恢复码保存到安全的地方，它们只会显示一次。
                     </p>
                     <div id="rcList" style="
@@ -544,7 +546,7 @@
                         letter-spacing:1px; color:#1d1d1f;
                     "></div>
                     <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-outline" id="copyRcBtn">复制全部</button>
+                        <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部</button>
                     </div>
                     <div class="msg" id="rcMsg"></div>
                 </div>
@@ -552,7 +554,7 @@
         </div>
 
         <div class="logout-row">
-            <span class="danger-link" id="logoutBtn">退出登录</span>
+            <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
         </div>
     </div>
 
@@ -567,13 +569,13 @@
                 badge.innerHTML = `
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="2,6 5,9 10,3"/>
-                    </svg>已启用`;
+                    </svg>${t('badge_enabled')}`;
             } else {
                 badge.className = 'badge badge-disabled';
                 badge.innerHTML = `
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
-                    </svg>未启用`;
+                    </svg>${t('badge_disabled')}`;
             }
             document.getElementById('totpDisabledUI').style.display = enabled ? 'none' : 'flex';
             document.getElementById('totpEnabledUI').style.display  = enabled ? 'flex' : 'none';
@@ -582,7 +584,7 @@
 
         function setPasskeyBadge(count) {
             const badge = document.getElementById('passkeyBadge');
-            badge.textContent = count > 0 ? `${count} 个通行密钥` : '未添加';
+            badge.textContent = count > 0 ? t('badge_pk_count_full', count) : t('badge_none');
             badge.className = count > 0 ? 'badge badge-count' : 'badge badge-disabled';
         }
 
@@ -598,11 +600,11 @@
             const badge = document.getElementById('passkeyBadge');
             if (!keys || keys.length === 0) {
                 list.innerHTML = '';
-                badge.textContent = '未添加';
+                badge.textContent = t('badge_none');
                 badge.className = 'badge badge-disabled';
                 return;
             }
-            badge.textContent = `${keys.length} 把`;
+            badge.textContent = t('badge_pk_count', keys.length);
             badge.className = 'badge badge-count';
             list.innerHTML = keys.map(k => `
                 <div class="passkey-item" id="pk-${k.id}">
@@ -616,7 +618,7 @@
                         </svg>
                     </div>
                     <div class="passkey-info">
-                        <span class="passkey-name" id="pk-name-${k.id}">${k.name || '通行密钥'}</span>
+                        <span class="passkey-name" id="pk-name-${k.id}">${k.name || t('default_pk_name')}</span>
                         <span class="passkey-date">${fmtDate(k.created_at)}</span>
                     </div>
                     <div class="passkey-actions">
@@ -663,16 +665,16 @@
             const badge = document.getElementById('rcBadge');
             if (!hasTOTP) return;
             if (remaining === 0) {
-                badge.textContent = '未生成';
+                badge.textContent = t('badge_not_gen');
                 badge.className = 'badge badge-disabled';
             } else {
-                badge.textContent = `剩余 ${remaining} 个`;
+                badge.textContent = t('badge_rc_remaining', remaining);
                 badge.className = remaining <= 2 ? 'badge badge-warn' : 'badge badge-count';
             }
         }
 
         async function deletePasskey(id) {
-            if (!confirm('确定要删除这把通行密钥吗？')) return;
+            if (!confirm(t('alert_delete_pk'))) return;
             const res = await fetch(`/api/passkeys/${id}`, { method: 'DELETE' });
             if ((await res.json()).success) {
                 document.getElementById(`pk-${id}`)?.remove();
@@ -680,16 +682,16 @@
                 const remaining = document.querySelectorAll('[id^="pk-"]').length;
                 const badge = document.getElementById('passkeyBadge');
                 if (remaining === 0) {
-                    badge.textContent = '未添加'; badge.className = 'badge badge-disabled';
+                    badge.textContent = t('badge_none'); badge.className = 'badge badge-disabled';
                 } else {
-                    badge.textContent = `${remaining} 把`;
+                    badge.textContent = t('badge_pk_count', remaining);
                 }
             }
         }
 
         async function renamePasskey(id) {
-            const current = document.getElementById(`pk-name-${id}`)?.textContent || '通行密钥';
-            const newName = prompt('请输入新名称：', current);
+            const current = document.getElementById(`pk-name-${id}`)?.textContent || t('default_pk_name');
+            const newName = prompt(t('prompt_rename_pk'), current);
             if (!newName || newName.trim() === current) return;
             const res = await fetch(`/api/passkeys/${id}`, {
                 method: 'PATCH',
@@ -721,12 +723,12 @@
         // Step 2: User clicks confirm — document is still focused, WebAuthn works fine
         document.getElementById('confirmAddPasskeyBtn').addEventListener('click', async () => {
             const msg = document.getElementById('passkeyMsg');
-            const passkeyName = document.getElementById('passkeyNameInput').value.trim() || '通行密钥';
+            const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
 
             document.getElementById('passkeyNamePanel').style.display = 'none';
             document.getElementById('regPasskeyBtn').style.display = '';
 
-            msg.textContent = '准备中…';
+            msg.textContent = t('msg_preparing');
             msg.className = 'msg';
             try {
                 const options = await (await fetch('/api/webauthn/register-options')).json();
@@ -740,14 +742,14 @@
                 })).json();
 
                 if (result.verified) {
-                    msg.textContent = `✓ 「${passkeyName}」添加成功！`;
+                    msg.textContent = t('msg_pk_added', passkeyName);
                     msg.className = 'msg msg-ok';
                     loadStatus();
                 } else {
-                    throw new Error('验证失败');
+                    throw new Error('Verification failed');
                 }
             } catch (e) {
-                msg.textContent = '错误：' + (e.message || '操作取消');
+                msg.textContent = 'Error: ' + (e.message || t('msg_cancel'));
                 msg.className = 'msg msg-err';
             }
         });
@@ -782,7 +784,7 @@
             const code = document.getElementById('totpCode').value.replace(/\s/g, '');
             const msg  = document.getElementById('totpMsg');
             if (code.length !== 6) {
-                msg.textContent = '请输入 6 位验证码';
+                msg.textContent = t('msg_enter_6_digits');
                 msg.className = 'msg msg-err';
                 return;
             }
@@ -793,21 +795,21 @@
             })).json();
 
             if (data.success) {
-                msg.textContent = '✓ 双重验证已成功启用';
+                msg.textContent = t('msg_2fa_enabled');
                 msg.className = 'msg msg-ok';
                 setTimeout(() => {
                     document.getElementById('totpSetup').style.display = 'none';
                     setTotpBadge(true);
                 }, 1200);
             } else {
-                msg.textContent = '验证码错误，请重试';
+                msg.textContent = t('msg_2fa_wrong');
                 msg.className = 'msg msg-err';
             }
         });
 
         /* ── Disable 2FA ── */
         document.getElementById('disable2faBtn').addEventListener('click', async () => {
-            if (!confirm('确定要禁用双重验证吗？这会降低账户安全性。')) return;
+            if (!confirm(t('alert_disable_2fa'))) return;
             const data = await (await fetch('/api/totp/disable', { method: 'POST' })).json();
             if (data.success) {
                 setTotpBadge(false);
@@ -841,8 +843,8 @@
             const newUsername = document.getElementById('newUsername').value.trim();
             const currentPassword = document.getElementById('usernameConfirmPwd').value;
             msg.textContent = '';
-            if (!newUsername) { msg.textContent = '请输入新用户名'; msg.className = 'msg msg-err'; return; }
-            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
+            if (!newUsername) { msg.textContent = t('msg_enter_new_username'); msg.className = 'msg msg-err'; return; }
+            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
 
             try {
                 const res = await fetch('/api/change-username', {
@@ -853,16 +855,16 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = `✓ 用户名已更改为「${newUsername}」，下次登录请使用新用户名`;
+                    msg.textContent = t('msg_username_changed', newUsername);
                     msg.className = 'msg msg-ok';
                     document.getElementById('newUsername').value = '';
                     document.getElementById('usernameConfirmPwd').value = '';
                 } else {
-                    msg.textContent = data.message || '修改失败';
+                    msg.textContent = data.message || t('msg_change_failed');
                     msg.className = 'msg msg-err';
                 }
             } catch {
-                msg.textContent = '网络错误，请重试';
+                msg.textContent = t('msg_network_error');
                 msg.className = 'msg msg-err';
             }
         });
@@ -885,12 +887,12 @@
             const newEmail = document.getElementById('newEmail').value.trim();
             const currentPassword = document.getElementById('emailConfirmPwd').value;
             msg.textContent = '';
-            if (!newEmail) { msg.textContent = '请输入邮箱'; msg.className = 'msg msg-err'; return; }
-            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
+            if (!newEmail) { msg.textContent = t('msg_enter_email'); msg.className = 'msg msg-err'; return; }
+            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
 
             // Basic regex format validation
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-                msg.textContent = '邮箱格式不正确'; 
+                msg.textContent = t('msg_invalid_email'); 
                 msg.className = 'msg msg-err'; 
                 return;
             }
@@ -903,17 +905,17 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = `✓ 邮箱已更新，请重新登录！`;
+                    msg.textContent = t('msg_email_changed');
                     msg.className = 'msg msg-ok';
                     setTimeout(() => {
                         window.location.reload();
                     }, 1500);
                 } else {
-                    msg.textContent = data.message || '修改失败';
+                    msg.textContent = data.message || t('msg_change_failed');
                     msg.className = 'msg msg-err';
                 }
             } catch {
-                msg.textContent = '网络错误，请重试';
+                msg.textContent = t('msg_network_error');
                 msg.className = 'msg msg-err';
             }
         });
@@ -940,10 +942,10 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             msg.textContent = '';
 
-            if (!currentPassword) { msg.textContent = '请输入当前密码'; msg.className = 'msg msg-err'; return; }
-            if (!newPassword)     { msg.textContent = '请输入新密码'; msg.className = 'msg msg-err'; return; }
-            if (newPassword !== confirmPassword) { msg.textContent = '两次输入的密码不一致'; msg.className = 'msg msg-err'; return; }
-            if (newPassword === currentPassword) { msg.textContent = '新密码不能与当前密码相同'; msg.className = 'msg msg-err'; return; }
+            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
+            if (!newPassword)     { msg.textContent = t('msg_enter_new_pwd'); msg.className = 'msg msg-err'; return; }
+            if (newPassword !== confirmPassword) { msg.textContent = t('msg_pwd_mismatch'); msg.className = 'msg msg-err'; return; }
+            if (newPassword === currentPassword) { msg.textContent = t('msg_pwd_same'); msg.className = 'msg msg-err'; return; }
 
             try {
                 const res = await fetch('/api/change-password', {
@@ -954,26 +956,26 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = '✓ 密码已成功更改';
+                    msg.textContent = t('msg_pwd_changed');
                     msg.className = 'msg msg-ok';
                     document.getElementById('currentPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
                 } else {
-                    msg.textContent = data.message || '修改失败';
+                    msg.textContent = data.message || t('msg_change_failed');
                     msg.className = 'msg msg-err';
                 }
             } catch {
-                msg.textContent = '网络错误，请重试';
+                msg.textContent = t('msg_network_error');
                 msg.className = 'msg msg-err';
             }
         });
 
         /* ── Recovery codes ── */
         document.getElementById('genRcBtn').addEventListener('click', async () => {
-            const hasExisting = document.getElementById('rcBadge').textContent.includes('剩余');
+            const hasExisting = document.getElementById('rcBadge').textContent !== t('badge_not_gen');
             if (hasExisting) {
-                if (!confirm('生成新恢复码将使旧恢复码全部失效，确定继续吗？')) return;
+                if (!confirm(t('alert_regen_rc'))) return;
             }
             const res  = await fetch('/api/recovery-codes/generate', { method: 'POST' });
             const data = await res.json();
@@ -991,7 +993,7 @@
             const codes = [...document.querySelectorAll('#rcList div')].map(d => d.textContent).join('\n');
             navigator.clipboard.writeText(codes).then(() => {
                 const msg = document.getElementById('rcMsg');
-                msg.textContent = '✓ 已复制到剪贴板';
+                msg.textContent = t('msg_copied');
                 msg.className = 'msg msg-ok';
             });
         });

@@ -33,8 +33,9 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@simplewebauthn/browser@9.0.1/dist/bundle/index.umd.min.js"></script>
+    <script src="i18n.js"></script>
 </head>
-<body class="login-page">
+<body class="login-page" data-page-title-key="login_doc_title">
 
     <!-- Top gray bar with nav -->
     <div class="gray-top-bar">
@@ -42,7 +43,7 @@
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
-            <span class="nav-title">登录</span>
+            <span class="nav-title" data-i18n="login_title">登录</span>
         </div>
     </div>
 
@@ -53,8 +54,8 @@
                 <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" style="margin-bottom:12px;">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
-                <h1>登录</h1>
-                <p id="subtitle">管理你的账户</p>
+                <h1 data-i18n="login_title">登录</h1>
+                <p id="subtitle" data-i18n="login_subtitle">管理你的账户</p>
                 <script>
                     // Hide subtitle when used as forward auth (rd param present)
                     if (new URLSearchParams(window.location.search).get('rd')) {
@@ -67,7 +68,7 @@
                 <!-- Unified input card: username + divider + password -->
                 <div class="input-card" id="inputCard">
                     <div class="input-group" id="usernameGroup">
-                        <input type="text" id="username" placeholder="用户名" required autocomplete="username">
+                        <input type="text" id="username" data-i18n-placeholder="username_placeholder" placeholder="用户名" required autocomplete="username">
                     </div>
 
                     <!-- Divider (hidden until password revealed) -->
@@ -77,20 +78,20 @@
 
                     <!-- Password (hidden initially) -->
                     <div class="input-group reveal-group" id="passwordGroup">
-                        <input type="password" id="password" placeholder="密码" autocomplete="current-password">
+                        <input type="password" id="password" data-i18n-placeholder="password_placeholder" placeholder="密码" autocomplete="current-password">
                     </div>
                 </div>
 
                 <div id="errorMessage" class="error-message"></div>
 
                 <div class="button-row">
-                    <button type="submit" class="login-btn btn-primary" id="submitBtn">继续</button>
-                    <div class="or-divider">or</div>
+                    <button type="submit" class="login-btn btn-primary" id="submitBtn" data-i18n="btn_continue">继续</button>
+                    <div class="or-divider" data-i18n="or_divider">or</div>
                     <button type="button" class="login-btn passkey-btn" id="passkeyBtn">
                         <img src="/passkey.svg" width="18" height="18"
                              alt="Passkey"
                              style="margin-right:7px; flex-shrink:0; vertical-align:middle; object-fit:contain;">
-                        通过通行密钥登录
+                        <span data-i18n="btn_passkey">通过通行密钥登录</span>
                     </button>
                 </div>
             </form>
@@ -157,7 +158,7 @@
             /* Step 2: Attempt login */
             if (step === 2 && !p) return;
 
-            submitBtn.textContent = '验证中...';
+            submitBtn.textContent = t('msg_verifying');
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
@@ -185,14 +186,14 @@
                         window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
                     }, 300);
                 } else {
-                    errMsg.textContent = data.message || '用户名或密码错误';
-                    submitBtn.textContent = '继续';
+                    errMsg.textContent = data.message || t('msg_wrong_credentials');
+                    submitBtn.textContent = t('btn_continue');
                     submitBtn.classList.remove('loading');
                     submitBtn.disabled = false;
                 }
             } catch (err) {
-                errMsg.textContent = '网络错误，请重试';
-                submitBtn.textContent = '继续';
+                errMsg.textContent = t('msg_network_error');
+                submitBtn.textContent = t('btn_continue');
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
             }
@@ -203,7 +204,7 @@
             errMsg.textContent = '';
             try {
                 const resp = await fetch('/api/webauthn/login-options');
-                if (!resp.ok) throw new Error('未检测到可用的通行密钥');
+                if (!resp.ok) throw new Error(t('msg_no_passkey'));
                 const options = await resp.json();
 
                 const asseResp = await startAuthentication(options);
@@ -220,10 +221,10 @@
                     const rd = urlParams.get('rd');
                     window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
                 } else {
-                    errMsg.textContent = '通行密钥验证失败';
+                    errMsg.textContent = t('msg_passkey_failed');
                 }
             } catch (error) {
-                errMsg.textContent = error.message || '通行密钥取消或验证失败';
+                errMsg.textContent = error.message || t('msg_passkey_canceled');
             }
         });
     </script>
