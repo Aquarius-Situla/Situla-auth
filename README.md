@@ -77,8 +77,9 @@ docker compose up -d --build
 
 ## 🛡️ Nginx Proxy Manager Setup
 
-1. Add a new **Proxy Host** for your protected service.
-2. Go to the **Advanced** tab (the gear icon) and paste the following configuration:
+To protect your services with Situla Auth, you need to configure Nginx Proxy Manager (NPM). All configurations should be placed in the **Advanced** tab of your Proxy Host.
+
+First, you **MUST** include the following base configuration to define the authentication backend and the login redirect behavior:
 
 ```nginx
 # 1. Define the internal auth route pointing to Situla Auth
@@ -98,24 +99,71 @@ location @error401 {
 }
 ```
 
-3. Finally, to enforce the protection, add the following line either directly in the same **Advanced** tab (to protect the entire site) or inside a specific **Custom Location** configuration (via the gear icon in the Custom Locations tab):
+Then, depending on your goal, configure the `location /` block using one of the three scenarios below:
+
+### Scenario 1: Simple Web Protection (简单的网页保护)
+If you only want to protect a webpage from public access without passing any user identity to the backend:
 
 ```nginx
-auth_request /_auth;
+location / {
+    # Enforce authentication
+    auth_request /_auth;
+
+    # Standard proxy passthrough
+    proxy_pass $forward_scheme://$server:$port;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
 ```
 
-### SSO (Single Sign-On) with HTTP Auth
-Situla Auth passes the authenticated username in the `X-Remote-User` header. If you are protecting a service that supports HTTP Authentication (like **FreshRSS**), you can forward this header to the backend to achieve true Single Sign-On without needing to log in twice.
-
-In your Nginx Proxy Manager **Custom Location** (or Advanced tab) where you enforce `auth_request`, add the header forwarding rules:
+### Scenario 2: Username SSO (用户名 SSO)
+If your backend application (e.g., FreshRSS, Audiobookshelf) supports Single Sign-On via HTTP Headers and matches users by **Username**, you can pass the username dynamically:
 
 ```nginx
-auth_request /_auth;
-# Extract the header from Situla Auth's /verify response
-auth_request_set $auth_user $upstream_http_x_remote_user;
-# Forward it to your backend service (e.g. FreshRSS)
-proxy_set_header Remote-User $auth_user;
-proxy_set_header X-Remote-User $auth_user;
+location / {
+    # Enforce authentication
+    auth_request /_auth;
+
+    # Extract the username from Situla Auth
+    auth_request_set $auth_user $upstream_http_x_remote_user;
+    
+    # Forward the username to the backend
+    proxy_set_header Remote-User $auth_user;
+    proxy_set_header X-Remote-User $auth_user;
+
+    # Standard proxy passthrough
+    proxy_pass $forward_scheme://$server:$port;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+### Scenario 3: Email SSO (邮箱 SSO)
+If your backend application (e.g., Beszel, PocketBase, Grafana) matches users by **Email Address**, ensure the user has bound an email in their Situla Auth account settings, then pass the email dynamically:
+
+```nginx
+location / {
+    # Enforce authentication
+    auth_request /_auth;
+
+    # Extract the email from Situla Auth
+    auth_request_set $auth_email $upstream_http_x_remote_email;
+    
+    # Forward the email to the backend
+    proxy_set_header Remote-User $auth_email;
+    proxy_set_header X-Remote-User $auth_email;
+
+    # Standard proxy passthrough
+    proxy_pass $forward_scheme://$server:$port;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
 ```
 
 > [!IMPORTANT]
