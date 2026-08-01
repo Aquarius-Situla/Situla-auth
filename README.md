@@ -177,6 +177,25 @@ location / {
 }
 ```
 
+### Bypassing Specific Paths (e.g., API or Agents)
+If your backend has endpoints that must be accessed by automated agents or external APIs without human authentication (for example, the **Beszel Agent** reporting to the hub via `/api/beszel/agent-connect`), you can bypass SSO for those specific paths by adding a dedicated `location` block *before* the main `location /` block:
+
+```nginx
+location /api/beszel/agent-connect {
+    # No auth_request here, so this path bypasses SSO
+    proxy_pass $forward_scheme://$server:$port;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    
+    # Required if the path uses WebSockets (e.g., Beszel Agent)
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 360s;
+    proxy_send_timeout 360s;
+}
+```
+
 > [!IMPORTANT]
 > Both `situla-auth` and your NPM container must be on the same Docker network (e.g., `npm_default`) to resolve internal hostnames like `http://situla-auth:3000`.
 
