@@ -261,11 +261,6 @@ input:focus {
     background: #006ad6;
 }
 
-/* user.svg has white fill — invert to black in light mode */
-.user-icon {
-    filter: invert(1);
-}
-
 /* Passkey button */
 .passkey-btn {
     background: #1d1d1f;
@@ -347,9 +342,9 @@ input:focus {
         border-color: #3a3a3c;
     }
 
-    /* user.svg is already white — no invert needed in dark mode */
+    /* user.svg is black by default — invert to white in dark mode */
     .user-icon {
-        filter: none;
+        filter: invert(1);
     }
     .nav-title {
         color: #ffffff;
