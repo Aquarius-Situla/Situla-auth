@@ -69,13 +69,13 @@
                         <span class="passkey-date">${fmtDate(k.created_at)}</span>
                     </div>
                     <div class="passkey-actions">
-                        <button class="pk-btn pk-rename" onclick="renamePasskey(${k.id})" title="重命名" aria-label="重命名">
+                        <button class="pk-btn pk-rename" data-action="rename" data-id="${k.id}" title="重命名" aria-label="重命名">
                             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
-                        <button class="pk-btn pk-delete" onclick="deletePasskey(${k.id})" title="删除" aria-label="删除">
+                        <button class="pk-btn pk-delete" data-action="delete" data-id="${k.id}" title="删除" aria-label="删除">
                             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -86,6 +86,15 @@
                     </div>
                 </div>`).join('');
         }
+
+        document.getElementById('passkeyList').addEventListener('click', (e) => {
+            const btn = e.target.closest('.pk-btn');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+            if (action === 'rename') renamePasskey(id);
+            if (action === 'delete') deletePasskey(id);
+        });
 
         async function loadStatus() {
             try {

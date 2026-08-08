@@ -11,6 +11,10 @@
         let usingRc     = false;
 
         /* ── Recovery code toggle ── */
+        document.getElementById('rcInput').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+
         document.getElementById('toggleRcLink').addEventListener('click', (e) => {
             e.preventDefault();
             usingRc = !usingRc;
