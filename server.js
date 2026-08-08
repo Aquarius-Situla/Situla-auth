@@ -397,8 +397,12 @@ app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
 
 app.get('/api/status', authenticateJWT, (req, res) => {
     db.get('SELECT totp_secret, email FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (err) console.error('Status users error:', err);
         db.all('SELECT id, name, created_at FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
+            if (err2) console.error('Status passkeys error:', err2);
             db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err3, rc) => {
+                if (err3) console.error('Status rc error:', err3);
+                console.log('API Status Response:', { userId: req.user.id, passkeyCount: keys ? keys.length : 0 });
                 res.json({
                     email: user ? (user.email || '') : '',
                     hasTOTP: !!(user && user.totp_secret),

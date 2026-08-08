@@ -109,7 +109,8 @@
                 renderPasskeys(data.passkeys);
                 // Show recovery code card only when 2FA is enabled
                 updateRcCard(data.hasTOTP, data.recoveryCodesRemaining);
-            } catch {
+            } catch (err) {
+                console.error("loadStatus failed:", err);
                 renderPasskeys([]);
                 setTotpBadge(false);
             }
