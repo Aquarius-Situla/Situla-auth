@@ -261,11 +261,6 @@ input:focus {
     background: #006ad6;
 }
 
-/* user.svg is white (#FFFFFF), so in light mode we invert it to dark */
-.user-icon {
-    filter: invert(1);
-}
-
 /* Passkey button */
 .passkey-btn {
     background: #1d1d1f;
@@ -397,11 +392,6 @@ input:focus {
     }
     .btn-primary.active:hover  { background: #1a90ff; }
     .btn-primary.active:active { background: #0070e0; }
-
-    /* In dark mode, revert the icon back to white (no invert) */
-    .user-icon {
-        filter: none;
-    }
 
     /* Passkey button */
     .passkey-btn {
