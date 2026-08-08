@@ -14,7 +14,9 @@ RUN mkdir -p /app/data && \
     adduser -S appuser -G appgroup && \
     chown -R appuser:appgroup /app
 
-USER appuser
+# 注释掉 USER appuser，因为在 Alpine 环境下，非 root 用户通过
+# Bind Mount 访问启用 WAL 模式的 SQLite 数据库时会抛出 SQLITE_READONLY 错误
+# USER appuser
 
 EXPOSE 3000
 CMD ["node", "server.js"]
