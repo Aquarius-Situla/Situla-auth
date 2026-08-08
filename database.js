@@ -28,6 +28,10 @@ if (!fs.existsSync(dbDir)) {
 const db = new sqlite3.Database(path.join(dbDir, 'database.sqlite'));
 
 db.serialize(() => {
+    // Optimization and data integrity
+    db.run(`PRAGMA journal_mode = WAL`);
+    db.run(`PRAGMA foreign_keys = ON`);
+
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,

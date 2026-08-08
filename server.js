@@ -28,11 +28,13 @@ const fs = require('fs');
 const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
+const helmet = require('helmet');
 const db = require('./database');
 
 const SALT_ROUNDS = 12;
 
 const app = express();
+app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -154,7 +156,39 @@ app.get('/verify', (req, res) => {
 
 /* Password & TOTP Login — rate limited */
 app.post('/api/login', loginLimiter, async (req, res) => {
-    const { username, password, totp } = req.body;
+    const { username, password, totp, tempToken } = req.body;
+
+    // TOTP verification using temporary token (avoiding password resubmission)
+    if (tempToken && totp) {
+        try {
+            const decoded = jwt.verify(tempToken, JWT_SECRET);
+            db.get('SELECT * FROM users WHERE id = ?', [decoded.temp_id], (err, user) => {
+                if (!user || !user.totp_secret) return res.status(401).json({ success: false, message: 'Invalid session' });
+                
+                if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
+                    setAuthCookie(res, user);
+                    return res.json({ success: true });
+                }
+
+                const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
+                const codeHash = crypto.createHash('sha256').update(normalised).digest('hex');
+                db.get(
+                    'SELECT * FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0',
+                    [user.id, codeHash],
+                    (err2, rc) => {
+                        if (!rc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                        db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [rc.id]);
+                        setAuthCookie(res, user);
+                        res.json({ success: true, usedRecoveryCode: true });
+                    }
+                );
+            });
+        } catch (e) {
+            return res.status(401).json({ success: false, message: 'Session expired' });
+        }
+        return;
+    }
+
     db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
         // Always run password check to prevent timing-based username enumeration
         const passwordOk = user ? await verifyPassword(password || '', user.password, user.id) : false;
@@ -162,29 +196,8 @@ app.post('/api/login', loginLimiter, async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
         if (user.totp_secret) {
-            if (!totp) return res.json({ success: false, requireTotp: true });
-
-            // First try TOTP
-            if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
-                setAuthCookie(res, user);
-                return res.json({ success: true });
-            }
-
-            // Fallback: try recovery code
-            const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
-            const codeHash = crypto.createHash('sha256').update(normalised).digest('hex');
-            db.get(
-                'SELECT * FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0',
-                [user.id, codeHash],
-                (err2, rc) => {
-                    if (!rc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
-                    // Mark as used
-                    db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [rc.id]);
-                    setAuthCookie(res, user);
-                    res.json({ success: true, usedRecoveryCode: true });
-                }
-            );
-            return;
+            const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
+            return res.json({ success: false, requireTotp: true, tempToken });
         }
         setAuthCookie(res, user);
         res.json({ success: true });
@@ -484,7 +497,7 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
         
         if (verification.verified) {
             const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
-            const name = req.body._passkeyName || '通行密钥';
+            const name = (req.body._passkeyName || '通行密钥').trim().slice(0, 40);
             const createdAt = new Date().toISOString();
             db.run(
                 'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at) VALUES (?, ?, ?, ?, ?, ?)',
@@ -508,6 +521,11 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
+app.use((err, req, res, next) => {
+    console.error('[Error]', err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));

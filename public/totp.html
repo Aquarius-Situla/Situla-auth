@@ -161,10 +161,9 @@
     <div class="gray-bottom-bar"></div>
 
     <script>
-        const storedUser = sessionStorage.getItem('username');
-        const storedPass = sessionStorage.getItem('password');
+        const storedToken = sessionStorage.getItem('tempToken');
 
-        if (!storedUser || !storedPass) {
+        if (!storedToken) {
             window.location.href = '/';
         }
 
@@ -260,8 +259,7 @@
 
         // Back button
         document.getElementById('backBtn').addEventListener('click', () => {
-            sessionStorage.removeItem('username');
-            sessionStorage.removeItem('password');
+            sessionStorage.removeItem('tempToken');
             window.location.href = '/';
         });
 
@@ -286,17 +284,22 @@
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username: storedUser, password: storedPass, totp })
+                    body: JSON.stringify({ tempToken: storedToken, totp })
                 });
 
                 const data = await res.json();
 
                 if (data.success) {
-                    sessionStorage.removeItem('username');
-                    sessionStorage.removeItem('password');
+                    sessionStorage.removeItem('tempToken');
                     if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
                     const rd = new URLSearchParams(window.location.search).get('rd');
-                    window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
+                    let target = '/admin';
+                    if (rd) {
+                        try {
+                            if (new URL(rd, window.location.origin).origin === window.location.origin) target = rd;
+                        } catch(e) {}
+                    }
+                    window.location.href = target;
                 } else {
                     errMsg.textContent = data.message || t('msg_verify_failed');
                     if (!usingRc) {

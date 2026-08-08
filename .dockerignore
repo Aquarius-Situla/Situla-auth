@@ -1,0 +1,24 @@
+# Dependencies (reinstalled during build)
+node_modules/
+
+# Environment variables (secrets)
+.env
+
+# Runtime data
+data/
+
+# Git metadata
+.git/
+.gitignore
+
+# Dev tools (not part of the app)
+svg_produce/
+
+# Build artifacts
+*.tar.gz
+*.zip
+
+# Documentation
+README.md
+LICENSE
+deploy.sh

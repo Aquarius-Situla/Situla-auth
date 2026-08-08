@@ -169,8 +169,7 @@
 
                 if (data.requireTotp) {
                     // Navigate to TOTP page
-                    sessionStorage.setItem('username', u);
-                    sessionStorage.setItem('password', p);
+                    sessionStorage.setItem('tempToken', data.tempToken);
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
                     window.location.href = rd ? '/totp.html?rd=' + encodeURIComponent(rd) : '/totp.html';
@@ -180,8 +179,14 @@
                 if (data.success) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
+                    let target = '/admin';
+                    if (rd) {
+                        try {
+                            if (new URL(rd, window.location.origin).origin === window.location.origin) target = rd;
+                        } catch(e) {}
+                    }
                     setTimeout(() => {
-                        window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
+                        window.location.href = target;
                     }, 300);
                 } else {
                     errMsg.textContent = data.message || t('msg_wrong_credentials');
@@ -217,7 +222,13 @@
                 if (verificationJSON && verificationJSON.verified) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    window.location.href = (rd && rd.startsWith('http')) ? rd : '/admin';
+                    let target = '/admin';
+                    if (rd) {
+                        try {
+                            if (new URL(rd, window.location.origin).origin === window.location.origin) target = rd;
+                        } catch(e) {}
+                    }
+                    window.location.href = target;
                 } else {
                     errMsg.textContent = t('msg_passkey_failed');
                 }
