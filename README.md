@@ -226,3 +226,9 @@ The SQLite database is stored at `./data/database.sqlite` on the host and mounte
 ## 📄 License
 
 This project is open-sourced under the **AGPL-3.0 License**.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] **OIDC (OpenID Connect) Support**: Future plans include adding native OIDC provider capabilities, allowing Situla Auth to act as a lightweight identity provider for modern applications without relying solely on Nginx reverse proxy headers.
