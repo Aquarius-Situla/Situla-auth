@@ -19,20 +19,33 @@
 require('dotenv').config(); // Load .env at startup — enables docker compose restart to pick up changes
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const fs = require('fs');
 const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
 const db = require('./database');
 
+const SALT_ROUNDS = 12;
+
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
+
+/* ── Rate Limiters ── */
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15,                   // max 15 attempts per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: '尝试次数过多，请 15 分钟后再试' }
+});
 
 /* ── Auto-generate JWT_SECRET if missing or still at placeholder ── */
 const PLACEHOLDER = 'change_this_to_a_long_random_secret';
@@ -65,14 +78,38 @@ const RP_NAME = 'Situla Auth';
 /* In Nginx reverse proxy, the client origin is usually https://auth.example.com */
 const ORIGIN = `https://${RP_ID}`;
 
-function hashPassword(pass) {
+/* Legacy SHA-256 hash — only used for initial admin account creation on first run */
+function sha256Hash(pass) {
     return crypto.createHash('sha256').update(pass).digest('hex');
 }
 
-db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', (err, row) => {
+/**
+ * Verify a password against a stored hash.
+ * Supports both bcrypt (new) and legacy SHA-256 (old) hashes.
+ * Automatically migrates SHA-256 hashes to bcrypt on successful login.
+ */
+async function verifyPassword(plaintext, storedHash, userId) {
+    if (!storedHash) return false;
+    // Detect bcrypt hash by prefix
+    if (storedHash.startsWith('$2b$') || storedHash.startsWith('$2a$')) {
+        return await bcrypt.compare(plaintext, storedHash);
+    }
+    // Legacy SHA-256 check — migrate to bcrypt on success
+    if (sha256Hash(plaintext) === storedHash) {
+        const newHash = await bcrypt.hash(plaintext, SALT_ROUNDS);
+        db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, userId]);
+        console.log(`[security] Migrated user ${userId} password hash from SHA-256 to bcrypt.`);
+        return true;
+    }
+    return false;
+}
+
+db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, row) => {
     if (err) { console.error(err); return; }
     if (!row) {
-        db.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USER, hashPassword(ADMIN_PASS_RAW)]);
+        // New install: hash admin password with bcrypt from the start
+        const hashed = await bcrypt.hash(ADMIN_PASS_RAW, SALT_ROUNDS);
+        db.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USER, hashed]);
     }
 });
 
@@ -115,11 +152,13 @@ app.get('/verify', (req, res) => {
     }
 });
 
-/* Password & TOTP Login */
-app.post('/api/login', (req, res) => {
+/* Password & TOTP Login — rate limited */
+app.post('/api/login', loginLimiter, async (req, res) => {
     const { username, password, totp } = req.body;
-    db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-        if (!user || user.password !== hashPassword(password)) {
+    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+        // Always run password check to prevent timing-based username enumeration
+        const passwordOk = user ? await verifyPassword(password || '', user.password, user.id) : false;
+        if (!user || !passwordOk) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
         if (user.totp_secret) {
@@ -152,7 +191,29 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-const userChallenges = {};
+/* WebAuthn challenge store with TTL — prevents replay attacks and memory leaks */
+const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const userChallenges = new Map();
+
+function setChallenge(userId, challenge) {
+    userChallenges.set(String(userId), { challenge, expiresAt: Date.now() + CHALLENGE_TTL_MS });
+}
+
+function consumeChallenge(userId) {
+    const key = String(userId);
+    const entry = userChallenges.get(key);
+    userChallenges.delete(key);
+    if (!entry || Date.now() > entry.expiresAt) return null;
+    return entry.challenge;
+}
+
+// Periodically clean up any stale challenges (every 10 minutes)
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of userChallenges) {
+        if (now > entry.expiresAt) userChallenges.delete(key);
+    }
+}, 10 * 60 * 1000);
 
 /* Passkey Login Options */
 app.get('/api/webauthn/login-options', (req, res) => {
@@ -163,7 +224,7 @@ app.get('/api/webauthn/login-options', (req, res) => {
             rpID: RP_ID,
             userVerification: 'preferred'
         });
-        userChallenges[user.id] = options.challenge;
+        setChallenge(user.id, options.challenge);
         res.json(options);
     });
 });
@@ -181,9 +242,13 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
             if (!user) return res.status(400).json({ error: 'User not found' });
 
             try {
+                const expectedChallenge = consumeChallenge(user.id);
+                if (!expectedChallenge) {
+                    return res.status(400).json({ error: 'Challenge expired or not found. Please try again.' });
+                }
                 const verification = await verifyAuthenticationResponse({
                     response: req.body,
-                    expectedChallenge: userChallenges[user.id],
+                    expectedChallenge,
                     expectedOrigin: ORIGIN,
                     expectedRPID: RP_ID,
                     authenticator: {
@@ -196,7 +261,6 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
                 if (verification.verified) {
                     db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, passkey.id]);
                     setAuthCookie(res, user);
-                    delete userChallenges[user.id];
                     return res.json({ verified: true });
                 }
             } catch (error) {
@@ -217,9 +281,9 @@ app.post('/api/change-username', authenticateJWT, (req, res) => {
     if (!trimmed) return res.status(400).json({ success: false, message: '用户名不能为空' });
     if (trimmed.length > 64) return res.status(400).json({ success: false, message: '用户名过长' });
 
-    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (user.password !== hashPassword(currentPassword || ''))
+        if (!await verifyPassword(currentPassword || '', user.password, user.id))
             return res.status(401).json({ success: false, message: '当前密码错误' });
 
         db.run('UPDATE users SET username = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
@@ -238,12 +302,13 @@ app.post('/api/change-password', authenticateJWT, (req, res) => {
     if (newPassword.length > 128)
         return res.status(400).json({ success: false, message: '密码过长（最多128位）' });
 
-    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (user.password !== hashPassword(currentPassword || ''))
+        if (!await verifyPassword(currentPassword || '', user.password, user.id))
             return res.status(401).json({ success: false, message: '当前密码错误' });
 
-        db.run('UPDATE users SET password = ? WHERE id = ?', [hashPassword(newPassword), req.user.id], (e) => {
+        const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, req.user.id], (e) => {
             if (e) return res.status(500).json({ success: false, message: '数据库错误' });
             res.json({ success: true });
         });
@@ -262,9 +327,9 @@ app.post('/api/change-email', authenticateJWT, (req, res) => {
         return res.status(400).json({ success: false, message: '邮箱格式不正确' });
     }
 
-    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (user.password !== hashPassword(currentPassword || ''))
+        if (!await verifyPassword(currentPassword || '', user.password, user.id))
             return res.status(401).json({ success: false, message: '当前密码错误' });
 
         db.run('UPDATE users SET email = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
@@ -284,10 +349,25 @@ app.get('/api/totp/generate', authenticateJWT, (req, res) => {
     qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret, qr: imageUrl }));
 });
 
-app.post('/api/totp/disable', authenticateJWT, (req, res) => {
-    db.run('UPDATE users SET totp_secret = NULL WHERE id = ?', [req.user.id], (err) => {
-        if (err) return res.status(500).json({ success: false, message: 'Database error' });
-        res.json({ success: true });
+app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
+    const { currentPassword, totpToken } = req.body;
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
+        if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+
+        // Require current password to confirm identity
+        if (!await verifyPassword(currentPassword || '', user.password, user.id))
+            return res.status(401).json({ success: false, message: '当前密码错误' });
+
+        // Require valid TOTP token to disable TOTP
+        if (user.totp_secret) {
+            if (!totpToken || !authenticator.verify({ token: totpToken, secret: user.totp_secret }))
+                return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });
+        }
+
+        db.run('UPDATE users SET totp_secret = NULL WHERE id = ?', [req.user.id], (e) => {
+            if (e) return res.status(500).json({ success: false, message: 'Database error' });
+            res.json({ success: true });
+        });
     });
 });
 
@@ -341,7 +421,7 @@ app.post('/api/recovery-codes/generate', authenticateJWT, (req, res) => {
     const codes = [];
     for (let i = 0; i < COUNT; i++) {
         let raw = '';
-        for (let j = 0; j < 10; j++) raw += chars[Math.floor(Math.random() * chars.length)];
+        for (let j = 0; j < 10; j++) raw += chars[crypto.randomInt(chars.length)];
         codes.push(raw.slice(0, 5) + '-' + raw.slice(5)); // display: XXXXX-XXXXX
     }
 
@@ -385,15 +465,19 @@ app.get('/api/webauthn/register-options', authenticateJWT, async (req, res) => {
         attestationType: 'none',
         authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' }
     });
-    userChallenges[req.user.id] = options.challenge;
+    setChallenge(req.user.id, options.challenge);
     res.json(options);
 });
 
 app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
     try {
+        const expectedChallenge = consumeChallenge(req.user.id);
+        if (!expectedChallenge) {
+            return res.status(400).json({ error: 'Challenge expired or not found. Please try again.' });
+        }
         const verification = await verifyRegistrationResponse({
             response: req.body,
-            expectedChallenge: userChallenges[req.user.id],
+            expectedChallenge,
             expectedOrigin: ORIGIN,
             expectedRPID: RP_ID
         });
@@ -409,7 +493,6 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
                  Buffer.from(credentialPublicKey).toString('base64url'),
                  counter, name, createdAt]
             );
-            delete userChallenges[req.user.id];
             return res.json({ verified: true });
         }
     } catch (error) {

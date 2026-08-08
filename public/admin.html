@@ -808,9 +808,22 @@
         /* ── Disable 2FA ── */
         document.getElementById('disable2faBtn').addEventListener('click', async () => {
             if (!confirm(t('alert_disable_2fa'))) return;
-            const data = await (await fetch('/api/totp/disable', { method: 'POST' })).json();
+
+            const currentPassword = prompt('请输入当前密码以确认操作：');
+            if (currentPassword === null) return; // user cancelled
+            const totpToken = prompt('请输入 Authenticator 中的当前 6 位验证码：');
+            if (totpToken === null) return; // user cancelled
+
+            const data = await (await fetch('/api/totp/disable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currentPassword, totpToken })
+            })).json();
+
             if (data.success) {
                 setTotpBadge(false);
+            } else {
+                alert(data.message || '禁用失败，请检查密码和验证码是否正确');
             }
         });
 
