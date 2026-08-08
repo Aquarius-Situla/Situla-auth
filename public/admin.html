@@ -32,8 +32,8 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="/js/simplewebauthn.js"></script>
-    <script src="i18n.js"></script>
+    
+    
     <style>
         body {
             background-color: #f5f5f7;
@@ -363,6 +363,9 @@
 
         }
     </style>
+
+    <script src="/js/simplewebauthn.js"></script>
+    <script src="i18n.js"></script>
 </head>
 <body data-page-title-key="admin_doc_title">
     <div class="apple-container">
@@ -377,8 +380,8 @@
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
-                        <h3 data-i18n="section_username_title">修改用户�?/h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_username_desc">更改后需使用新用户名登录�?/p>
+                        <h3 data-i18n="section_username_title">修改用户名</h3>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
                     </div>
                     <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
                 </div>
@@ -389,7 +392,7 @@
                         <input type="password" class="field-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
                     </div>
                     <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-solid" id="changeUsernameBtn" data-i18n="btn_save_username">保存用户�?/button>
+                        <button class="btn-solid" id="changeUsernameBtn" data-i18n="btn_save_username">保存用户名</button>
                         <button class="btn-outline" id="cancelUsernameBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                     <div class="msg" id="usernameMsg"></div>
@@ -401,7 +404,7 @@
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
                         <h3 data-i18n="section_email_title">绑定邮箱</h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份�?/p>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份。</p>
                     </div>
                     <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
                 </div>
@@ -424,7 +427,7 @@
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
                         <h3 data-i18n="section_password_title">修改密码</h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_password_desc">支持任意特殊字符，包�?&amp; # @ * 等�?/p>
+                        <p class="desc" style="margin-bottom:0;" data-i18n="section_password_desc">支持任意特殊字符，包括 &amp; # @ * 等。</p>
                     </div>
                     <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
                 </div>
@@ -432,8 +435,8 @@
                 <div id="passwordFormPanel" class="form-panel" style="display:none;">
                     <div class="form-fields">
                         <input type="password" class="field-input" id="currentPassword" data-i18n-placeholder="placeholder_current_pwd_only" placeholder="当前密码" autocomplete="current-password">
-                        <input type="password" class="field-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密�? autocomplete="new-password">
-                        <input type="password" class="field-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密�? autocomplete="new-password">
+                        <input type="password" class="field-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
+                        <input type="password" class="field-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
                     </div>
                     <div class="btn-row" style="margin-top:12px;">
                         <button class="btn-solid" id="changePasswordBtn" data-i18n="btn_save_password">保存密码</button>
@@ -448,16 +451,16 @@
             <!-- Passkey section -->
             <div class="section" id="passkeySection">
                 <div class="section-header">
-                    <h3 data-i18n="section_pk_title">Passkeys（通行密钥�?/h3>
-                    <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添�?/span>
+                    <h3 data-i18n="section_pk_title">Passkeys（通行密钥）</h3>
+                    <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
                 </div>
-                <p class="desc" data-i18n="section_pk_desc">使用面容、指纹或设备密码安全登录，更快捷，更安全�?/p>
+                <p class="desc" data-i18n="section_pk_desc">使用面容、指纹或设备密码安全登录，更快捷，更安全。</p>
 
                 <!-- Passkey list -->
                 <div id="passkeyList"></div>
 
                 <div class="btn-row" style="margin-top:12px;">
-                    <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">�?添加通行密钥</button>
+                    <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
                 </div>
 
                 <!-- Inline naming panel (shown instead of prompt) -->
@@ -465,11 +468,11 @@
                     <div class="form-fields" style="margin-bottom:10px;">
                         <input type="text" class="field-input" id="passkeyNameInput"
                                data-i18n-placeholder="placeholder_pk_name"
-                               placeholder="给这把通行密钥起个名字（可留空�?
+                               placeholder="给这把通行密钥起个名字（可留空）"
                                autocomplete="off" maxlength="64">
                     </div>
                     <div class="btn-row">
-                        <button class="btn-solid" id="confirmAddPasskeyBtn" data-i18n="btn_confirm_add_pk">确认并注�?/button>
+                        <button class="btn-solid" id="confirmAddPasskeyBtn" data-i18n="btn_confirm_add_pk">确认并注册</button>
                         <button class="btn-outline" id="cancelAddPasskeyBtn" data-i18n="btn_cancel">取消</button>
                     </div>
                 </div>
@@ -480,15 +483,15 @@
             <!-- 2FA section -->
             <div class="section">
                 <div class="section-header">
-                    <h3 data-i18n="section_2fa_title">双重身份验证�?FA�?/h3>
+                    <h3 data-i18n="section_2fa_title">双重身份验证（2FA）</h3>
                     <span class="badge badge-disabled" id="totpBadge">
                         <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                             <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
                         </svg>
-                        <span data-i18n="badge_disabled">未启�?/span>
+                        <span data-i18n="badge_disabled">未启用</span>
                     </span>
                 </div>
-                <p class="desc" data-i18n="section_2fa_desc">使用 Authenticator 应用（如 Google Authenticator �?iOS 密码）生成动态验证码，为账户加一道防护�?/p>
+                <p class="desc" data-i18n="section_2fa_desc">使用 Authenticator 应用（如 Google Authenticator 或 iOS 密码）生成动态验证码，为账户加一道防护。</p>
 
                 <!-- State: disabled -->
                 <div id="totpDisabledUI" class="btn-row">
@@ -511,10 +514,10 @@
                             <p class="secret-key" id="secretKey" title="点击复制"></p>
                         </div>
                     </div>
-                    <p class="setup-step" data-i18n="step_2_enter">2. 输入应用中的 6 位验证码�?/p>
+                    <p class="setup-step" data-i18n="step_2_enter">2. 输入应用中的 6 位验证码：</p>
                     <div class="code-row">
                         <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
-                        <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启�?/button>
+                        <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
                     </div>
                     <div class="msg" id="totpMsg"></div>
                 </div>
@@ -525,18 +528,18 @@
         <div class="settings-group" id="rcCard" style="display:none;">
             <div class="section">
                 <div class="section-header">
-                    <h3 data-i18n="section_rc_title">恢复�?/h3>
-                    <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生�?/span>
+                    <h3 data-i18n="section_rc_title">恢复码</h3>
+                    <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
                 </div>
-                <p class="desc" data-i18n="section_rc_desc">当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存�?/p>
+                <p class="desc" data-i18n="section_rc_desc">当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。</p>
                 <div class="btn-row">
-                    <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复�?/button>
+                    <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
                 </div>
 
                 <!-- Codes reveal panel -->
                 <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
                     <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
-                        ⚠️ 请立即将这些恢复码保存到安全的地方，它们只会显示一次�?
+                        ⚠️ 请立即将这些恢复码保存到安全的地方，它们只会显示一次。
                     </p>
                     <div id="rcList" style="
                         background:#f5f5f7; border-radius:10px; padding:16px;
@@ -552,11 +555,12 @@
         </div>
 
         <div class="logout-row">
-            <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登�?/span>
+            <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
         </div>
     </div>
+
+    
 
     <script src="/js/admin.js"></script>
 </body>
 </html>
-
