@@ -34,7 +34,7 @@ const db = require('./database');
 const SALT_ROUNDS = 12;
 
 const app = express();
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
