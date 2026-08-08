@@ -229,6 +229,7 @@ This project is open-sourced under the **AGPL-3.0 License**.
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap (未来计划)
 
 - [ ] **OIDC (OpenID Connect) Support**: Future plans include adding native OIDC provider capabilities, allowing Situla Auth to act as a lightweight identity provider for modern applications without relying solely on Nginx reverse proxy headers.
+  *(计划未来增加原生 OIDC 支持，让 Situla Auth 能够作为现代应用的标准轻量级身份提供商，而不再仅依赖 Nginx 的反向代理 Header 注入。)*
