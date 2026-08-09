@@ -137,7 +137,13 @@
                     let target = '/admin';
                     if (rd) {
                         try {
-                            if (new URL(rd, window.location.origin).origin === window.location.origin) target = rd;
+                            const rdUrl = new URL(rd, window.location.origin);
+                            const currentHost = window.location.hostname;
+                            const parts = currentHost.split('.');
+                            const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
+                            if (rdUrl.hostname === currentHost || rdUrl.hostname.endsWith('.' + baseDomain)) {
+                                target = rd;
+                            }
                         } catch(e) {}
                     }
                     window.location.href = target;
