@@ -86,7 +86,7 @@
                             const currentHost = window.location.hostname;
                             const parts = currentHost.split('.');
                             const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
-                            if (rdUrl.hostname === currentHost || rdUrl.hostname.endsWith('.' + baseDomain)) {
+                            if (rdUrl.hostname === currentHost || rdUrl.hostname === baseDomain || rdUrl.hostname.endsWith('.' + baseDomain)) {
                                 target = rd;
                             }
                         } catch(e) {}
@@ -135,7 +135,7 @@
                             const currentHost = window.location.hostname;
                             const parts = currentHost.split('.');
                             const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
-                            if (rdUrl.hostname === currentHost || rdUrl.hostname.endsWith('.' + baseDomain)) {
+                            if (rdUrl.hostname === currentHost || rdUrl.hostname === baseDomain || rdUrl.hostname.endsWith('.' + baseDomain)) {
                                 target = rd;
                             }
                         } catch(e) {}
