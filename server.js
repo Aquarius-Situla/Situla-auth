@@ -126,11 +126,26 @@ db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, row) => {
     }
 });
 
+// Cache for token versions to allow synchronous, 0-latency JWT verification without DB lookups
+const tokenVersionCache = new Map();
+db.all('SELECT id, token_version FROM users', (err, rows) => {
+    if (!err && rows) {
+        for (const row of rows) {
+            tokenVersionCache.set(row.id, row.token_version || 0);
+        }
+    }
+});
+
 function authenticateJWT(req, res, next) {
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     try {
-        req.user = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+        if (decoded.token_version !== currentVersion) {
+            return res.status(401).json({ error: 'Session expired' });
+        }
+        req.user = decoded;
         next();
     } catch {
         res.status(401).json({ error: 'Unauthorized' });
@@ -138,7 +153,8 @@ function authenticateJWT(req, res, next) {
 }
 
 function setAuthCookie(res, user) {
-    const token = jwt.sign({ id: user.id, user: user.username, email: user.email || '' }, JWT_SECRET, { expiresIn: '7d' });
+    const tokenVersion = tokenVersionCache.get(user.id) || 0;
+    const token = jwt.sign({ id: user.id, user: user.username, email: user.email || '', token_version: tokenVersion }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true, secure: true, domain: COOKIE_DOMAIN, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'Lax'
     });
@@ -150,6 +166,10 @@ app.get('/verify', (req, res) => {
     if (!token) return res.status(401).send('Unauthorized');
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+        const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+        if (decoded.token_version !== currentVersion) {
+            return res.status(401).send('Unauthorized');
+        }
         // Inject SSO headers for reverse proxies (like FreshRSS HTTP_AUTH)
         if (decoded && decoded.user) {
             res.setHeader('X-Remote-User', decoded.user);
@@ -532,6 +552,17 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
 app.post('/api/logout', (req, res) => {
     res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
     res.json({ success: true });
+});
+
+app.post('/api/logout-all', authenticateJWT, (req, res) => {
+    const userId = req.user.id;
+    const newVersion = (tokenVersionCache.get(userId) || 0) + 1;
+    db.run('UPDATE users SET token_version = ? WHERE id = ?', [newVersion, userId], (err) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        tokenVersionCache.set(userId, newVersion);
+        res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
+        res.json({ success: true });
+    });
 });
 
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));

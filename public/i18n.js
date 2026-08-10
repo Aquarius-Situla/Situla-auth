@@ -109,7 +109,9 @@ const translations = {
         "msg_copied": "✓ 已复制到剪贴板",
         "alert_regen_rc": "生成新恢复码将使旧恢复码全部失效，确定继续吗？",
 
-        "btn_logout": "退出登录"
+        "btn_logout": "退出登录",
+        "btn_logout_all": "在所有设备上退出",
+        "msg_logout_all_confirm": "确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。"
     },
     "en": {
         // index.html
@@ -221,7 +223,9 @@ const translations = {
         "msg_copied": "✓ Copied to clipboard",
         "alert_regen_rc": "Generating new recovery codes will invalidate all existing ones. Continue?",
 
-        "btn_logout": "Sign Out"
+        "btn_logout": "Sign Out",
+        "btn_logout_all": "Sign out from all devices",
+        "msg_logout_all_confirm": "Are you sure you want to sign out from all devices? This will immediately invalidate all active sessions."
     }
 };
 

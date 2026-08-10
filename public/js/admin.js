@@ -473,3 +473,10 @@
             await fetch('/api/logout', { method: 'POST' });
             window.location.href = '/';
         });
+
+        document.getElementById('logoutAllBtn').addEventListener('click', async () => {
+            if (confirm(t('msg_logout_all_confirm') || '确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。')) {
+                await fetch('/api/logout-all', { method: 'POST' });
+                window.location.href = '/';
+            }
+        });
