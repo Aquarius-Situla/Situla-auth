@@ -162,20 +162,6 @@ function setAuthCookie(res, user) {
 
 /* NGINX Forward Auth endpoint */
 app.get('/verify', (req, res) => {
-    // 允许常见的站点图标和清单文件绕过认证，方便外部工具（如 Logo.dev、浏览器等）抓取
-    const originalUri = req.headers['x-forwarded-uri'] || req.headers['x-original-uri'] || '';
-    const pathname = originalUri.split('?')[0].toLowerCase();
-    
-    const publicPaths = [
-        '/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png',
-        '/logo.png', '/logo.svg', '/icon.png', '/icon.svg',
-        '/robots.txt', '/site.webmanifest', '/manifest.json', '/browserconfig.xml'
-    ];
-    
-    if (publicPaths.includes(pathname)) {
-        return res.status(200).send('OK');
-    }
-
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).send('Unauthorized');
     try {
