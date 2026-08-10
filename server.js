@@ -592,6 +592,11 @@ app.post('/api/logout-all', authenticateJWT, (req, res) => {
 });
 
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
+app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
+    res.redirect(302, '/favicon.svg');
+});
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.use((err, req, res, next) => {
