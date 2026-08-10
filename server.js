@@ -54,7 +54,7 @@ app.use(express.static('public'));
 /* ── Rate Limiters ── */
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 15,                   // max 15 attempts per window
+    max: 5,                   // max 5 attempts per window
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: '尝试次数过多，请 15 分钟后再试' }
@@ -202,17 +202,25 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 }
 
                 const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
-                const codeHash = crypto.createHash('sha256').update(normalised).digest('hex');
-                db.get(
-                    'SELECT * FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0',
-                    [user.id, codeHash],
-                    (err2, rc) => {
-                        if (!rc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
-                        db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [rc.id]);
-                        setAuthCookie(res, user);
-                        res.json({ success: true, usedRecoveryCode: true });
+                db.all('SELECT * FROM recovery_codes WHERE user_id = ? AND used = 0', [user.id], async (err2, rcList) => {
+                    if (!rcList || rcList.length === 0) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                    
+                    let validRc = null;
+                    for (const rc of rcList) {
+                        if (rc.code_hash.startsWith('$2b$') || rc.code_hash.startsWith('$2a$')) {
+                            if (await bcrypt.compare(normalised, rc.code_hash)) { validRc = rc; break; }
+                        } else {
+                            // Legacy SHA-256
+                            if (crypto.createHash('sha256').update(normalised).digest('hex') === rc.code_hash) { validRc = rc; break; }
+                        }
                     }
-                );
+
+                    if (!validRc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                    
+                    db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [validRc.id]);
+                    setAuthCookie(res, user);
+                    res.json({ success: true, usedRecoveryCode: true });
+                });
             });
         } catch (e) {
             return res.status(401).json({ success: false, message: 'Session expired' });
@@ -260,17 +268,17 @@ setInterval(() => {
 }, 10 * 60 * 1000);
 
 /* Passkey Login Options */
-app.get('/api/webauthn/login-options', (req, res) => {
-    db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, user) => {
-        if (!user) return res.status(400).json({ error: 'User not found' });
-        
-        const options = await generateAuthenticationOptions({
-            rpID: RP_ID,
-            userVerification: 'preferred'
-        });
-        setChallenge(user.id, options.challenge);
-        res.json(options);
+app.get('/api/webauthn/login-options', async (req, res) => {
+    const options = await generateAuthenticationOptions({
+        rpID: RP_ID,
+        userVerification: 'preferred'
     });
+    
+    // Store challenge in a temp signed cookie to avoid tying to a specific user
+    const challengeToken = jwt.sign({ challenge: options.challenge }, JWT_SECRET, { expiresIn: '5m' });
+    res.cookie('webauthn_challenge', challengeToken, { httpOnly: true, secure: true, maxAge: 5 * 60 * 1000, sameSite: 'Lax' });
+    
+    res.json(options);
 });
 
 /* Passkey Verify */
@@ -286,10 +294,11 @@ app.post('/api/webauthn/login-verify', async (req, res) => {
             if (!user) return res.status(400).json({ error: 'User not found' });
 
             try {
-                const expectedChallenge = consumeChallenge(user.id);
-                if (!expectedChallenge) {
-                    return res.status(400).json({ error: 'Challenge expired or not found. Please try again.' });
-                }
+                const token = req.cookies.webauthn_challenge;
+                if (!token) return res.status(400).json({ error: 'Challenge expired. Please try again.' });
+                res.clearCookie('webauthn_challenge');
+                const expectedChallenge = jwt.verify(token, JWT_SECRET).challenge;
+
                 const verification = await verifyAuthenticationResponse({
                     response: req.body,
                     expectedChallenge,
@@ -341,8 +350,8 @@ app.post('/api/change-username', authenticateJWT, (req, res) => {
 app.post('/api/change-password', authenticateJWT, (req, res) => {
     const { currentPassword, newPassword } = req.body;
     // newPassword is received as raw string — JSON handles all special chars correctly
-    if (!newPassword || newPassword.length < 1)
-        return res.status(400).json({ success: false, message: '新密码不能为空' });
+    if (!newPassword || newPassword.length < 12)
+        return res.status(400).json({ success: false, message: '新密码至少需要12位' });
     if (newPassword.length > 128)
         return res.status(400).json({ success: false, message: '密码过长（最多128位）' });
 
@@ -387,10 +396,11 @@ app.post('/api/change-email', authenticateJWT, (req, res) => {
 
 
 app.get('/api/totp/generate', authenticateJWT, (req, res) => {
-
     const secret = authenticator.generateSecret();
     const otpauth = authenticator.keyuri(req.user.user, RP_NAME, secret);
-    qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret, qr: imageUrl }));
+    db.run('UPDATE users SET totp_pending_secret = ? WHERE id = ?', [secret, req.user.id], () => {
+        qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret: '', qr: imageUrl }));
+    });
 });
 
 app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
@@ -464,24 +474,23 @@ app.patch('/api/passkeys/:id', authenticateJWT, (req, res) => {
 /* Generate recovery codes — invalidates old ones, returns plaintext once */
 app.post('/api/recovery-codes/generate', authenticateJWT, (req, res) => {
     const COUNT = 8;
-    // Generate COUNT codes in format XXXXX-XXXXX (10 uppercase alphanumeric chars)
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/I/1 ambiguity
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const codes = [];
     for (let i = 0; i < COUNT; i++) {
         let raw = '';
         for (let j = 0; j < 10; j++) raw += chars[crypto.randomInt(chars.length)];
-        codes.push(raw.slice(0, 5) + '-' + raw.slice(5)); // display: XXXXX-XXXXX
+        codes.push(raw.slice(0, 5) + '-' + raw.slice(5));
     }
 
-    // Delete old codes, insert new hashed ones
-    db.run('DELETE FROM recovery_codes WHERE user_id = ?', [req.user.id], () => {
+    db.run('DELETE FROM recovery_codes WHERE user_id = ?', [req.user.id], async () => {
         const stmt = db.prepare('INSERT INTO recovery_codes (user_id, code_hash, used) VALUES (?, ?, 0)');
-        codes.forEach(c => {
-            const normalised = c.replace(/-/g, ''); // store hash of raw 10-char form
-            stmt.run([req.user.id, crypto.createHash('sha256').update(normalised).digest('hex')]);
-        });
+        for (const c of codes) {
+            const normalised = c.replace(/-/g, '');
+            const hashed = await bcrypt.hash(normalised, SALT_ROUNDS);
+            stmt.run([req.user.id, hashed]);
+        }
         stmt.finalize();
-        res.json({ success: true, codes }); // plaintext returned ONCE
+        res.json({ success: true, codes });
     });
 });
 
@@ -497,11 +506,14 @@ app.get('/api/recovery-codes/status', authenticateJWT, (req, res) => {
 });
 
 app.post('/api/totp/verify', authenticateJWT, (req, res) => {
-    if (authenticator.verify({ token: req.body.token, secret: req.body.secret })) {
-        db.run('UPDATE users SET totp_secret = ? WHERE id = ?', [req.body.secret, req.user.id]);
-        return res.json({ success: true });
-    }
-    res.status(400).json({ success: false, message: 'Invalid token' });
+    db.get('SELECT totp_pending_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user || !user.totp_pending_secret) return res.status(400).json({ success: false, message: 'No pending TOTP setup' });
+        if (authenticator.verify({ token: req.body.token, secret: user.totp_pending_secret })) {
+            db.run('UPDATE users SET totp_secret = ?, totp_pending_secret = "" WHERE id = ?', [user.totp_pending_secret, req.user.id]);
+            return res.json({ success: true });
+        }
+        res.status(400).json({ success: false, message: 'Invalid token' });
+    });
 });
 
 app.get('/api/webauthn/register-options', authenticateJWT, async (req, res) => {
