@@ -35,6 +35,7 @@ const SALT_ROUNDS = 12;
 
 const app = express();
 app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
