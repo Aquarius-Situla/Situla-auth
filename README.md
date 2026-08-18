@@ -72,19 +72,55 @@ docker compose up -d --build
 
 ## ⚙️ Configuration (`.env`)
 
-| Variable        | Description                                              | Example                    |
-|-----------------|----------------------------------------------------------|----------------------------|
-| `ADMIN_USER`    | Default login username                                   | `admin`                    |
-| `ADMIN_PASS`    | Default login password                                   | `mysecretpassword`         |
-| `JWT_SECRET`    | Cookie signing secret. **Auto-generated** if left blank. | *(leave blank)*            |
-| `COOKIE_DOMAIN` | Domain scope for the session cookie                      | `.example.com`             |
-| `RP_ID`         | WebAuthn Relying Party ID (your auth page hostname)      | `auth.example.com`         |
-| `PORT`          | Internal port (default: `3000`)                          | `3000`                     |
+| Variable           | Description                                              | Example                    |
+|--------------------|----------------------------------------------------------|----------------------------|
+| `ADMIN_USER`       | Default login username                                   | `admin`                    |
+| `ADMIN_PASS`       | Default login password                                   | `mysecretpassword`         |
+| `JWT_SECRET`       | Cookie signing secret. **Auto-generated** if left blank. | *(leave blank)*            |
+| `COOKIE_DOMAIN`    | Domain scope for the session cookie                      | `.example.com`             |
+| `RP_ID`            | WebAuthn Relying Party ID (your auth page hostname)      | `auth.example.com`         |
+| `TRUSTED_DOMAINS`  | Extra trusted redirect root domains (comma-separated)    | `a.com,b.org`              |
+| `PORT`             | Internal port (default: `3000`)                          | `3000`                     |
 
 > [!NOTE]
 > `JWT_SECRET` is automatically generated and written to `.env` on first startup if not set manually.
 
 ---
+
+## 🌐 Trusted Redirect Domains
+
+After login, Situla Auth redirects users back to the service they originally tried to access (via the `?rd=` query parameter). For security, only URLs pointing to a **trusted domain** are allowed; all others fall back to the admin panel.
+
+### Default trust (automatic)
+
+The trust root is derived automatically from your `RP_ID`. The **direct parent domain** of the auth hostname is trusted by default — along with all of its subdomains:
+
+| `RP_ID` value            | Automatically trusted                                   |
+|--------------------------|----------------------------------------------------------|
+| `auth.example.com`       | `example.com` and `*.example.com`                       |
+| `auth.a.example.com`     | `a.example.com` and `*.a.example.com` *(not `example.com`)* |
+| `auth.com`               | `auth.com` and `*.auth.com`                             |
+
+### Custom extra trust (`TRUSTED_DOMAINS`)
+
+To allow redirects to additional domains, add them as a comma-separated list of **root domains** (no wildcards needed — all subdomains of each root are included automatically):
+
+```env
+# .env
+TRUSTED_DOMAINS=a.com,b.a.com
+```
+
+| `TRUSTED_DOMAINS` value | Trusts                                                      | Does NOT trust              |
+|-------------------------|-------------------------------------------------------------|-----------------------------||
+| `a.com`                 | `a.com`, `www.a.com`, `sub.a.com`, …                       | —                           |
+| `b.a.com`               | `b.a.com`, `x.b.a.com`, …                                  | `a.com`, `other.a.com`      |
+| `a.com,b.org`           | Both `a.com` + all subdomains, and `b.org` + all subdomains | —                           |
+
+> [!IMPORTANT]
+> After changing `TRUSTED_DOMAINS`, run `docker compose restart` (no rebuild needed).
+
+---
+
 
 ## 🛡️ Nginx Proxy Manager Setup
 
