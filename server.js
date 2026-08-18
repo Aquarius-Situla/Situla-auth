@@ -92,6 +92,45 @@ const RP_NAME = 'Situla Auth';
 /* In Nginx reverse proxy, the client origin is usually https://auth.example.com */
 const ORIGIN = `https://${RP_ID}`;
 
+/* ── Trusted Redirect Domains ── */
+// Auto-derive the default trust root from RP_ID:
+//   auth.a.example.com  →  a.example.com  (direct parent)
+//   auth.example.com    →  example.com
+function deriveDefaultTrustRoot(rpId) {
+    const parts = rpId.split('.');
+    // If only one or two parts (e.g. "localhost" or "example.com"), trust the whole thing
+    if (parts.length <= 2) return rpId;
+    // Strip the first segment ("auth") to get the parent domain
+    return parts.slice(1).join('.');
+}
+
+const DEFAULT_TRUST_ROOT = deriveDefaultTrustRoot(RP_ID);
+
+// TRUSTED_DOMAINS: comma-separated list of additional trust roots in .env
+// e.g. TRUSTED_DOMAINS=a.com,b.org
+const EXTRA_TRUST_ROOTS = (process.env.TRUSTED_DOMAINS || '')
+    .split(',')
+    .map(d => d.trim().toLowerCase().replace(/^\*\./, ''))
+    .filter(Boolean);
+
+// Combined unique set of trust roots (without leading dots)
+const ALL_TRUST_ROOTS = [...new Set([DEFAULT_TRUST_ROOT, ...EXTRA_TRUST_ROOTS])];
+
+/**
+ * Returns true if `url` is a safe redirect target:
+ * the hostname must equal a trust root or be a direct/indirect subdomain of one.
+ */
+function isTrustedRedirect(url) {
+    try {
+        const hostname = new URL(url).hostname.toLowerCase();
+        return ALL_TRUST_ROOTS.some(root =>
+            hostname === root || hostname.endsWith('.' + root)
+        );
+    } catch {
+        return false;
+    }
+}
+
 /* Legacy SHA-256 hash — only used for initial admin account creation on first run */
 function sha256Hash(pass) {
     return crypto.createHash('sha256').update(pass).digest('hex');
@@ -198,6 +237,11 @@ app.get('/verify', (req, res) => {
     } catch (err) {
         res.status(401).send('Unauthorized');
     }
+});
+
+/* Public endpoint: returns the list of trusted redirect root domains */
+app.get('/api/trusted-domains', (req, res) => {
+    res.json({ trustedRoots: ALL_TRUST_ROOTS });
 });
 
 /* Password & TOTP Login — rate limited */

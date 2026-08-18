@@ -25,6 +25,42 @@
         }
         usernameInput.addEventListener('input', updateButtonState);
 
+        /* ── Trusted-redirect resolution ── */
+        // Cache the trusted roots fetched from the server
+        let _trustedRootsPromise = null;
+        function getTrustedRoots() {
+            if (!_trustedRootsPromise) {
+                _trustedRootsPromise = fetch('/api/trusted-domains')
+                    .then(r => r.json())
+                    .then(data => data.trustedRoots || [])
+                    .catch(() => []);
+            }
+            return _trustedRootsPromise;
+        }
+
+        /**
+         * Validate a redirect URL against the server-supplied trust list.
+         * Trusts hostname === root  OR  hostname ends with "." + root.
+         * Returns the original `rd` URL if trusted, otherwise returns null.
+         */
+        async function safeRedirectUrl(rd) {
+            if (!rd) return null;
+            try {
+                const rdUrl = new URL(rd, window.location.origin);
+                const hostname = rdUrl.hostname.toLowerCase();
+                const roots = await getTrustedRoots();
+                const trusted = roots.some(root =>
+                    hostname === root || hostname.endsWith('.' + root)
+                );
+                return trusted ? rd : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Pre-fetch trust roots as soon as the page loads (avoids latency on login)
+        getTrustedRoots();
+
         // Form submit handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -79,18 +115,7 @@
                 if (data.success) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    let target = '/admin';
-                    if (rd) {
-                        try {
-                            const rdUrl = new URL(rd, window.location.origin);
-                            const currentHost = window.location.hostname;
-                            const parts = currentHost.split('.');
-                            const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
-                            if (rdUrl.hostname === currentHost || rdUrl.hostname === baseDomain || rdUrl.hostname.endsWith('.' + baseDomain)) {
-                                target = rd;
-                            }
-                        } catch(e) {}
-                    }
+                    const target = (await safeRedirectUrl(rd)) || '/admin';
                     setTimeout(() => {
                         window.location.href = target;
                     }, 300);
@@ -128,18 +153,7 @@
                 if (verificationJSON && verificationJSON.verified) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    let target = '/admin';
-                    if (rd) {
-                        try {
-                            const rdUrl = new URL(rd, window.location.origin);
-                            const currentHost = window.location.hostname;
-                            const parts = currentHost.split('.');
-                            const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
-                            if (rdUrl.hostname === currentHost || rdUrl.hostname === baseDomain || rdUrl.hostname.endsWith('.' + baseDomain)) {
-                                target = rd;
-                            }
-                        } catch(e) {}
-                    }
+                    const target = (await safeRedirectUrl(rd)) || '/admin';
                     window.location.href = target;
                 } else {
                     errMsg.textContent = t('msg_passkey_failed');

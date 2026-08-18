@@ -1,3 +1,30 @@
+        /* ── Trusted-redirect resolution (mirrors login.js logic) ── */
+        let _trustedRootsPromise = null;
+        function getTrustedRoots() {
+            if (!_trustedRootsPromise) {
+                _trustedRootsPromise = fetch('/api/trusted-domains')
+                    .then(r => r.json())
+                    .then(data => data.trustedRoots || [])
+                    .catch(() => []);
+            }
+            return _trustedRootsPromise;
+        }
+        async function safeRedirectUrl(rd) {
+            if (!rd) return null;
+            try {
+                const rdUrl = new URL(rd, window.location.origin);
+                const hostname = rdUrl.hostname.toLowerCase();
+                const roots = await getTrustedRoots();
+                const trusted = roots.some(root =>
+                    hostname === root || hostname.endsWith('.' + root)
+                );
+                return trusted ? rd : null;
+            } catch (e) {
+                return null;
+            }
+        }
+        getTrustedRoots();
+
         const storedToken = sessionStorage.getItem('tempToken');
 
         if (!storedToken) {
@@ -134,18 +161,7 @@
                     sessionStorage.removeItem('tempToken');
                     if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
                     const rd = new URLSearchParams(window.location.search).get('rd');
-                    let target = '/admin';
-                    if (rd) {
-                        try {
-                            const rdUrl = new URL(rd, window.location.origin);
-                            const currentHost = window.location.hostname;
-                            const parts = currentHost.split('.');
-                            const baseDomain = parts.length > 2 ? parts.slice(-2).join('.') : currentHost;
-                            if (rdUrl.hostname === currentHost || rdUrl.hostname === baseDomain || rdUrl.hostname.endsWith('.' + baseDomain)) {
-                                target = rd;
-                            }
-                        } catch(e) {}
-                    }
+                    const target = (await safeRedirectUrl(rd)) || '/admin';
                     window.location.href = target;
                 } else {
                     errMsg.textContent = data.message || t('msg_verify_failed');
