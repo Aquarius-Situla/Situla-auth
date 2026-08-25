@@ -32,6 +32,7 @@ const helmet = require('helmet');
 const db = require('./database');
 const mailer = require('./mailer');
 
+const COOKIE_NAME = process.env.COOKIE_NAME || 'situla_session';
 const SALT_ROUNDS = 12;
 
 let DUMMY_HASH = '';
@@ -59,9 +60,9 @@ app.use(cookieParser());
 
 // Auto-redirect logged-in users away from the login page
 app.get(['/', '/index.html'], (req, res, next) => {
-    const token = req.cookies[COOKIE_NAME];
-    if (token) {
-        try {
+    try {
+        const token = req.cookies ? req.cookies[COOKIE_NAME] : null;
+        if (token) {
             const decoded = jwt.verify(token, JWT_SECRET);
             const currentVersion = tokenVersionCache.get(decoded.id) || 0;
             if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
@@ -70,7 +71,9 @@ app.get(['/', '/index.html'], (req, res, next) => {
                 if (isTrustedRedirect(rd)) return res.redirect(302, rd);
                 return res.redirect(302, '/admin');
             }
-        } catch (e) {}
+        }
+    } catch (e) {
+        console.error('[Redirect] error:', e.message);
     }
     next(); // Fall through to express.static
 });
@@ -111,7 +114,6 @@ if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET === DEFAULT_LEGACY) 
 const ADMIN_USER = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || '').replace(/^['\"]|['\"]$/g, '');
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.example.com';
-const COOKIE_NAME = 'situla_session';
 const RP_ID = process.env.RP_ID || 'auth.example.com';
 const RP_NAME = 'Situla Auth';
 /* In Nginx reverse proxy, the client origin is usually https://auth.example.com */
