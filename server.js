@@ -177,6 +177,16 @@ db.all('SELECT id, token_version FROM users', (err, rows) => {
     }
 });
 
+// Cache for revoked specific JWTs (stateless session blacklisting)
+const revokedTokensCache = new Map();
+// Cleanup expired tokens from blacklist every hour
+setInterval(() => {
+    const now = Date.now();
+    for (const [jti, exp] of revokedTokensCache.entries()) {
+        if (now > exp) revokedTokensCache.delete(jti);
+    }
+}, 60 * 60 * 1000);
+
 function authenticateJWT(req, res, next) {
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -185,6 +195,9 @@ function authenticateJWT(req, res, next) {
         const currentVersion = tokenVersionCache.get(decoded.id) || 0;
         if (decoded.token_version !== currentVersion) {
             return res.status(401).json({ error: 'Session expired' });
+        }
+        if (decoded.jti && revokedTokensCache.has(decoded.jti)) {
+            return res.status(401).json({ error: 'Session revoked' });
         }
         req.user = decoded;
         next();
@@ -195,7 +208,13 @@ function authenticateJWT(req, res, next) {
 
 function setAuthCookie(res, user) {
     const tokenVersion = tokenVersionCache.get(user.id) || 0;
-    const token = jwt.sign({ id: user.id, user: user.username, email: user.email || '', token_version: tokenVersion }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ 
+        id: user.id, 
+        user: user.username, 
+        email: user.email || '', 
+        token_version: tokenVersion,
+        jti: crypto.randomUUID()
+    }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true, secure: true, domain: COOKIE_DOMAIN, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'Lax'
     });
@@ -223,6 +242,9 @@ app.get('/verify', (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const currentVersion = tokenVersionCache.get(decoded.id) || 0;
         if (decoded.token_version !== currentVersion) {
+            return res.status(401).send('Unauthorized');
+        }
+        if (decoded.jti && revokedTokensCache.has(decoded.jti)) {
             return res.status(401).send('Unauthorized');
         }
         // Inject SSO headers for reverse proxies (like FreshRSS HTTP_AUTH)
@@ -857,6 +879,17 @@ app.post('/api/fido2/verify', loginLimiter, async (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
+    const token = req.cookies[COOKIE_NAME];
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            if (decoded.jti && decoded.exp) {
+                revokedTokensCache.set(decoded.jti, decoded.exp * 1000);
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
     res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
     res.json({ success: true });
 });
@@ -876,6 +909,24 @@ app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirnam
 
 app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
     res.redirect(302, '/favicon.svg');
+});
+
+app.get(['/', '/index.html'], (req, res, next) => {
+    const token = req.cookies[COOKIE_NAME];
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+            if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
+                const rd = req.query.rd;
+                if (!rd) return res.redirect(302, '/admin');
+                if (isTrustedRedirect(rd)) return res.redirect(302, rd);
+                return res.redirect(302, '/admin');
+            }
+        } catch (e) {}
+    }
+    // Fallback to sending index.html for not logged in users
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
