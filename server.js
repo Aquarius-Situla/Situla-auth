@@ -56,6 +56,25 @@ app.use(helmet({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Auto-redirect logged-in users away from the login page
+app.get(['/', '/index.html'], (req, res, next) => {
+    const token = req.cookies[COOKIE_NAME];
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+            if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
+                const rd = req.query.rd;
+                if (!rd) return res.redirect(302, '/admin');
+                if (isTrustedRedirect(rd)) return res.redirect(302, rd);
+                return res.redirect(302, '/admin');
+            }
+        } catch (e) {}
+    }
+    next(); // Fall through to express.static
+});
+
 app.use(express.static('public'));
 
 /* ── Rate Limiters ── */
@@ -919,24 +938,6 @@ app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirnam
 
 app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
     res.redirect(302, '/favicon.svg');
-});
-
-app.get(['/', '/index.html'], (req, res, next) => {
-    const token = req.cookies[COOKIE_NAME];
-    if (token) {
-        try {
-            const decoded = jwt.verify(token, JWT_SECRET);
-            const currentVersion = tokenVersionCache.get(decoded.id) || 0;
-            if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
-                const rd = req.query.rd;
-                if (!rd) return res.redirect(302, '/admin');
-                if (isTrustedRedirect(rd)) return res.redirect(302, rd);
-                return res.redirect(302, '/admin');
-            }
-        } catch (e) {}
-    }
-    // Fallback to sending index.html for not logged in users
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
