@@ -34,6 +34,11 @@ const mailer = require('./mailer');
 
 const SALT_ROUNDS = 12;
 
+let DUMMY_HASH = '';
+(async () => {
+    DUMMY_HASH = await bcrypt.hash('dummy_password_for_timing_protection', SALT_ROUNDS);
+})();
+
 const app = express();
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -312,7 +317,12 @@ app.post('/api/login', loginLimiter, async (req, res) => {
 
     db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
         // Always run password check to prevent timing-based username enumeration
-        const passwordOk = user ? await verifyPassword(password || '', user.password, user.id) : false;
+        let passwordOk = false;
+        if (user) {
+            passwordOk = await verifyPassword(password || '', user.password, user.id);
+        } else {
+            if (DUMMY_HASH) await bcrypt.compare(password || '', DUMMY_HASH);
+        }
         if (!user || !passwordOk) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
@@ -352,7 +362,7 @@ setInterval(() => {
 }, 10 * 60 * 1000);
 
 /* Passkey Login Options */
-app.get('/api/webauthn/login-options', async (req, res) => {
+app.get('/api/webauthn/login-options', loginLimiter, async (req, res) => {
     const options = await generateAuthenticationOptions({
         rpID: RP_ID,
         userVerification: 'preferred'
@@ -366,7 +376,7 @@ app.get('/api/webauthn/login-options', async (req, res) => {
 });
 
 /* Passkey Verify */
-app.post('/api/webauthn/login-verify', async (req, res) => {
+app.post('/api/webauthn/login-verify', loginLimiter, async (req, res) => {
     console.log('[Login Verify] req.body.id:', req.body.id);
     db.get('SELECT * FROM passkeys WHERE credential_id = ?', [req.body.id], (err, passkey) => {
         if (!passkey) {
