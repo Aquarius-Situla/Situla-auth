@@ -1,0 +1,262 @@
+<!--
+  Situla Auth 2.0
+  Copyright (C) 2026 Situla
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!DOCTYPE html>
+<html lang="zh-CN" class="login-html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>双重身份验证</title>
+    <style>
+        /* ===== TOTP 6-box input ===== */
+        .totp-boxes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .totp-digit {
+            width: 46px;
+            height: 52px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 10px;
+            background: #ffffff;
+            font-size: 24px;
+            font-weight: 500;
+            color: #1d1d1f;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            caret-color: #0071e3;
+            -moz-appearance: textfield;
+        }
+        .totp-digit::-webkit-outer-spin-button,
+        .totp-digit::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+        .totp-digit:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.18);
+        }
+        .totp-digit.filled {
+            border-color: #0071e3;
+            background: #f0f6ff;
+        }
+
+        /* ===== FIDO2 waiting UI ===== */
+        #fido2Section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            padding: 10px 0 4px;
+        }
+        .fido2-icon-wrap {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fido2-icon-wrap img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
+        @media (prefers-color-scheme: dark) {
+            .fido2-icon-wrap img {
+                filter: invert(1);
+            }
+        }
+        .fido2-hint {
+            font-size: 15px;
+            color: #3c3c43;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 260px;
+        }
+        @media (prefers-color-scheme: dark) {
+            .fido2-hint { color: #aeaeb2; }
+        }
+        .fido2-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2.5px solid #d2d2d7;
+            border-top-color: #0071e3;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (prefers-color-scheme: dark) {
+            .fido2-spinner { border-color: #3a3a3c; border-top-color: #0a84ff; }
+        }
+
+        /* ===== lock.svg icon in header (TOTP mode) ===== */
+        .lock-icon {
+            width: 52px;
+            height: 52px;
+            margin-bottom: 14px;
+        }
+        @media (prefers-color-scheme: dark) {
+            .lock-icon {
+                /* #0070C9 → #0A84FF: Apple dark-mode blue */
+                filter: brightness(1.25) saturate(0.9);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .totp-digit {
+                width: 40px;
+                height: 46px;
+                font-size: 20px;
+                border-radius: 8px;
+            }
+            .totp-boxes { gap: 7px; }
+        }
+        @media (max-width: 500px) {
+            .totp-buttons { flex-direction: column; }
+            .totp-buttons #verifyBtn { order: 1; }
+            .totp-buttons #backBtn  { order: 2; }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .totp-digit {
+                background: #1c1c1e;
+                border-color: #3a3a3c;
+                color: #ffffff;
+            }
+            .totp-digit:focus {
+                border-color: #0a84ff;
+                box-shadow: 0 0 0 3px rgba(10,132,255,0.22);
+            }
+            .totp-digit.filled {
+                border-color: #0a84ff;
+                background: #0d2040;
+            }
+            #rcInput {
+                background: #1c1c1e !important;
+                border-color: #3a3a3c !important;
+                color: #ffffff !important;
+            }
+            #rcInput:focus {
+                border-color: #0a84ff !important;
+                box-shadow: 0 0 0 3px rgba(10,132,255,0.22) !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script src="/js/simplewebauthn.js"></script>
+    <script src="i18n.js"></script>
+</head>
+<body class="login-page" data-page-title-key="twofa_doc_title">
+
+    <!-- Top gray bar with nav -->
+    <div class="gray-top-bar">
+        <div class="nav-content">
+            <img src="/lock.svg" class="lock-icon" style="width:18px;height:18px;margin-bottom:0;" alt="">
+            <span class="nav-title" data-i18n="twofa_title">双重身份验证</span>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="apple-container">
+
+            <!-- TOTP mode (default visible) -->
+            <div id="totpMode">
+                <div class="logo-container">
+                    <img src="/lock.svg" class="lock-icon" alt="">
+                    <h1 data-i18n="twofa_title">双重身份验证</h1>
+                    <p id="totpSubtitle" data-i18n="totp_subtitle_app">请输入身份验证器中显示的 6 位验证码</p>
+                </div>
+
+                <form id="totpForm">
+                    <!-- 6-box TOTP input -->
+                    <div id="totpBoxSection">
+                        <div class="totp-boxes" id="totpBoxes">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                            <input class="totp-digit" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- Recovery code input (hidden by default) -->
+                    <div id="rcSection" style="display:none;">
+                        <input type="text" id="rcInput"
+                            style="width:100%; padding:14px; border:1.5px solid #d2d2d7; border-radius:10px;
+                                   font-size:16px; text-align:center; letter-spacing:2px; outline:none;
+                                   font-family:monospace; transition:border-color 0.18s, box-shadow 0.18s;"
+                            data-i18n-placeholder="rc_placeholder"
+                            placeholder="XXXXX-XXXXX"
+                            autocomplete="off" spellcheck="false"
+                        >
+                    </div>
+
+                    <!-- Toggle link -->
+                    <div style="text-align:center; margin-top:14px;">
+                        <a id="toggleRcLink" href="#" style="font-size:13px; color:#0071e3; text-decoration:none;" data-i18n="totp_link_rc">
+                            使用恢复码登录
+                        </a>
+                    </div>
+
+                    <div id="totpError" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:10px;"></div>
+
+                    <div class="button-row totp-buttons" style="margin-top:20px;">
+                        <button type="button" class="login-btn back-btn" id="backBtn" data-i18n="btn_back">返回</button>
+                        <button type="submit" class="login-btn btn-primary active" id="verifyBtn" data-i18n="btn_continue">继续</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FIDO2 mode (hidden by default, shown when twoFaMethod === 'fido2') -->
+            <div id="fido2Mode" style="display:none;">
+                <div class="logo-container">
+                    <div class="fido2-icon-wrap">
+                        <img src="/FIDO.svg" alt="FIDO2">
+                    </div>
+                    <h1 data-i18n="fido2_title">安全密钥验证</h1>
+                    <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">请插入并触摸你的安全密钥</p>
+                </div>
+
+                <div id="fido2Section">
+                    <div class="fido2-spinner" id="fido2Spinner"></div>
+                    <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_waiting">正在等待安全密钥...</div>
+                </div>
+
+                <div id="fido2Error" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:16px;"></div>
+
+                <div class="button-row" style="margin-top:24px; justify-content:center;">
+                    <button type="button" class="login-btn back-btn" id="fido2BackBtn" data-i18n="btn_back">返回</button>
+                    <button type="button" class="login-btn btn-primary active" id="fido2RetryBtn" data-i18n="fido2_btn_retry">重试</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom gray bar -->
+    <div class="gray-bottom-bar"></div>
+
+    <script src="/js/2fa.js"></script>
+</body>
+</html>

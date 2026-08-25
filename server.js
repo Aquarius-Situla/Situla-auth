@@ -30,6 +30,7 @@ const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
 const helmet = require('helmet');
 const db = require('./database');
+const mailer = require('./mailer');
 
 const SALT_ROUNDS = 12;
 
@@ -253,7 +254,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
         try {
             const decoded = jwt.verify(tempToken, JWT_SECRET);
             db.get('SELECT * FROM users WHERE id = ?', [decoded.temp_id], (err, user) => {
-                if (!user || !user.totp_secret) return res.status(401).json({ success: false, message: 'Invalid session' });
+                if (!user || (!user.totp_secret && user.two_fa_method !== 'totp')) return res.status(401).json({ success: false, message: 'Invalid session' });
                 
                 if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
                     setAuthCookie(res, user);
@@ -293,9 +294,11 @@ app.post('/api/login', loginLimiter, async (req, res) => {
         if (!user || !passwordOk) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
-        if (user.totp_secret) {
+        // Check for any 2FA method: TOTP (legacy totp_secret column) or FIDO2
+        const twoFaMethod = user.two_fa_method || (user.totp_secret ? 'totp' : null);
+        if (twoFaMethod) {
             const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
-            return res.json({ success: false, requireTotp: true, tempToken });
+            return res.json({ success: false, requireTotp: true, tempToken, twoFaMethod });
         }
         setAuthCookie(res, user);
         res.json({ success: true });
@@ -477,7 +480,7 @@ app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
                 return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });
         }
 
-        db.run('UPDATE users SET totp_secret = NULL WHERE id = ?', [req.user.id], (e) => {
+        db.run('UPDATE users SET totp_secret = NULL, two_fa_method = NULL WHERE id = ?', [req.user.id], (e) => {
             if (e) return res.status(500).json({ success: false, message: 'Database error' });
             res.json({ success: true });
         });
@@ -485,18 +488,27 @@ app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
 });
 
 app.get('/api/status', authenticateJWT, (req, res) => {
-    db.get('SELECT totp_secret, email FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT totp_secret, email, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (err) console.error('Status users error:', err);
-        db.all('SELECT id, name, created_at FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
+        // Fetch passkeys (type='passkey') and fido2 keys separately
+        db.all('SELECT id, name, created_at, type, transports FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
             if (err2) console.error('Status passkeys error:', err2);
             db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err3, rc) => {
                 if (err3) console.error('Status rc error:', err3);
-                console.log('API Status Response:', { userId: req.user.id, passkeyCount: keys ? keys.length : 0 });
+                const allKeys = keys || [];
+                const passkeys = allKeys.filter(k => (k.type || 'passkey') === 'passkey');
+                const fido2Keys = allKeys.filter(k => k.type === 'fido2').map(k => ({
+                    ...k, transports: JSON.parse(k.transports || '[]')
+                }));
+                const twoFaMethod = user ? (user.two_fa_method || (user.totp_secret ? 'totp' : null)) : null;
                 res.json({
                     email: user ? (user.email || '') : '',
                     hasTOTP: !!(user && user.totp_secret),
-                    passkeyCount: keys ? keys.length : 0,
-                    passkeys: keys || [],
+                    twoFaMethod,
+                    passkeyCount: passkeys.length,
+                    passkeys: passkeys,
+                    fido2Keys,
+                    fido2Count: fido2Keys.length,
                     recoveryCodesRemaining: rc ? rc.total : 0
                 });
             });
@@ -565,10 +577,13 @@ app.get('/api/recovery-codes/status', authenticateJWT, (req, res) => {
 });
 
 app.post('/api/totp/verify', authenticateJWT, (req, res) => {
-    db.get('SELECT totp_pending_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
+    db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (!user || !user.totp_pending_secret) return res.status(400).json({ success: false, message: 'No pending TOTP setup' });
+        // Prevent enabling TOTP if FIDO2 is already active
+        if (user.two_fa_method === 'fido2') return res.status(409).json({ success: false, message: '请先禁用 FIDO2 2FA 后再设置 TOTP' });
         if (authenticator.verify({ token: req.body.token, secret: user.totp_pending_secret })) {
-            db.run('UPDATE users SET totp_secret = ?, totp_pending_secret = "" WHERE id = ?', [user.totp_pending_secret, req.user.id]);
+            db.run('UPDATE users SET totp_secret = ?, totp_pending_secret = "", two_fa_method = ? WHERE id = ?',
+                [user.totp_pending_secret, 'totp', req.user.id]);
             return res.json({ success: true });
         }
         res.status(400).json({ success: false, message: 'Invalid token' });
@@ -605,18 +620,248 @@ app.post('/api/webauthn/register-verify', authenticateJWT, async (req, res) => {
             const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
             const name = (req.body._passkeyName || '通行密钥').trim().slice(0, 40);
             const createdAt = new Date().toISOString();
+            const transports = JSON.stringify(req.body.response?.transports || []);
             db.run(
-                'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at, type, transports) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [req.user.id,
                  Buffer.from(credentialID).toString('base64url'),
                  Buffer.from(credentialPublicKey).toString('base64url'),
-                 counter, name, createdAt]
+                 counter, name, createdAt, 'passkey', transports]
             );
             return res.json({ verified: true });
         }
     } catch (error) {
         console.error('[WebAuthn Register Error]:', error.message, error);
         return res.status(400).json({ error: error.message });
+    }
+});
+
+/* ── FIDO2 2FA Routes ── */
+const FIDO2_MIN_KEYS = 2;
+const FIDO2_MAX_KEYS = 6;
+
+/* Register a new FIDO2 2FA key — options */
+app.get('/api/fido2/register-options', authenticateJWT, async (req, res) => {
+    // Check key count limit
+    db.get('SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?', [req.user.id, 'fido2'], async (err, row) => {
+        if (row && row.cnt >= FIDO2_MAX_KEYS) {
+            return res.status(400).json({ error: `最多只能添加 ${FIDO2_MAX_KEYS} 把硬件密钥` });
+        }
+        const options = await generateRegistrationOptions({
+            rpName: RP_NAME,
+            rpID: RP_ID,
+            userID: Buffer.from(req.user.id.toString()),
+            userName: req.user.user,
+            attestationType: 'none',
+            authenticatorSelection: {
+                authenticatorAttachment: 'cross-platform', // External keys only (YubiKey, etc.)
+                userVerification: 'preferred',
+            },
+            // No authenticatorTransports restriction — browser handles USB/NFC/BLE automatically
+        });
+        setChallenge(`fido2_reg_${req.user.id}`, options.challenge);
+        res.json(options);
+    });
+});
+
+/* Register a new FIDO2 2FA key — verify */
+app.post('/api/fido2/register-verify', authenticateJWT, async (req, res) => {
+    try {
+        const expectedChallenge = consumeChallenge(`fido2_reg_${req.user.id}`);
+        if (!expectedChallenge) {
+            return res.status(400).json({ error: '挑战已过期，请重试' });
+        }
+        // Check current fido2 key count
+        db.get('SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?', [req.user.id, 'fido2'], async (err, row) => {
+            if (row && row.cnt >= FIDO2_MAX_KEYS) {
+                return res.status(400).json({ error: `最多只能添加 ${FIDO2_MAX_KEYS} 把硬件密钥` });
+            }
+            try {
+                const verification = await verifyRegistrationResponse({
+                    response: req.body,
+                    expectedChallenge,
+                    expectedOrigin: ORIGIN,
+                    expectedRPID: RP_ID
+                });
+                if (verification.verified) {
+                    const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
+                    const name = (req.body._keyName || '安全密钥').trim().slice(0, 40);
+                    const createdAt = new Date().toISOString();
+                    const transports = JSON.stringify(req.body.response?.transports || []);
+                    db.run(
+                        'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at, type, transports) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                        [req.user.id,
+                         Buffer.from(credentialID).toString('base64url'),
+                         Buffer.from(credentialPublicKey).toString('base64url'),
+                         counter, name, createdAt, 'fido2', transports],
+                        (dbErr) => {
+                            if (dbErr) return res.status(500).json({ error: 'Database error' });
+                            res.json({ verified: true });
+                        }
+                    );
+                } else {
+                    res.status(400).json({ error: '验证失败' });
+                }
+            } catch (verifyErr) {
+                console.error('[FIDO2 Register Error]:', verifyErr.message);
+                return res.status(400).json({ error: verifyErr.message });
+            }
+        });
+    } catch (e) {
+        return res.status(400).json({ error: e.message });
+    }
+});
+
+/* List FIDO2 keys */
+app.get('/api/fido2/keys', authenticateJWT, (req, res) => {
+    db.all('SELECT id, name, created_at, transports FROM passkeys WHERE user_id = ? AND type = ? ORDER BY id ASC',
+        [req.user.id, 'fido2'], (err, keys) => {
+        res.json((keys || []).map(k => ({ ...k, transports: JSON.parse(k.transports || '[]') })));
+    });
+});
+
+/* Delete a FIDO2 key — auto-disables 2FA if below minimum */
+app.delete('/api/fido2/keys/:id', authenticateJWT, (req, res) => {
+    db.run('DELETE FROM passkeys WHERE id = ? AND user_id = ? AND type = ?',
+        [req.params.id, req.user.id, 'fido2'], function(err) {
+        if (err) return res.status(500).json({ success: false });
+        if (this.changes === 0) return res.status(404).json({ success: false, message: 'Not found' });
+        // Check remaining count
+        db.get('SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?', [req.user.id, 'fido2'], (err2, row) => {
+            const remaining = row ? row.cnt : 0;
+            if (remaining < FIDO2_MIN_KEYS) {
+                // Auto-disable FIDO2 2FA
+                db.run('UPDATE users SET two_fa_method = NULL WHERE id = ? AND two_fa_method = ?',
+                    [req.user.id, 'fido2']);
+                return res.json({ success: true, autoDisabled: true, remaining });
+            }
+            res.json({ success: true, autoDisabled: false, remaining });
+        });
+    });
+});
+
+/* Rename a FIDO2 key */
+app.patch('/api/fido2/keys/:id', authenticateJWT, (req, res) => {
+    const name = (req.body.name || '').trim().slice(0, 40);
+    if (!name) return res.status(400).json({ success: false });
+    db.run('UPDATE passkeys SET name = ? WHERE id = ? AND user_id = ? AND type = ?',
+        [name, req.params.id, req.user.id, 'fido2'], function(err) {
+        if (err || this.changes === 0) return res.status(404).json({ success: false });
+        res.json({ success: true });
+    });
+});
+
+/* Enable 2FA for a given method */
+app.post('/api/2fa/enable', authenticateJWT, (req, res) => {
+    const { method } = req.body;
+    if (!['totp', 'fido2'].includes(method)) {
+        return res.status(400).json({ success: false, message: '无效的 2FA 方式' });
+    }
+    db.get('SELECT two_fa_method, totp_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user) return res.status(404).json({ success: false });
+        // Check mutual exclusivity
+        if (user.two_fa_method && user.two_fa_method !== method) {
+            return res.status(409).json({
+                success: false,
+                message: `请先禁用 ${user.two_fa_method === 'totp' ? 'TOTP' : 'FIDO2'} 2FA 后再切换`
+            });
+        }
+        if (method === 'fido2') {
+            db.get('SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?', [req.user.id, 'fido2'], (err2, row) => {
+                if (!row || row.cnt < FIDO2_MIN_KEYS) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `至少需要添加 ${FIDO2_MIN_KEYS} 把安全密钥才能启用 FIDO2 2FA（当前：${row ? row.cnt : 0} 把）`
+                    });
+                }
+                db.run('UPDATE users SET two_fa_method = ? WHERE id = ?', ['fido2', req.user.id], (e) => {
+                    if (e) return res.status(500).json({ success: false });
+                    res.json({ success: true });
+                });
+            });
+        } else {
+            // totp: totp_secret must already be set
+            if (!user.totp_secret) {
+                return res.status(400).json({ success: false, message: '请先完成 TOTP 设置' });
+            }
+            db.run('UPDATE users SET two_fa_method = ? WHERE id = ?', ['totp', req.user.id], (e) => {
+                if (e) return res.status(500).json({ success: false });
+                res.json({ success: true });
+            });
+        }
+    });
+});
+
+/* FIDO2 2FA login challenge — requires tempToken in body */
+app.post('/api/fido2/challenge', loginLimiter, async (req, res) => {
+    const { tempToken } = req.body;
+    if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
+    try {
+        const decoded = jwt.verify(tempToken, JWT_SECRET);
+        const userId = decoded.temp_id;
+        db.all('SELECT credential_id, transports FROM passkeys WHERE user_id = ? AND type = ?',
+            [userId, 'fido2'], async (err, keys) => {
+            if (!keys || keys.length === 0) {
+                return res.status(400).json({ error: 'No FIDO2 keys registered' });
+            }
+            const options = await generateAuthenticationOptions({
+                rpID: RP_ID,
+                userVerification: 'preferred',
+                allowCredentials: keys.map(k => ({
+                    id: k.credential_id,
+                    transports: JSON.parse(k.transports || '[]'),
+                })),
+            });
+            setChallenge(`fido2_login_${userId}`, options.challenge);
+            res.json(options);
+        });
+    } catch (e) {
+        return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+});
+
+/* FIDO2 2FA login verify */
+app.post('/api/fido2/verify', loginLimiter, async (req, res) => {
+    const { tempToken, ...assertionResponse } = req.body;
+    if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
+    try {
+        const decoded = jwt.verify(tempToken, JWT_SECRET);
+        const userId = decoded.temp_id;
+        const expectedChallenge = consumeChallenge(`fido2_login_${userId}`);
+        if (!expectedChallenge) return res.status(400).json({ error: '挑战已过期，请重新登录' });
+
+        db.get('SELECT * FROM passkeys WHERE credential_id = ? AND user_id = ? AND type = ?',
+            [assertionResponse.id, userId, 'fido2'], async (err, key) => {
+            if (!key) return res.status(400).json({ error: '未找到对应的安全密钥' });
+            try {
+                const verification = await verifyAuthenticationResponse({
+                    response: assertionResponse,
+                    expectedChallenge,
+                    expectedOrigin: ORIGIN,
+                    expectedRPID: RP_ID,
+                    authenticator: {
+                        credentialID: Buffer.from(key.credential_id, 'base64url'),
+                        credentialPublicKey: Buffer.from(key.public_key, 'base64url'),
+                        counter: key.counter,
+                    }
+                });
+                if (verification.verified) {
+                    db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, key.id]);
+                    db.get('SELECT * FROM users WHERE id = ?', [userId], (err2, user) => {
+                        if (!user) return res.status(400).json({ error: 'User not found' });
+                        setAuthCookie(res, user);
+                        res.json({ verified: true });
+                    });
+                } else {
+                    res.status(400).json({ error: '验证失败' });
+                }
+            } catch (verifyErr) {
+                console.error('[FIDO2 Verify Error]:', verifyErr.message);
+                res.status(400).json({ error: verifyErr.message });
+            }
+        });
+    } catch (e) {
+        return res.status(401).json({ error: 'Invalid or expired session' });
     }
 });
 

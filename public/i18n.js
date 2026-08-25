@@ -17,16 +17,27 @@ const translations = {
         "msg_passkey_failed": "通行密钥验证失败",
         "msg_passkey_canceled": "通行密钥取消或验证失败",
 
-        // totp.html
-        "totp_doc_title": "二步验证",
-        "totp_title": "二步验证",
-        "totp_subtitle_app": "请输入授权应用中显示的 6 位验证码",
+        // 2fa.html (formerly totp.html)
+        "twofa_doc_title": "双重身份验证",
+        "twofa_title": "双重身份验证",
+        "totp_doc_title": "双重身份验证",
+        "totp_title": "双重身份验证",
+        "totp_subtitle_app": "请输入身份验证器中显示的 6 位验证码",
         "totp_subtitle_rc": "请输入恢复码（格式：XXXXX-XXXXX）",
         "rc_placeholder": "XXXXX-XXXXX",
         "btn_back": "返回",
         "totp_link_rc": "使用恢复码登录",
         "totp_link_code": "使用验证码登录",
         "msg_verify_failed": "验证失败，请重试",
+
+        // FIDO2 mode keys
+        "fido2_title": "安全密钥验证",
+        "fido2_subtitle_usb": "请插入并触摸你的安全密钥",
+        "fido2_subtitle_nfc": "请将安全密钥靠近手机 NFC 感应区域",
+        "fido2_waiting": "正在等待安全密钥...",
+        "fido2_btn_retry": "重试",
+        "fido2_canceled": "操作已取消",
+        "fido2_verify_failed": "验证失败，请重试",
 
         // admin.html
         "admin_doc_title": "账户安全管理",
@@ -82,14 +93,26 @@ const translations = {
         "prompt_rename_pk": "请输入新名称：",
 
         "section_2fa_title": "双重身份验证（2FA）",
-        "section_2fa_desc": "使用 Authenticator 应用（如 Google Authenticator 或 iOS 密码）生成动态验证码，为账户加一道防护。",
+        "section_2fa_desc": "添加第二道防护。可选择身份验证器（TOTP 动态码）或 FIDO2 安全密钥（YubiKey 等）。",
+        "section_2fa_desc_totp": "已启用身份验证器（TOTP 动态码）。",
+        "section_2fa_desc_fido2": "已启用 FIDO2 安全密钥验证。",
         "badge_disabled": "未启用",
         "badge_enabled": "已启用",
-        "btn_setup_2fa": "设置 2FA",
+        "badge_2fa_totp": "身份验证器 ✓",
+        "badge_2fa_fido2": "安全密钥 ✓",
+        "btn_setup_2fa": "＋ 添加双因素认证",
         "btn_reset_2fa": "重新设置",
         "btn_disable_2fa": "禁用 2FA",
-        
-        "step_1_scan": "1. 使用 Authenticator 扫描下方二维码：",
+
+        // 2FA type selector
+        "choose_2fa_method": "选择验证方式",
+        "method_fido2_title": "安全密钥",
+        "method_fido2_desc": "YubiKey 等 FIDO2 硬件密钥",
+        "method_totp_title": "身份验证器",
+        "method_totp_desc": "TOTP 动态验证码",
+
+        // TOTP setup
+        "step_1_scan": "1. 使用身份验证器扫描下方二维码：",
         "label_manual_secret": "手动输入密钥",
         "step_2_enter": "2. 输入应用中的 6 位验证码：",
         "btn_verify_enable": "验证并启用",
@@ -98,7 +121,23 @@ const translations = {
         "msg_2fa_enabled": "✓ 双重验证已成功启用",
         "msg_2fa_wrong": "验证码错误，请重试",
         "alert_disable_2fa": "确定要禁用双重验证吗？这会降低账户安全性。",
-        
+
+        // FIDO2 key management in admin
+        "section_fido2_keys_title": "FIDO2 安全密钥",
+        "fido2_key_count_tip": "需要至少 2 把密钥才能启用，最多 6 把",
+        "fido2_min_warning": "已低于最少数量（2 把），FIDO2 2FA 已自动关闭",
+        "fido2_max_reached": "已达到最大数量（6 把）",
+        "btn_add_fido2_key": "＋ 添加安全密钥",
+        "btn_enable_fido2": "启用 FIDO2 2FA",
+        "placeholder_fido2_key_name": "给这把安全密钥起个名字（可留空）",
+        "default_fido2_key_name": "安全密钥",
+        "msg_fido2_key_added": "✓ 「{0}」添加成功！",
+        "alert_delete_fido2_key": "确定要删除这把安全密钥吗？",
+        "transport_usb": "USB",
+        "transport_nfc": "NFC",
+        "transport_ble": "蓝牙",
+        "transport_internal": "内置",
+
         "section_rc_title": "恢复码",
         "section_rc_desc": "当你无法使用 2FA 设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。",
         "badge_not_gen": "未生成",
@@ -131,16 +170,27 @@ const translations = {
         "msg_passkey_failed": "Passkey verification failed",
         "msg_passkey_canceled": "Passkey canceled or verification failed",
 
-        // totp.html
+        // 2fa.html (formerly totp.html)
+        "twofa_doc_title": "Two-Factor Auth",
+        "twofa_title": "Two-Factor Auth",
         "totp_doc_title": "Two-Factor Auth",
         "totp_title": "Two-Factor Auth",
-        "totp_subtitle_app": "Enter the 6-digit code from your authenticator app",
+        "totp_subtitle_app": "Enter the 6-digit code from your Authenticator",
         "totp_subtitle_rc": "Enter recovery code (Format: XXXXX-XXXXX)",
         "rc_placeholder": "XXXXX-XXXXX",
         "btn_back": "Back",
         "totp_link_rc": "Use a recovery code",
         "totp_link_code": "Use authenticator code",
         "msg_verify_failed": "Verification failed, please try again",
+
+        // FIDO2 mode keys
+        "fido2_title": "Security Key",
+        "fido2_subtitle_usb": "Insert and touch your security key",
+        "fido2_subtitle_nfc": "Hold your security key near the NFC area on your phone",
+        "fido2_waiting": "Waiting for security key...",
+        "fido2_btn_retry": "Retry",
+        "fido2_canceled": "Operation canceled",
+        "fido2_verify_failed": "Verification failed, please try again",
 
         // admin.html
         "admin_doc_title": "Account Security",
@@ -196,14 +246,26 @@ const translations = {
         "prompt_rename_pk": "Enter new name:",
 
         "section_2fa_title": "Two-Factor Auth (2FA)",
-        "section_2fa_desc": "Add an extra layer of security using a dynamic code from an Authenticator app (like Google Authenticator or iOS Passwords).",
+        "section_2fa_desc": "Add a second layer of protection — choose between an Authenticator (TOTP) or a FIDO2 Security Key (YubiKey, etc.).",
+        "section_2fa_desc_totp": "Authenticator (TOTP) is enabled.",
+        "section_2fa_desc_fido2": "FIDO2 Security Key verification is enabled.",
         "badge_disabled": "Disabled",
         "badge_enabled": "Enabled",
-        "btn_setup_2fa": "Setup 2FA",
+        "badge_2fa_totp": "Authenticator ✓",
+        "badge_2fa_fido2": "Security Key ✓",
+        "btn_setup_2fa": "＋ Add Two-Factor Auth",
         "btn_reset_2fa": "Reset 2FA",
         "btn_disable_2fa": "Disable 2FA",
-        
-        "step_1_scan": "1. Scan the QR code below with your Authenticator app:",
+
+        // 2FA type selector
+        "choose_2fa_method": "Choose verification method",
+        "method_fido2_title": "Security Key",
+        "method_fido2_desc": "FIDO2 hardware key (YubiKey, etc.)",
+        "method_totp_title": "Authenticator",
+        "method_totp_desc": "TOTP time-based code",
+
+        // TOTP setup
+        "step_1_scan": "1. Scan the QR code below with your Authenticator:",
         "label_manual_secret": "Manual Secret Key",
         "step_2_enter": "2. Enter the 6-digit code from the app:",
         "btn_verify_enable": "Verify & Enable",
@@ -212,6 +274,22 @@ const translations = {
         "msg_2fa_enabled": "✓ Two-Factor Auth successfully enabled",
         "msg_2fa_wrong": "Incorrect code, please try again",
         "alert_disable_2fa": "Are you sure you want to disable 2FA? This will reduce your account security.",
+
+        // FIDO2 key management in admin
+        "section_fido2_keys_title": "FIDO2 Security Keys",
+        "fido2_key_count_tip": "Minimum 2 keys required to enable; maximum 6",
+        "fido2_min_warning": "Below minimum (2 keys) — FIDO2 2FA has been automatically disabled",
+        "fido2_max_reached": "Maximum reached (6 keys)",
+        "btn_add_fido2_key": "＋ Add Security Key",
+        "btn_enable_fido2": "Enable FIDO2 2FA",
+        "placeholder_fido2_key_name": "Name this key (optional)",
+        "default_fido2_key_name": "Security Key",
+        "msg_fido2_key_added": "✓ '{0}' added successfully!",
+        "alert_delete_fido2_key": "Are you sure you want to delete this security key?",
+        "transport_usb": "USB",
+        "transport_nfc": "NFC",
+        "transport_ble": "Bluetooth",
+        "transport_internal": "Built-in",
         
         "section_rc_title": "Recovery Codes",
         "section_rc_desc": "If you lose access to your 2FA device, you can use a recovery code to sign in. Each code can only be used once. Please keep them safe.",

@@ -9,24 +9,35 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
-        function setTotpBadge(enabled) {
-            const badge = document.getElementById('totpBadge');
-            if (enabled) {
+        function set2faBadge(method) {
+            const badge = document.getElementById('twoFaBadge');
+            const desc = document.getElementById('twoFaDesc');
+            
+            document.getElementById('twoFaDisabledUI').style.display = 'none';
+            document.getElementById('twoFaMethodSelector').style.display = 'none';
+            document.getElementById('totpEnabledUI').style.display = 'none';
+            document.getElementById('fido2EnabledUI').style.display = 'none';
+            document.getElementById('totpSetup').style.display = 'none';
+
+            if (method === 'totp') {
                 badge.className = 'badge badge-enabled';
-                badge.innerHTML = `
-                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="2,6 5,9 10,3"/>
-                    </svg>${t('badge_enabled')}`;
+                badge.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>${t('badge_2fa_totp')}`;
+                desc.textContent = t('section_2fa_desc_totp');
+                document.getElementById('totpEnabledUI').style.display = 'flex';
+            } else if (method === 'fido2') {
+                badge.className = 'badge badge-enabled';
+                badge.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>${t('badge_2fa_fido2')}`;
+                desc.textContent = t('section_2fa_desc_fido2');
+                document.getElementById('fido2EnabledUI').style.display = 'block';
+                document.getElementById('fido2AddBtnRow').style.display = 'none';
+                document.getElementById('enableFido2Btn').style.display = 'none';
+                document.getElementById('disableFido2Btn').style.display = 'block';
             } else {
                 badge.className = 'badge badge-disabled';
-                badge.innerHTML = `
-                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
-                    </svg>${t('badge_disabled')}`;
+                badge.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/></svg>${t('badge_disabled')}`;
+                desc.textContent = t('section_2fa_desc');
+                document.getElementById('twoFaDisabledUI').style.display = 'flex';
             }
-            document.getElementById('totpDisabledUI').style.display = enabled ? 'none' : 'flex';
-            document.getElementById('totpEnabledUI').style.display  = enabled ? 'flex' : 'none';
-            if (!enabled) document.getElementById('totpSetup').style.display = 'none';
         }
 
         function setPasskeyBadge(count) {
@@ -105,14 +116,17 @@
                 if (data.email) {
                     document.getElementById('newEmail').value = data.email;
                 }
-                setTotpBadge(data.hasTOTP);
+                set2faBadge(data.twoFaMethod);
                 renderPasskeys(data.passkeys);
+                if (typeof renderFido2Keys === 'function') {
+                    renderFido2Keys(data.fido2Keys || [], data.twoFaMethod);
+                }
                 // Show recovery code card only when 2FA is enabled
-                updateRcCard(data.hasTOTP, data.recoveryCodesRemaining);
+                updateRcCard(!!data.twoFaMethod, data.recoveryCodesRemaining);
             } catch (err) {
                 console.error("loadStatus failed:", err);
                 renderPasskeys([]);
-                setTotpBadge(false);
+                set2faBadge(null);
             }
         }
         loadStatus();
@@ -216,10 +230,34 @@
             if (e.key === 'Enter') document.getElementById('confirmAddPasskeyBtn').click();
         });
 
-        /* ── 2FA setup ── */
+        /* ── 2FA General Setup ── */
+        document.getElementById('setup2faBtn').addEventListener('click', () => {
+            document.getElementById('twoFaDisabledUI').style.display = 'none';
+            document.getElementById('twoFaMethodSelector').style.display = 'block';
+        });
+
+        document.getElementById('cancelMethodSelectorBtn').addEventListener('click', () => {
+            document.getElementById('twoFaMethodSelector').style.display = 'none';
+            document.getElementById('twoFaDisabledUI').style.display = 'flex';
+        });
+
+        document.getElementById('chooseTotpBtn').addEventListener('click', () => {
+            document.getElementById('twoFaMethodSelector').style.display = 'none';
+            openTotpSetup();
+        });
+
+        document.getElementById('chooseFido2Btn').addEventListener('click', () => {
+            document.getElementById('twoFaMethodSelector').style.display = 'none';
+            document.getElementById('fido2EnabledUI').style.display = 'block';
+            document.getElementById('fido2AddBtnRow').style.display = 'flex';
+            document.getElementById('enableFido2Btn').style.display = 'block';
+            document.getElementById('disableFido2Btn').style.display = 'none';
+        });
+
+        /* ── TOTP Setup & Verify ── */
         let currentSecret = '';
 
-        async function openSetupPanel() {
+        async function openTotpSetup() {
             const res  = await fetch('/api/totp/generate');
             const data = await res.json();
             currentSecret = data.secret;
@@ -229,13 +267,11 @@
             document.getElementById('totpMsg').textContent = '';
             document.getElementById('totpMsg').className = 'msg';
             document.getElementById('totpSetup').style.display = 'block';
-            // hide both action rows while setup is open
-            document.getElementById('totpDisabledUI').style.display = 'none';
+            document.getElementById('twoFaDisabledUI').style.display = 'none';
             document.getElementById('totpEnabledUI').style.display  = 'none';
         }
 
-        document.getElementById('setup2faBtn').addEventListener('click', openSetupPanel);
-        document.getElementById('reset2faBtn').addEventListener('click', openSetupPanel);
+        document.getElementById('reset2faBtn').addEventListener('click', openTotpSetup);
 
         document.getElementById('verify2faBtn').addEventListener('click', async () => {
             const code = document.getElementById('totpCode').value.replace(/\s/g, '');
@@ -256,22 +292,31 @@
                 msg.className = 'msg msg-ok';
                 setTimeout(() => {
                     document.getElementById('totpSetup').style.display = 'none';
-                    setTotpBadge(true);
+                    set2faBadge('totp');
+                    loadStatus();
                 }, 1200);
             } else {
-                msg.textContent = t('msg_2fa_wrong');
+                msg.textContent = data.message || t('msg_2fa_wrong');
                 msg.className = 'msg msg-err';
             }
         });
 
-        /* ── Disable 2FA ── */
-        document.getElementById('disable2faBtn').addEventListener('click', async () => {
+        /* ── Disable 2FA (Both TOTP and FIDO2) ── */
+        async function disable2faCommon() {
             if (!confirm(t('alert_disable_2fa'))) return;
 
             const currentPassword = prompt('请输入当前密码以确认操作：');
             if (currentPassword === null) return; // user cancelled
-            const totpToken = prompt('请输入 Authenticator 中的当前 6 位验证码：');
-            if (totpToken === null) return; // user cancelled
+            
+            // Note: If TOTP is enabled, server requires totpToken to disable. 
+            // If FIDO2 is enabled, server only requires currentPassword.
+            // We pass totpToken optionally.
+            let totpToken = '';
+            const isTotp = document.getElementById('totpEnabledUI').style.display === 'flex';
+            if (isTotp) {
+                totpToken = prompt('请输入 Authenticator 中的当前 6 位验证码：');
+                if (totpToken === null) return; // user cancelled
+            }
 
             const data = await (await fetch('/api/totp/disable', {
                 method: 'POST',
@@ -280,9 +325,179 @@
             })).json();
 
             if (data.success) {
-                setTotpBadge(false);
+                set2faBadge(null);
+                loadStatus();
             } else {
                 alert(data.message || '禁用失败，请检查密码和验证码是否正确');
+            }
+        }
+
+        document.getElementById('disable2faBtn').addEventListener('click', disable2faCommon);
+        document.getElementById('disableFido2Btn').addEventListener('click', disable2faCommon);
+
+        /* ── FIDO2 Key Management ── */
+        function renderFido2Keys(keys, method) {
+            const list = document.getElementById('fido2KeyList');
+            if (!keys || keys.length === 0) {
+                list.innerHTML = '';
+                return;
+            }
+            list.innerHTML = keys.map(k => {
+                const transports = k.transports || [];
+                const badges = transports.map(tr => {
+                    if (tr === 'usb') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_usb')}</span>`;
+                    if (tr === 'nfc') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_nfc')}</span>`;
+                    if (tr === 'ble') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_ble')}</span>`;
+                    if (tr === 'internal') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_internal')}</span>`;
+                    return '';
+                }).join('');
+
+                return `
+                <div class="passkey-item" id="fido2-${k.id}">
+                    <div class="passkey-icon">
+                        <img src="/FIDO.svg" style="width:22px;height:22px;object-fit:contain;" class="icon-adaptive">
+                    </div>
+                    <div class="passkey-info">
+                        <span class="passkey-name" id="fido2-name-${k.id}">${escapeHTML(k.name || t('default_fido2_key_name'))}${badges}</span>
+                        <span class="passkey-date">${fmtDate(k.created_at)}</span>
+                    </div>
+                    <div class="passkey-actions">
+                        <button class="pk-btn fido2-rename" data-action="rename" data-id="${k.id}" title="重命名">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="pk-btn fido2-delete" data-action="delete" data-id="${k.id}" title="删除">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('fido2KeyList').addEventListener('click', (e) => {
+            const btn = e.target.closest('.pk-btn');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+            if (action === 'rename') renameFido2Key(id);
+            if (action === 'delete') deleteFido2Key(id);
+        });
+
+        async function renameFido2Key(id) {
+            const currentEl = document.getElementById(`fido2-name-${id}`);
+            const current = currentEl ? currentEl.childNodes[0].nodeValue.trim() : t('default_fido2_key_name');
+            const newName = prompt(t('prompt_rename_pk'), current);
+            if (!newName || newName.trim() === current) return;
+            const res = await fetch(`/api/fido2/keys/${id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: newName.trim() })
+            });
+            if ((await res.json()).success) {
+                if (currentEl) currentEl.childNodes[0].nodeValue = newName.trim();
+            }
+        }
+
+        async function deleteFido2Key(id) {
+            if (!confirm(t('alert_delete_fido2_key'))) return;
+            const res = await fetch(`/api/fido2/keys/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById(`fido2-${id}`)?.remove();
+                if (data.autoDisabled) {
+                    alert(t('fido2_min_warning'));
+                    set2faBadge(null);
+                    loadStatus();
+                }
+            }
+        }
+
+        document.getElementById('addFido2KeyBtn').addEventListener('click', () => {
+            document.getElementById('fido2KeyNameInput').value = '';
+            document.getElementById('fido2Msg').textContent = '';
+            document.getElementById('fido2Msg').className = 'msg';
+            document.getElementById('fido2NamePanel').style.display = 'block';
+            document.getElementById('fido2AddBtnRow').style.display = 'none';
+            document.getElementById('fido2KeyNameInput').focus();
+        });
+
+        document.getElementById('cancelAddFido2KeyBtn').addEventListener('click', () => {
+            document.getElementById('fido2NamePanel').style.display = 'none';
+            document.getElementById('fido2AddBtnRow').style.display = 'flex';
+        });
+
+        document.getElementById('confirmAddFido2KeyBtn').addEventListener('click', async () => {
+            const msg = document.getElementById('fido2Msg');
+            const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
+
+            document.getElementById('fido2NamePanel').style.display = 'none';
+            document.getElementById('fido2AddBtnRow').style.display = 'flex';
+
+            msg.textContent = t('msg_preparing');
+            msg.className = 'msg';
+            try {
+                const optionsRes = await fetch('/api/fido2/register-options');
+                if (!optionsRes.ok) {
+                    const err = await optionsRes.json();
+                    throw new Error(err.error || 'Failed to get options');
+                }
+                const options = await optionsRes.json();
+                
+                const attResp = await startRegistration(options);
+                attResp._keyName = keyName;
+                
+                const verifyRes = await fetch('/api/fido2/register-verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(attResp)
+                });
+                const result = await verifyRes.json();
+
+                if (result.verified) {
+                    msg.textContent = t('msg_fido2_key_added', keyName);
+                    msg.className = 'msg msg-ok';
+                    loadStatus();
+                } else {
+                    throw new Error(result.error || 'Verification failed');
+                }
+            } catch (e) {
+                msg.textContent = 'Error: ' + (e.message || t('msg_cancel'));
+                msg.className = 'msg msg-err';
+            }
+        });
+
+        document.getElementById('fido2KeyNameInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('confirmAddFido2KeyBtn').click();
+        });
+
+        document.getElementById('enableFido2Btn').addEventListener('click', async () => {
+            const msg = document.getElementById('fido2Msg');
+            msg.textContent = '';
+            
+            const res = await fetch('/api/2fa/enable', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ method: 'fido2' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                msg.textContent = t('msg_2fa_enabled');
+                msg.className = 'msg msg-ok';
+                setTimeout(() => {
+                    set2faBadge('fido2');
+                    loadStatus();
+                    msg.textContent = '';
+                }, 1200);
+            } else {
+                msg.textContent = data.message || 'Error enabling FIDO2';
+                msg.className = 'msg msg-err';
             }
         });
 

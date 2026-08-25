@@ -104,11 +104,12 @@
                 const data = await res.json();
 
                 if (data.requireTotp) {
-                    // Navigate to TOTP page
+                    // Navigate to 2FA page
                     sessionStorage.setItem('tempToken', data.tempToken);
+                    sessionStorage.setItem('twoFaMethod', data.twoFaMethod || 'totp');
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    window.location.href = rd ? '/totp.html?rd=' + encodeURIComponent(rd) : '/totp.html';
+                    window.location.href = rd ? '/2fa.html?rd=' + encodeURIComponent(rd) : '/2fa.html';
                     return;
                 }
 

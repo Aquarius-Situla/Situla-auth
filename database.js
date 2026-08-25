@@ -63,6 +63,14 @@ db.serialize(() => {
     db.run(`ALTER TABLE passkeys ADD COLUMN name TEXT DEFAULT '通行密钥'`, () => {});
     db.run(`ALTER TABLE passkeys ADD COLUMN created_at TEXT DEFAULT ''`, () => {});
 
+    // v2.1 migrations: FIDO2 2FA support
+    // type: 'passkey' (passwordless main credential) | 'fido2' (2FA hardware key)
+    db.run(`ALTER TABLE passkeys ADD COLUMN type TEXT DEFAULT 'passkey'`, () => {});
+    // transports: JSON array e.g. ["usb","nfc"] — stored from WebAuthn registration response
+    db.run(`ALTER TABLE passkeys ADD COLUMN transports TEXT DEFAULT '[]'`, () => {});
+    // two_fa_method: NULL (no 2FA) | 'totp' | 'fido2'
+    db.run(`ALTER TABLE users ADD COLUMN two_fa_method TEXT DEFAULT NULL`, () => {});
+
 });
 
 module.exports = db;

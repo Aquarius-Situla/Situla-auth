@@ -435,4 +435,9 @@ input:focus {
         border-color: #0a84ff;
         background: #0d2a4a;
     }
+
+    /* Adaptive icons (FIDO, TOTP etc) */
+    .icon-adaptive {
+        filter: invert(1);
+    }
 }
