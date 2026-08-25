@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Situla Auth 2.0
  * Copyright (C) 2026 Situla
  *
@@ -63,7 +63,7 @@ app.get(['/', '/index.html'], (req, res, next) => {
     try {
         const token = req.cookies ? req.cookies[COOKIE_NAME] : null;
         if (token) {
-            const decoded = jwt.verify(token, JWT_SECRET);
+            const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
             const currentVersion = tokenVersionCache.get(decoded.id) || 0;
             if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
                 const rd = req.query.rd;
@@ -89,28 +89,91 @@ const loginLimiter = rateLimit({
     message: { success: false, message: '尝试次数过多，请 15 分钟后再试' }
 });
 
-/* ── Auto-generate JWT_SECRET if missing or still at placeholder ── */
+/* ── Auto-generate JWT_SECRET and ENCRYPTION_KEY if missing ── */
 const PLACEHOLDER = 'change_this_to_a_long_random_secret';
 const DEFAULT_LEGACY = 'situla_default_secret_please_change';
+
 let JWT_SECRET = process.env.JWT_SECRET;
+let ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+let envUpdated = false;
+
 if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET === DEFAULT_LEGACY) {
     JWT_SECRET = crypto.randomBytes(32).toString('hex');
     console.log('[startup] JWT_SECRET not set — generated a new random secret.');
-    // Persist to .env so the secret survives container restarts
+    envUpdated = true;
+}
+
+if (!ENCRYPTION_KEY) {
+    ENCRYPTION_KEY = crypto.randomBytes(32).toString('hex');
+    console.log('[startup] ENCRYPTION_KEY not set — generated a new random key.');
+    envUpdated = true;
+}
+
+if (envUpdated) {
+    // Persist to .env so the secrets survive container restarts
     const envPath = path.join(__dirname, '.env');
     try {
         let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+        
         if (/^JWT_SECRET=.*/m.test(envContent)) {
             envContent = envContent.replace(/^JWT_SECRET=.*/m, `JWT_SECRET=${JWT_SECRET}`);
-        } else {
+        } else if (envContent && !envContent.endsWith('\n')) {
             envContent += `\nJWT_SECRET=${JWT_SECRET}\n`;
+        } else {
+            envContent += `JWT_SECRET=${JWT_SECRET}\n`;
         }
+
+        if (/^ENCRYPTION_KEY=.*/m.test(envContent)) {
+            envContent = envContent.replace(/^ENCRYPTION_KEY=.*/m, `ENCRYPTION_KEY=${ENCRYPTION_KEY}`);
+        } else {
+            envContent += `ENCRYPTION_KEY=${ENCRYPTION_KEY}\n`;
+        }
+        
         fs.writeFileSync(envPath, envContent, 'utf8');
-        console.log('[startup] JWT_SECRET written to .env for persistence.');
+        console.log('[startup] Secrets written to .env for persistence.');
     } catch (e) {
-        console.warn('[startup] Could not write JWT_SECRET to .env:', e.message);
+        console.warn('[startup] Could not write secrets to .env:', e.message);
     }
 }
+
+/* ── Encryption Utilities ── */
+function encrypt(text) {
+    if (!text) return text;
+    // Prefix to identify encrypted text
+    if (text.startsWith('enc:')) return text;
+    try {
+        const iv = crypto.randomBytes(12); // GCM standard IV size
+        const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        let encrypted = cipher.update(text, 'utf8', 'base64');
+        encrypted += cipher.final('base64');
+        const authTag = cipher.getAuthTag().toString('base64');
+        return `enc:${iv.toString('base64')}:${authTag}:${encrypted}`;
+    } catch (e) {
+        console.error('[Encryption] Failed to encrypt:', e.message);
+        throw e;
+    }
+}
+
+function decrypt(text) {
+    if (!text || !text.startsWith('enc:')) return text;
+    try {
+        const parts = text.split(':');
+        if (parts.length !== 4) throw new Error('Invalid encrypted format');
+        const iv = Buffer.from(parts[1], 'base64');
+        const authTag = Buffer.from(parts[2], 'base64');
+        const encrypted = parts[3];
+        
+        const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        decipher.setAuthTag(authTag);
+        let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    } catch (e) {
+        console.error('[Encryption] Failed to decrypt:', e.message);
+        throw e;
+    }
+}
+
 const ADMIN_USER = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || '').replace(/^['\"]|['\"]$/g, '');
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.example.com';
@@ -217,7 +280,7 @@ function authenticateJWT(req, res, next) {
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         const currentVersion = tokenVersionCache.get(decoded.id) || 0;
         if (decoded.token_version !== currentVersion) {
             return res.status(401).json({ error: 'Session expired' });
@@ -265,7 +328,7 @@ app.get('/verify', (req, res) => {
     const token = req.cookies[COOKIE_NAME];
     if (!token) return res.status(401).send('Unauthorized');
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         const currentVersion = tokenVersionCache.get(decoded.id) || 0;
         if (decoded.token_version !== currentVersion) {
             return res.status(401).send('Unauthorized');
@@ -300,11 +363,11 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     // TOTP verification using temporary token (avoiding password resubmission)
     if (tempToken && totp) {
         try {
-            const decoded = jwt.verify(tempToken, JWT_SECRET);
+            const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
             db.get('SELECT * FROM users WHERE id = ?', [decoded.temp_id], (err, user) => {
                 if (!user || (!user.totp_secret && user.two_fa_method !== 'totp')) return res.status(401).json({ success: false, message: 'Invalid session' });
                 
-                if (authenticator.verify({ token: totp, secret: user.totp_secret })) {
+                if (authenticator.verify({ token: totp, secret: decrypt(user.totp_secret) })) {
                     setAuthCookie(res, user);
                     return res.json({ success: true });
                 }
@@ -348,7 +411,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
         // Check for any 2FA method: TOTP (legacy totp_secret column) or FIDO2
-        const twoFaMethod = user.two_fa_method || (user.totp_secret ? 'totp' : null);
+        const twoFaMethod = user.two_fa_method;
         if (twoFaMethod) {
             const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
             return res.json({ success: false, requireTotp: true, tempToken, twoFaMethod });
@@ -412,7 +475,7 @@ app.post('/api/webauthn/login-verify', loginLimiter, async (req, res) => {
                 const token = req.cookies.webauthn_challenge;
                 if (!token) return res.status(400).json({ error: 'Challenge expired. Please try again.' });
                 res.clearCookie('webauthn_challenge');
-                const expectedChallenge = jwt.verify(token, JWT_SECRET).challenge;
+                const expectedChallenge = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }).challenge;
 
                 const verification = await verifyAuthenticationResponse({
                     response: req.body,
@@ -513,7 +576,7 @@ app.post('/api/change-email', authenticateJWT, (req, res) => {
 app.get('/api/totp/generate', authenticateJWT, (req, res) => {
     const secret = authenticator.generateSecret();
     const otpauth = authenticator.keyuri(req.user.user, RP_NAME, secret);
-    db.run('UPDATE users SET totp_pending_secret = ? WHERE id = ?', [secret, req.user.id], () => {
+    db.run('UPDATE users SET totp_pending_secret = ? WHERE id = ?', [encrypt(secret), req.user.id], () => {
         qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret, qr: imageUrl }));
     });
 });
@@ -529,7 +592,7 @@ app.post('/api/totp/disable', authenticateJWT, async (req, res) => {
 
         // Require valid TOTP token to disable TOTP
         if (user.totp_secret) {
-            if (!totpToken || !authenticator.verify({ token: totpToken, secret: user.totp_secret }))
+            if (!totpToken || !authenticator.verify({ token: totpToken, secret: decrypt(user.totp_secret) }))
                 return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });
         }
 
@@ -553,7 +616,7 @@ app.get('/api/status', authenticateJWT, (req, res) => {
                 const fido2Keys = allKeys.filter(k => k.type === 'fido2').map(k => ({
                     ...k, transports: JSON.parse(k.transports || '[]')
                 }));
-                const twoFaMethod = user ? (user.two_fa_method || (user.totp_secret ? 'totp' : null)) : null;
+                const twoFaMethod = user ? user.two_fa_method : null;
                 res.json({
                     email: user ? (user.email || '') : '',
                     hasTOTP: !!(user && user.totp_secret),
@@ -632,7 +695,7 @@ app.get('/api/recovery-codes/status', authenticateJWT, (req, res) => {
 app.post('/api/totp/verify', authenticateJWT, (req, res) => {
     db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (!user || !user.totp_pending_secret) return res.status(400).json({ success: false, message: 'No pending TOTP setup' });
-        if (authenticator.verify({ token: req.body.token, secret: user.totp_pending_secret })) {
+        if (authenticator.verify({ token: req.body.token, secret: decrypt(user.totp_pending_secret) })) {
             db.run('UPDATE users SET totp_secret = ?, totp_pending_secret = "", two_fa_method = ? WHERE id = ?',
                 [user.totp_pending_secret, 'totp', req.user.id]);
             return res.json({ success: true });
@@ -841,7 +904,7 @@ app.post('/api/fido2/challenge', loginLimiter, async (req, res) => {
     const { tempToken } = req.body;
     if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
     try {
-        const decoded = jwt.verify(tempToken, JWT_SECRET);
+        const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
         const userId = decoded.temp_id;
         db.all('SELECT credential_id, transports FROM passkeys WHERE user_id = ? AND type = ?',
             [userId, 'fido2'], async (err, keys) => {
@@ -869,7 +932,7 @@ app.post('/api/fido2/verify', loginLimiter, async (req, res) => {
     const { tempToken, ...assertionResponse } = req.body;
     if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
     try {
-        const decoded = jwt.verify(tempToken, JWT_SECRET);
+        const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
         const userId = decoded.temp_id;
         const expectedChallenge = consumeChallenge(`fido2_login_${userId}`);
         if (!expectedChallenge) return res.status(400).json({ error: '挑战已过期，请重新登录' });
@@ -913,7 +976,7 @@ app.post('/api/logout', (req, res) => {
     const token = req.cookies[COOKIE_NAME];
     if (token) {
         try {
-            const decoded = jwt.verify(token, JWT_SECRET);
+            const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
             if (decoded.jti && decoded.exp) {
                 revokedTokensCache.set(decoded.jti, decoded.exp * 1000);
             }
@@ -947,6 +1010,41 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 app.use((err, req, res, next) => {
     console.error('[Error]', err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
+});
+
+/* ── Security Migrations ── */
+db.serialize(() => {
+    // 1. Fix state confusion
+    db.run(`UPDATE users SET two_fa_method = 'totp' WHERE totp_secret IS NOT NULL AND two_fa_method IS NULL AND id NOT IN (SELECT DISTINCT user_id FROM passkeys WHERE type = 'fido2')`, (err) => {
+        if (err) console.error('[Migration] Failed to fix two_fa_method state:', err.message);
+        else console.log('[Migration] State confusion fix applied.');
+    });
+
+    // 2. Encrypt plaintext TOTP secrets
+    db.all(`SELECT id, totp_secret, totp_pending_secret FROM users`, (err, users) => {
+        if (err) return console.error('[Migration] Failed to fetch users for encryption:', err.message);
+        let migratedCount = 0;
+        users.forEach(u => {
+            let needsUpdate = false;
+            let newTotp = u.totp_secret;
+            let newPending = u.totp_pending_secret;
+
+            if (newTotp && !newTotp.startsWith('enc:')) {
+                newTotp = encrypt(newTotp);
+                needsUpdate = true;
+            }
+            if (newPending && !newPending.startsWith('enc:')) {
+                newPending = encrypt(newPending);
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                db.run(`UPDATE users SET totp_secret = ?, totp_pending_secret = ? WHERE id = ?`, [newTotp, newPending, u.id]);
+                migratedCount++;
+            }
+        });
+        if (migratedCount > 0) console.log(`[Migration] Encrypted TOTP secrets for ${migratedCount} users.`);
+    });
 });
 
 const port = process.env.PORT || 3000;
