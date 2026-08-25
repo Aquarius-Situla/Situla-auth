@@ -106,19 +106,6 @@
             .fido2-spinner { border-color: #3a3a3c; border-top-color: #0a84ff; }
         }
 
-        /* ===== lock.svg icon in header (TOTP mode) ===== */
-        .lock-icon {
-            width: 52px;
-            height: 52px;
-            margin-bottom: 14px;
-        }
-        @media (prefers-color-scheme: dark) {
-            .lock-icon {
-                /* #0070C9 → #0A84FF: Apple dark-mode blue */
-                filter: brightness(1.25) saturate(0.9);
-            }
-        }
-
         @media (max-width: 400px) {
             .totp-digit {
                 width: 40px;
@@ -170,7 +157,7 @@
     <!-- Top gray bar with nav -->
     <div class="gray-top-bar">
         <div class="nav-content">
-            <img src="/lock.svg" class="lock-icon" style="width:18px;height:18px;margin-bottom:0;" alt="">
+            <img src="/lock.svg" class="icon-adaptive" style="width:24px;height:24px;margin-bottom:0;" alt="">
             <span class="nav-title" data-i18n="twofa_title">双重身份验证</span>
         </div>
     </div>
@@ -182,9 +169,7 @@
             <!-- TOTP mode (default visible) -->
             <div id="totpMode">
                 <div class="logo-container">
-                    <img src="/lock.svg" class="lock-icon" alt="">
                     <h1 data-i18n="twofa_title">双重身份验证</h1>
-                    <p id="totpSubtitle" data-i18n="totp_subtitle_app">请输入身份验证器中显示的 6 位验证码</p>
                 </div>
 
                 <form id="totpForm">
@@ -211,6 +196,8 @@
                             autocomplete="off" spellcheck="false"
                         >
                     </div>
+
+                    <p id="totpSubtitle" data-i18n="totp_subtitle_app" style="text-align:center; font-size:14px; margin-top:16px;">请输入身份验证器中显示的 6 位验证码</p>
 
                     <!-- Toggle link -->
                     <div style="text-align:center; margin-top:14px;">
