@@ -9,7 +9,7 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
-        function set2faBadge(method) {
+        function set2faBadge(method, fido2Count = 0) {
             const badge = document.getElementById('twoFaBadge');
             const desc = document.getElementById('twoFaDesc');
             
@@ -32,6 +32,15 @@
                 document.getElementById('fido2AddBtnRow').style.display = 'none';
                 document.getElementById('enableFido2Btn').style.display = 'none';
                 document.getElementById('disableFido2Btn').style.display = 'block';
+            } else if (!method && fido2Count > 0) {
+                // Downgraded FIDO2 state
+                badge.className = 'badge badge-error';
+                badge.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/></svg>${t('badge_downgraded')}`;
+                desc.textContent = t('section_fido2_downgraded_desc');
+                document.getElementById('fido2EnabledUI').style.display = 'block';
+                document.getElementById('fido2AddBtnRow').style.display = 'flex';
+                document.getElementById('enableFido2Btn').style.display = 'block';
+                document.getElementById('disableFido2Btn').style.display = 'none';
             } else {
                 badge.className = 'badge badge-disabled';
                 badge.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/></svg>${t('badge_disabled')}`;
@@ -116,7 +125,7 @@
                 if (data.email) {
                     document.getElementById('newEmail').value = data.email;
                 }
-                set2faBadge(data.twoFaMethod);
+                set2faBadge(data.twoFaMethod, data.fido2Count || 0);
                 renderPasskeys(data.passkeys);
                 if (typeof renderFido2Keys === 'function') {
                     renderFido2Keys(data.fido2Keys || [], data.twoFaMethod);
@@ -238,7 +247,7 @@
 
         document.getElementById('cancelMethodSelectorBtn').addEventListener('click', () => {
             document.getElementById('twoFaMethodSelector').style.display = 'none';
-            document.getElementById('twoFaDisabledUI').style.display = 'flex';
+            loadStatus();
         });
 
         document.getElementById('chooseTotpBtn').addEventListener('click', () => {
@@ -271,7 +280,10 @@
             document.getElementById('totpEnabledUI').style.display  = 'none';
         }
 
-        document.getElementById('reset2faBtn').addEventListener('click', openTotpSetup);
+        document.getElementById('reset2faBtn').addEventListener('click', () => {
+            document.getElementById('totpEnabledUI').style.display = 'none';
+            document.getElementById('twoFaMethodSelector').style.display = 'block';
+        });
 
         document.getElementById('verify2faBtn').addEventListener('click', async () => {
             const code = document.getElementById('totpCode').value.replace(/\s/g, '');
@@ -413,7 +425,6 @@
                 document.getElementById(`fido2-${id}`)?.remove();
                 if (data.autoDisabled) {
                     alert(t('fido2_min_warning'));
-                    set2faBadge(null);
                     loadStatus();
                 }
             }

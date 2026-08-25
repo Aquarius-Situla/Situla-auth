@@ -579,8 +579,6 @@ app.get('/api/recovery-codes/status', authenticateJWT, (req, res) => {
 app.post('/api/totp/verify', authenticateJWT, (req, res) => {
     db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (!user || !user.totp_pending_secret) return res.status(400).json({ success: false, message: 'No pending TOTP setup' });
-        // Prevent enabling TOTP if FIDO2 is already active
-        if (user.two_fa_method === 'fido2') return res.status(409).json({ success: false, message: '请先禁用 FIDO2 2FA 后再设置 TOTP' });
         if (authenticator.verify({ token: req.body.token, secret: user.totp_pending_secret })) {
             db.run('UPDATE users SET totp_secret = ?, totp_pending_secret = "", two_fa_method = ? WHERE id = ?',
                 [user.totp_pending_secret, 'totp', req.user.id]);
@@ -759,13 +757,6 @@ app.post('/api/2fa/enable', authenticateJWT, (req, res) => {
     }
     db.get('SELECT two_fa_method, totp_secret FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (!user) return res.status(404).json({ success: false });
-        // Check mutual exclusivity
-        if (user.two_fa_method && user.two_fa_method !== method) {
-            return res.status(409).json({
-                success: false,
-                message: `请先禁用 ${user.two_fa_method === 'totp' ? 'TOTP' : 'FIDO2'} 2FA 后再切换`
-            });
-        }
         if (method === 'fido2') {
             db.get('SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?', [req.user.id, 'fido2'], (err2, row) => {
                 if (!row || row.cnt < FIDO2_MIN_KEYS) {
@@ -774,7 +765,7 @@ app.post('/api/2fa/enable', authenticateJWT, (req, res) => {
                         message: `至少需要添加 ${FIDO2_MIN_KEYS} 把安全密钥才能启用 FIDO2 2FA（当前：${row ? row.cnt : 0} 把）`
                     });
                 }
-                db.run('UPDATE users SET two_fa_method = ? WHERE id = ?', ['fido2', req.user.id], (e) => {
+                db.run('UPDATE users SET two_fa_method = ?, totp_secret = NULL WHERE id = ?', ['fido2', req.user.id], (e) => {
                     if (e) return res.status(500).json({ success: false });
                     res.json({ success: true });
                 });
