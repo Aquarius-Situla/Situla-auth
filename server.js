@@ -461,7 +461,7 @@ app.get('/api/totp/generate', authenticateJWT, (req, res) => {
     const secret = authenticator.generateSecret();
     const otpauth = authenticator.keyuri(req.user.user, RP_NAME, secret);
     db.run('UPDATE users SET totp_pending_secret = ? WHERE id = ?', [secret, req.user.id], () => {
-        qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret: '', qr: imageUrl }));
+        qrcode.toDataURL(otpauth, (err, imageUrl) => res.json({ secret, qr: imageUrl }));
     });
 });
 
