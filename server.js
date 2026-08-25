@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0
  * Copyright (C) 2026 Situla
  *
@@ -86,7 +86,7 @@ const loginLimiter = rateLimit({
     max: 5,                   // max 5 attempts per window
     standardHeaders: true,
     legacyHeaders: false,
-    message: { success: false, message: '尝试次数过多，请 15 分钟后再试' }
+    message: { success: false, message: 'Too many attempts, please try again in 15 minutes.' }
 });
 
 /* ── Auto-generate JWT_SECRET and ENCRYPTION_KEY if missing ── */
