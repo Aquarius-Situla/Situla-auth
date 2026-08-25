@@ -1,11 +1,11 @@
-services:
+﻿services:
   situla-auth:
     build: .
     container_name: situla-auth
     restart: unless-stopped
     volumes:
       # Bind-mount .env so `docker compose restart` picks up changes without rebuild
-      - ./.env:/app/.env:ro
+      - ./.env:/app/.env
       # Persist the SQLite database across rebuilds
       - ./data:/app/data
     networks:
