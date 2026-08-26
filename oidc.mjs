@@ -185,6 +185,9 @@ const provider = new Provider(issuer, {
     responseTypes: ["code"],
 });
 
+// Trust X-Forwarded-* headers from Nginx Proxy Manager
+provider.proxy = true;
+
 // Purge expired tokens every 30 minutes
 setInterval(() => {
     db.run(`DELETE FROM oidc_store WHERE expires_at IS NOT NULL AND expires_at<?`,
