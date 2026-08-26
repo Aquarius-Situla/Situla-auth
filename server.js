@@ -1055,7 +1055,7 @@ const port = process.env.PORT || 3000;
 (async () => {
     try {
         // Dynamically import the ESM oidc module from CJS context
-        const { default: oidcProvider } = await import('./oidc.js');
+        const { default: oidcProvider } = await import('./oidc.mjs');
 
         /* ── OIDC Interaction Route ── 
          * When a client app redirects a user to log in via OIDC,
