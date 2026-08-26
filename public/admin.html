@@ -672,10 +672,8 @@
         <!-- OIDC Clients card -->
         <div class="settings-group" id="oidcCard">
             <div class="section">
-                <div class="section-header">
-                    <h3 data-i18n="oidc_title">OIDC 设置</h3>
-                    <p class="section-desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。</p>
-                </div>
+                <h3 data-i18n="oidc_title">OIDC 设置</h3>
+                <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。</p>
                 
                 <div id="oidcClientList" class="key-list"></div>
                 
@@ -696,7 +694,7 @@
     <script src="/js/admin.js"></script>
 
         <!-- Add OIDC Client Modal -->
-        <div class="modal-overlay" id="oidcModal">
+        <div class="modal-overlay" id="oidcModal" style="display: none;">
             <div class="modal-card">
                 <h3 style="margin-top:0" data-i18n="oidc_add_title">添加第三方应用</h3>
                 <input type="text" id="oidcAppName" class="apple-input" placeholder="应用名称 (如 Nextcloud)">
@@ -709,7 +707,7 @@
         </div>
         
         <!-- OIDC Secret Display Modal -->
-        <div class="modal-overlay" id="oidcSecretModal">
+        <div class="modal-overlay" id="oidcSecretModal" style="display: none;">
             <div class="modal-card">
                 <h3 style="margin-top:0">应用创建成功</h3>
                 <p style="color:#ff3b30; font-size:14px; font-weight:600;">请立刻妥善保存以下信息，Client Secret 只会显示这一次！</p>
@@ -728,7 +726,7 @@
 
 
         <!-- Elevation Modal (Step-Up Auth) -->
-        <div class="modal-overlay" id="elevationModal">
+        <div class="modal-overlay" id="elevationModal" style="display: none;">
             <div class="modal-card">
                 <h3 style="margin-top:0">安全验证</h3>
                 <p style="color:#636366; font-size:14px; margin-bottom:15px;">此操作需要更高的安全级别，请验证您的身份。</p>
