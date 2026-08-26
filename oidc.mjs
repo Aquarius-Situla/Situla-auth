@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - OIDC Provider Module
  * Copyright (C) 2026 Situla
  *
@@ -166,7 +166,6 @@ const provider = new Provider(issuer, {
     findAccount,
     features: {
         devInteractions: { enabled: false },
-        pkce: { required: () => true },
     },
     ttl: {
         AccessToken:       1 * 60 * 60,
