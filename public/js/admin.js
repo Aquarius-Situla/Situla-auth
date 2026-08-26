@@ -728,7 +728,7 @@ function requestElevation(callback) {
     if (status.passkeyCount > 0) {
         hasMethods = true;
         const pkBtn = document.createElement('button');
-        pkBtn.className = 'btn-outline';
+        pkBtn.className = 'modal-btn modal-btn-secondary';
         pkBtn.textContent = '使用通行密钥 (Passkey)';
         pkBtn.onclick = elevateWithPasskey;
         methodsDiv.appendChild(pkBtn);
@@ -737,7 +737,7 @@ function requestElevation(callback) {
     if (status.hasTOTP) {
         hasMethods = true;
         const totpBtn = document.createElement('button');
-        totpBtn.className = 'btn-outline';
+        totpBtn.className = 'modal-btn modal-btn-secondary';
         totpBtn.textContent = '使用身份验证器 (TOTP) 或恢复码';
         totpBtn.onclick = () => {
             methodsDiv.style.display = 'none';

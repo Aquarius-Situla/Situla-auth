@@ -259,7 +259,7 @@
         .passkey-icon {
             width: 36px;
             height: 36px;
-            background: #f0f0f5;
+            
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -298,7 +298,7 @@
             transition: background 0.15s;
         }
         .pk-rename {
-            background: #f0f0f5;
+            
             color: #3c3c43;
             width: 30px;
             height: 30px;
@@ -693,25 +693,14 @@
 
     <script src="/js/admin.js"></script>
 
-        <!-- Add OIDC Client Modal -->
-        <div class="modal-overlay" id="oidcModal" style="display: none;">
-            <div class="modal-card">
-                <h3 style="margin-top:0" data-i18n="oidc_add_title">添加第三方应用</h3>
-                <input type="text" id="oidcAppName" class="apple-input" placeholder="应用名称 (如 Nextcloud)">
-                <textarea id="oidcRedirectUris" class="apple-input" placeholder="重定向 URI (一行一个)" style="height: 80px; margin-top: 10px;"></textarea>
-                <div class="modal-actions">
-                    <button class="apple-btn btn-secondary" onclick="document.getElementById('oidcModal').style.display='none'" data-i18n="cancel">取消</button>
-                    <button class="apple-btn btn-primary" id="confirmAddOidcBtn" data-i18n="confirm">确认</button>
-                </div>
-            </div>
-        </div>
+        
         
         <!-- OIDC Secret Display Modal -->
         <div class="modal-overlay" id="oidcSecretModal" style="display: none;">
             <div class="modal-card">
                 <h3 style="margin-top:0">应用创建成功</h3>
                 <p style="color:#ff3b30; font-size:14px; font-weight:600;">请立刻妥善保存以下信息，Client Secret 只会显示这一次！</p>
-                <div style="text-align: left; background: #f0f0f5; padding: 10px; border-radius: 8px; margin: 15px 0;">
+                <div style="text-align: left;  padding: 10px; border-radius: 8px; margin: 15px 0;">
                     <strong style="display:block;margin-bottom:5px;">Client ID:</strong>
                     <code id="newOidcClientId" style="word-break: break-all; display:block; margin-bottom:15px; color:#1d1d1f;"></code>
                     
@@ -745,6 +734,61 @@
 
                 <div class="modal-actions" id="elevationCancelRow">
                     <button class="apple-btn btn-secondary" onclick="cancelElevation()" style="width: 100%;">取消</button>
+                </div>
+            </div>
+        </div>
+
+
+        
+        <!-- Add OIDC Client Modal -->
+        <div class="modal-overlay" id="oidcModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></div>
+                <h3 data-i18n="oidc_add_title">生成 App 专用凭证</h3>
+                <p class="modal-desc">使用 App 专用凭证登录非 Situla 提供的 App 和服务。</p>
+                <input type="text" id="oidcAppName" class="modal-input" placeholder="例如：Nextcloud">
+                <textarea id="oidcRedirectUris" class="modal-input" placeholder="重定向 URI (一行一个)"></textarea>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="document.getElementById('oidcModal').style.display='none'">取消</button>
+                    <button class="modal-btn modal-btn-primary" id="confirmAddOidcBtn">创建</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OIDC Secret Display Modal -->
+        <div class="modal-overlay" id="oidcSecretModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></div>
+                <h3>你的 App 专用凭证：</h3>
+                <div id="newOidcClientSecret" class="modal-secret-display"></div>
+                <p class="modal-desc">Client ID: <span id="newOidcClientId" style="user-select:all;font-family:monospace;"></span><br>请将此凭证输入到你要登录的 App 的密码栏中。凭证区分大小写，且仅显示这一次。</p>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-primary" onclick="document.getElementById('oidcSecretModal').style.display='none'">完成</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elevation Modal (Step-Up Auth) -->
+        <div class="modal-overlay" id="elevationModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                <h3>确认你的身份</h3>
+                <p class="modal-desc">出于安全考虑，请验证身份以继续操作。</p>
+                
+                <div id="elevationMethods" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Dynamically populated -->
+                </div>
+                
+                <div id="elevationTotpForm" style="display: none; margin-top: 15px;">
+                    <input type="text" id="elevationTotpInput" class="modal-input" placeholder="6位数验证码或恢复码" maxlength="11">
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-secondary" onclick="cancelElevation()">取消</button>
+                        <button class="modal-btn modal-btn-primary" id="confirmElevationTotpBtn">继续</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions" id="elevationCancelRow">
+                    <button class="modal-btn modal-btn-secondary" onclick="cancelElevation()" style="width: 100%; border: none; color: #0071e3;">取消</button>
                 </div>
             </div>
         </div>
