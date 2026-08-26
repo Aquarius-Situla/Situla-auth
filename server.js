@@ -1085,7 +1085,12 @@ app.delete('/api/oidc/clients/:id', authenticateJWT, requireStepUpAuth, (req, re
     });
 });
 
-app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+app.get('/admin', authenticateJWT, (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
     res.redirect(302, '/favicon.svg');
