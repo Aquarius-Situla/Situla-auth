@@ -824,32 +824,44 @@ fill="currentColor" stroke="none">
         <!-- Add OIDC Client Modal -->
         <div class="modal-overlay" id="oidcModal" style="display: none;">
             <div class="modal-card">
-                <div class="modal-icon"><svg viewBox="11 -3 32 32" width="56" height="56" fill="currentColor"><path d="M36.8342359,8.83321469 C38.072496,10.0714748 39.0036329,11.229461 38.9999893,12.7117355 C39.003507,14.1372282 38.1281507,15.2573951 36.9458898,16.4543889 L31.1785056,22.2225156 C29.9342022,23.466819 28.7934901,24.3963459 27.3115033,24.3999893 C25.8788624,24.4035115 24.749034,23.5335332 23.5567881,22.3570149 L17.7584607,16.5594819 C16.5274616,15.3284828 15.5963671,14.1705113 15.6000107,12.6884967 C15.6035326,11.2559094 16.4722413,10.1422245 17.654126,8.94559591 L23.4435126,3.15546617 C24.6586501,1.94032873 25.8065942,1.00365389 27.2884967,1.00001066 C28.7210569,0.996488733 29.8508415,1.86634769 31.0234083,3.02318174 L36.8342359,8.83321469 Z M35.9238907,10.1525511 L29.8693591,4.09801954 L29.7673174,3.99715314 C29.0138651,3.26124386 28.1488919,2.61685195 27.2845165,2.61897701 C26.3955901,2.62116242 25.4951275,3.32259651 24.7143524,4.10337166 L18.6886928,10.1290312 L18.5883707,10.2305202 C17.8569815,10.9793173 17.2281729,11.8267563 17.2189796,12.684127 C17.2241815,13.5811732 17.9140907,14.4854303 18.6761093,15.2474489 L24.7525511,21.3238907 L24.8527592,21.4228437 C25.5933451,22.1447438 26.4578296,22.7758101 27.3081801,22.7737196 C28.2119997,22.7714976 29.0976005,22.0846755 29.8709688,21.3113072 L35.9186466,15.2636294 L36.0180564,15.1630511 C36.7430429,14.4206226 37.3715941,13.5727407 37.3737196,12.7081801 C37.3759052,11.8191773 36.6860659,10.9147264 35.9238907,10.1525511 Z M22.8807831,11.55 C23.5910355,11.55 24.1673879,12.1409091 24.1673879,12.85 C24.1673879,13.5709091 23.5910355,14.15 22.8807831,14.15 C22.1588872,14.15 21.6,13.5768182 21.6,12.85 C21.6,12.1409091 22.1821741,11.55 22.8807831,11.55 Z M27.2470891,11.55 C27.9515198,11.55 28.5278722,12.1409091 28.5278722,12.85 C28.5278722,13.5709091 27.9515198,14.15 27.2470891,14.15 C26.5310149,14.15 25.9721278,13.5768182 25.9721278,12.85 C25.9721278,12.1409091 26.5543019,11.55 27.2470891,11.55 Z M31.6192169,11.55 C32.3236476,11.55 32.9,12.1409091 32.9,12.85 C32.9,13.5709091 32.3236476,14.15 31.6192169,14.15 C30.8914992,14.15 30.3267903,13.5768182 30.3267903,12.85 C30.3267903,12.1409091 30.9147862,11.55 31.6192169,11.55 Z"></path></svg></div>
-                <h3 data-i18n="oidc_add_title">生成 OIDC 凭证</h3>
-                <p class="modal-desc">使用 OIDC 凭证登录非 Situla 提供的第三方服务（如网盘、论坛等）。</p>
-                <input type="text" id="oidcAppName" class="modal-input" placeholder="例如：Nextcloud">
-                <textarea id="oidcRedirectUris" class="modal-input" placeholder="重定向 URI (一行一个)"></textarea>
-                <div class="modal-actions">
-                    <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn">取消</button>
-                    <button class="modal-btn modal-btn-primary" id="confirmAddOidcBtn">创建</button>
+                <div class="modal-icon"></div>
+                
+                <!-- Step 1: Input details -->
+                <div id="oidcStep1">
+                    <h3 data-i18n="oidc_add_title">生成 OIDC 凭证</h3>
+                    <p class="modal-desc">使用 OIDC 凭证登录非 Situla 提供的第三方服务（如网盘、论坛等）。</p>
+                    <input type="text" id="oidcAppName" class="modal-input" placeholder="例如：账单支付" autocomplete="off">
+                    <textarea id="oidcRedirectUris" class="modal-input" placeholder="重定向 URI (一行一个)"></textarea>
+                    <div class="msg" id="oidcMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn1">取消</button>
+                        <button class="modal-btn modal-btn-primary" id="continueOidcBtn">继续</button>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- OIDC Secret Display Modal -->
-        <div class="modal-overlay" id="oidcSecretModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg viewBox="11 -3 32 32" width="56" height="56" fill="currentColor"><path d="M36.8342359,8.83321469 C38.072496,10.0714748 39.0036329,11.229461 38.9999893,12.7117355 C39.003507,14.1372282 38.1281507,15.2573951 36.9458898,16.4543889 L31.1785056,22.2225156 C29.9342022,23.466819 28.7934901,24.3963459 27.3115033,24.3999893 C25.8788624,24.4035115 24.749034,23.5335332 23.5567881,22.3570149 L17.7584607,16.5594819 C16.5274616,15.3284828 15.5963671,14.1705113 15.6000107,12.6884967 C15.6035326,11.2559094 16.4722413,10.1422245 17.654126,8.94559591 L23.4435126,3.15546617 C24.6586501,1.94032873 25.8065942,1.00365389 27.2884967,1.00001066 C28.7210569,0.996488733 29.8508415,1.86634769 31.0234083,3.02318174 L36.8342359,8.83321469 Z M35.9238907,10.1525511 L29.8693591,4.09801954 L29.7673174,3.99715314 C29.0138651,3.26124386 28.1488919,2.61685195 27.2845165,2.61897701 C26.3955901,2.62116242 25.4951275,3.32259651 24.7143524,4.10337166 L18.6886928,10.1290312 L18.5883707,10.2305202 C17.8569815,10.9793173 17.2281729,11.8267563 17.2189796,12.684127 C17.2241815,13.5811732 17.9140907,14.4854303 18.6761093,15.2474489 L24.7525511,21.3238907 L24.8527592,21.4228437 C25.5933451,22.1447438 26.4578296,22.7758101 27.3081801,22.7737196 C28.2119997,22.7714976 29.0976005,22.0846755 29.8709688,21.3113072 L35.9186466,15.2636294 L36.0180564,15.1630511 C36.7430429,14.4206226 37.3715941,13.5727407 37.3737196,12.7081801 C37.3759052,11.8191773 36.6860659,10.9147264 35.9238907,10.1525511 Z M22.8807831,11.55 C23.5910355,11.55 24.1673879,12.1409091 24.1673879,12.85 C24.1673879,13.5709091 23.5910355,14.15 22.8807831,14.15 C22.1588872,14.15 21.6,13.5768182 21.6,12.85 C21.6,12.1409091 22.1821741,11.55 22.8807831,11.55 Z M27.2470891,11.55 C27.9515198,11.55 28.5278722,12.1409091 28.5278722,12.85 C28.5278722,13.5709091 27.9515198,14.15 27.2470891,14.15 C26.5310149,14.15 25.9721278,13.5768182 25.9721278,12.85 C25.9721278,12.1409091 26.5543019,11.55 27.2470891,11.55 Z M31.6192169,11.55 C32.3236476,11.55 32.9,12.1409091 32.9,12.85 C32.9,13.5709091 32.3236476,14.15 31.6192169,14.15 C30.8914992,14.15 30.3267903,13.5768182 30.3267903,12.85 C30.3267903,12.1409091 30.9147862,11.55 31.6192169,11.55 Z"></path></svg></div>
-                <h3>你的 OIDC 凭证：</h3>
-                <div id="newOidcClientSecret" class="modal-secret-display"></div>
-                <p class="modal-desc">Client ID: <span id="newOidcClientId" style="user-select:all;font-family:monospace;"></span><br>请将此密码输入到你要登录的应用配置中。密码区分大小写，且仅显示这一次。</p>
-                <div class="modal-actions">
-                    <button class="modal-btn modal-btn-primary" id="finishOidcSecretBtn">完成</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Elevation Modal (Step-Up Auth) -->
+                <!-- Step 2: Password Verification -->
+                <div id="oidcStep2" style="display: none;">
+                    <h3 data-i18n="section_username_confirm_pwd">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="section_username_security">出于安全考虑，请输入密码。</p>
+                    <input type="password" class="modal-input" id="oidcConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
+                    <div class="msg" id="oidcMsg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn2" data-i18n="btn_cancel">取消</button>
+                        <button class="modal-btn modal-btn-primary" id="confirmAddOidcBtn" data-i18n="btn_save">创建</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Show Secret -->
+                <div id="oidcStep3" style="display: none;">
+                    <h3>你的 OIDC 凭证：</h3>
+                    <div id="newOidcClientSecret" class="modal-secret-display"></div>
+                    <p class="modal-desc">Client ID: <span id="newOidcClientId" style="user-select:all;font-family:monospace;"></span><br>请将此密码输入到你要登录的应用配置中。密码区分大小写，且仅显示这一次。</p>
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-primary" id="finishOidcSecretBtn">我已保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal-overlay" id="elevationModal" style="display: none;">
             <div class="modal-card">
                 <div class="modal-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
@@ -874,6 +886,6 @@ fill="currentColor" stroke="none">
             </div>
         </div>
 
-    <script src="/js/admin.js?v=6" defer></script>
+    <script src="/js/admin.js?v=7" defer></script>
 </body>
 </html>

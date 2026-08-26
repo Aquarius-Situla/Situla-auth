@@ -912,40 +912,81 @@ async function performOidcAction(actionFn) {
 }
 
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
-    // Before showing the modal, check if they can even submit it by checking status?
-    // Let's just show the add modal. If they submit and get 403, we elevate then.
+    document.getElementById('oidcModal').style.display = 'flex';
+    document.getElementById('oidcStep1').style.display = 'block';
+    document.getElementById('oidcStep2').style.display = 'none';
+    document.getElementById('oidcStep3').style.display = 'none';
     document.getElementById('oidcAppName').value = '';
     document.getElementById('oidcRedirectUris').value = '';
-    document.getElementById('oidcModal').style.display = 'flex';
+    document.getElementById('oidcConfirmPwd').value = '';
+    document.getElementById('oidcMsg1').textContent = '';
+    document.getElementById('oidcMsg2').textContent = '';
+});
+
+const cancelOidc = () => {
+    document.getElementById('oidcModal').style.display = 'none';
+};
+document.getElementById('cancelOidcBtn1')?.addEventListener('click', cancelOidc);
+document.getElementById('cancelOidcBtn2')?.addEventListener('click', cancelOidc);
+
+document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
+    const name = document.getElementById('oidcAppName').value.trim();
+    const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
+    const msg1 = document.getElementById('oidcMsg1');
+    msg1.textContent = '';
+    
+    if (!name || uris.length === 0) {
+        msg1.textContent = '请填写完整的应用名称和至少一个重定向URI';
+        msg1.className = 'msg msg-err';
+        return;
+    }
+    
+    // Move to step 2 (Password)
+    document.getElementById('oidcStep1').style.display = 'none';
+    document.getElementById('oidcStep2').style.display = 'block';
+    setTimeout(() => document.getElementById('oidcConfirmPwd').focus(), 100);
 });
 
 document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
     const name = document.getElementById('oidcAppName').value.trim();
     const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
-    if (!name || uris.length === 0) return alert('请填写完整的应用名称和至少一个重定向URI');
-    
-    const doAdd = async () => {
+    const currentPassword = document.getElementById('oidcConfirmPwd').value;
+    const msg2 = document.getElementById('oidcMsg2');
+    msg2.textContent = '';
+
+    if (!currentPassword) {
+        msg2.textContent = t('msg_enter_current_pwd');
+        msg2.className = 'msg msg-err';
+        return;
+    }
+
+    try {
         const res = await fetch('/api/oidc/clients', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ client_name: name, redirect_uris: uris })
+            body: JSON.stringify({ client_name: name, redirect_uris: uris, currentPassword })
         });
-        if (res.status === 403) return res; // Return response so performOidcAction can catch it
-        
         const data = await res.json();
+        
         if (data.success) {
-            document.getElementById('oidcModal').style.display = 'none';
+            // Move to step 3 (Show Secret)
+            document.getElementById('oidcStep2').style.display = 'none';
+            document.getElementById('oidcStep3').style.display = 'block';
             document.getElementById('newOidcClientId').textContent = data.client_id;
             document.getElementById('newOidcClientSecret').textContent = data.client_secret;
-            document.getElementById('oidcSecretModal').style.display = 'flex';
             loadOidcClients();
         } else {
-            alert(data.message || '添加失败');
+            msg2.textContent = data.message || '添加失败';
+            msg2.className = 'msg msg-err';
         }
-        return res;
-    };
-    
-    performOidcAction(doAdd);
+    } catch (err) {
+        msg2.textContent = '网络错误';
+        msg2.className = 'msg msg-err';
+    }
+});
+
+document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => {
+    document.getElementById('oidcModal').style.display = 'none';
 });
 
 // Call it on load
@@ -967,11 +1008,7 @@ loadStatus = async function() {
 
 
 document.addEventListener('click', (e) => {
-    if (e.target.id === 'cancelOidcBtn') {
-        document.getElementById('oidcModal').style.display = 'none';
-    } else if (e.target.id === 'finishOidcSecretBtn') {
-        document.getElementById('oidcSecretModal').style.display = 'none';
-    } else if (e.target.id === 'cancelElevationBtn1' || e.target.id === 'cancelElevationBtn2') {
+    if (e.target.id === 'cancelElevationBtn1' || e.target.id === 'cancelElevationBtn2') {
         cancelElevation();
     }
 });

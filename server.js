@@ -1056,26 +1056,34 @@ app.get('/api/oidc/clients', authenticateJWT, (req, res) => {
     });
 });
 
-app.post('/api/oidc/clients', authenticateJWT, requireStepUpAuth, (req, res) => {
-    const { client_name, redirect_uris } = req.body;
+app.post('/api/oidc/clients', authenticateJWT, (req, res) => {
+    const { client_name, redirect_uris, currentPassword } = req.body;
     if (!client_name || !redirect_uris || !Array.isArray(redirect_uris)) {
         return res.status(400).json({ success: false, message: 'Invalid payload' });
     }
     
-    const client_id = 'client_' + crypto.randomBytes(8).toString('hex');
-    const client_secret = crypto.randomBytes(32).toString('base64url');
-    const encryptedSecret = encrypt(client_secret);
-    const createdAt = new Date().toISOString();
-    
-    db.run(
-        'INSERT INTO oidc_clients (client_id, client_secret_enc, client_name, redirect_uris, created_at) VALUES (?, ?, ?, ?, ?)',
-        [client_id, encryptedSecret, client_name, JSON.stringify(redirect_uris), createdAt],
-        function(err) {
-            if (err) return res.status(500).json({ success: false, message: 'DB Error' });
-            // Only return the secret ONCE right after creation
-            res.json({ success: true, client_id, client_secret, client_name });
+    db.get('SELECT password FROM users WHERE id = ?', [req.user.id], async (err, user) => {
+        if (!user) return res.status(401).json({ success: false, message: 'User not found' });
+        const pwdOk = await verifyPassword(currentPassword || '', user.password, req.user.id);
+        if (!pwdOk) {
+            return res.status(401).json({ success: false, message: '密码错误' });
         }
-    );
+        
+        const client_id = 'client_' + crypto.randomBytes(8).toString('hex');
+        const client_secret = crypto.randomBytes(32).toString('base64url');
+        const encryptedSecret = encrypt(client_secret);
+        const createdAt = new Date().toISOString();
+        
+        db.run(
+            'INSERT INTO oidc_clients (client_id, client_secret_enc, client_name, redirect_uris, created_at) VALUES (?, ?, ?, ?, ?)',
+            [client_id, encryptedSecret, client_name, JSON.stringify(redirect_uris), createdAt],
+            function(err) {
+                if (err) return res.status(500).json({ success: false, message: 'DB Error' });
+                // Only return the secret ONCE right after creation
+                res.json({ success: true, client_id, client_secret, client_name });
+            }
+        );
+    });
 });
 
 app.delete('/api/oidc/clients/:id', authenticateJWT, requireStepUpAuth, (req, res) => {
