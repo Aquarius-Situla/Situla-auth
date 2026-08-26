@@ -1004,11 +1004,42 @@ app.post('/api/logout-all', authenticateJWT, (req, res) => {
 /* ── OIDC Router Delegation ── 
  * We mount this before the wildcard route so /oidc/* requests aren't intercepted 
  * by the index.html fallback. The actual implementation is loaded asynchronously below. */
-const oidcRouter = express.Router();
-let oidcReady = false;
+let oidcHandler = null;
 app.use('/oidc', (req, res, next) => {
-    if (oidcReady) return oidcRouter(req, res, next);
+    // For interaction routes that we handle natively
+    if (req.path.startsWith('/interaction/')) {
+        return next();
+    }
+    if (oidcHandler) return oidcHandler(req, res, next);
     res.status(503).json({ error: 'OIDC Provider not ready yet' });
+});
+
+// We need a specific route for the interaction handler we write ourselves
+app.get('/oidc/interaction/:uid', async (req, res) => {
+    if (!global.oidcProviderInstance) return res.status(503).send('Not ready');
+    const oidcProvider = global.oidcProviderInstance;
+    try {
+        const interaction = await oidcProvider.interactionDetails(req, res);
+
+        const token = req.cookies[COOKIE_NAME];
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+                const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+                if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
+                    const result = { login: { accountId: String(decoded.id) } };
+                    return await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+                }
+            } catch (e) {}
+        }
+
+        const returnTo = `/oidc/interaction/${interaction.uid}`;
+        return res.redirect(`/?rd=${encodeURIComponent(returnTo)}`);
+    } catch (e) {
+        console.error('[OIDC Interaction]', e.message);
+        return res.status(500).send('OIDC interaction error');
+    }
 });
 
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
@@ -1067,47 +1098,8 @@ const port = process.env.PORT || 3000;
         // Dynamically import the ESM oidc module from CJS context
         const { default: oidcProvider } = await import('./oidc.mjs');
 
-        /* ── OIDC Interaction Route ── 
-         * When a client app redirects a user to log in via OIDC,
-         * oidc-provider redirects them here first.
-         * We bridge this to our existing Situla session cookie. */
-        oidcRouter.get('/interaction/:uid', async (req, res) => {
-            try {
-                const interaction = await oidcProvider.interactionDetails(req, res);
-
-                // Check if user already has a valid Situla session
-                const token = req.cookies[COOKIE_NAME];
-                if (token) {
-                    try {
-                        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
-                        const currentVersion = tokenVersionCache.get(decoded.id) || 0;
-                        if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
-                            // Already logged in — complete the interaction automatically
-                            const result = {
-                                login: { accountId: String(decoded.id) },
-                            };
-                            return await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
-                        }
-                    } catch (e) {
-                        // Invalid session — fall through to login redirect
-                    }
-                }
-
-                // Not logged in: redirect to login page, encoding the OIDC interaction uid
-                // After login, our existing redirect logic will return here automatically
-                // because the user's Cookie will be set and /oidc/interaction/:uid will auto-complete.
-                const returnTo = `/oidc/interaction/${interaction.uid}`;
-                return res.redirect(`/?rd=${encodeURIComponent(returnTo)}`);
-            } catch (e) {
-                console.error('[OIDC Interaction]', e.message);
-                return res.status(500).send('OIDC interaction error');
-            }
-        });
-
-        // Mount the full OIDC provider (handles /auth, /token, /userinfo, etc.)
-        oidcRouter.use(oidcProvider.callback());
-        
-        oidcReady = true;
+        global.oidcProviderInstance = oidcProvider;
+        oidcHandler = oidcProvider.callback();
 
         console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
         console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
