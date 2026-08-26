@@ -186,35 +186,65 @@
 
         /* ── Passkey registration ── */
         // Step 1: Show the inline naming panel (avoids focus-stealing prompt())
+        /* Passkey Registration Modal */
         document.getElementById('regPasskeyBtn').addEventListener('click', () => {
+            document.getElementById('passkeyModal').style.display = 'flex';
+            document.getElementById('passkeyStep1').style.display = 'block';
+            document.getElementById('passkeyStep2').style.display = 'none';
             document.getElementById('passkeyNameInput').value = '';
-            document.getElementById('passkeyMsg').textContent = '';
-            document.getElementById('passkeyMsg').className = 'msg';
-            document.getElementById('passkeyNamePanel').style.display = 'block';
-            document.getElementById('regPasskeyBtn').style.display = 'none';
+            document.getElementById('passkeyConfirmPwd').value = '';
+            document.getElementById('passkeyMsg1').textContent = '';
+            document.getElementById('passkeyMsg2').textContent = '';
             document.getElementById('passkeyNameInput').focus();
         });
 
-        document.getElementById('cancelAddPasskeyBtn').addEventListener('click', () => {
-            document.getElementById('passkeyNamePanel').style.display = 'none';
-            document.getElementById('regPasskeyBtn').style.display = '';
+        const cancelPasskey = () => {
+            document.getElementById('passkeyModal').style.display = 'none';
+        };
+        document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', cancelPasskey);
+        document.getElementById('cancelPasskeyBtn2')?.addEventListener('click', cancelPasskey);
+
+        document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
+            const pkName = document.getElementById('passkeyNameInput').value.trim();
+            document.getElementById('passkeyStep1').style.display = 'none';
+            document.getElementById('passkeyStep2').style.display = 'block';
+            setTimeout(() => document.getElementById('passkeyConfirmPwd').focus(), 100);
         });
 
-        // Step 2: User clicks confirm — document is still focused, WebAuthn works fine
-        document.getElementById('confirmAddPasskeyBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('passkeyMsg');
+        document.getElementById('confirmAddPasskeyBtn')?.addEventListener('click', async () => {
+            const msg = document.getElementById('passkeyMsg2');
             const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
+            const currentPassword = document.getElementById('passkeyConfirmPwd').value;
+            msg.textContent = '';
+            
+            if (!currentPassword) {
+                msg.textContent = t('msg_enter_current_pwd');
+                msg.className = 'msg msg-err';
+                return;
+            }
 
-            document.getElementById('passkeyNamePanel').style.display = 'none';
-            document.getElementById('regPasskeyBtn').style.display = '';
-
-            msg.textContent = t('msg_preparing');
-            msg.className = 'msg';
             try {
+                // Verify password first
+                const verifyRes = await fetch('/api/verify-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ currentPassword })
+                });
+                const verifyData = await verifyRes.json();
+                if (!verifyData.success) {
+                    msg.textContent = verifyData.message || 'Error';
+                    msg.className = 'msg msg-err';
+                    return;
+                }
+
+                // Password is correct, start WebAuthn
+                msg.textContent = '请触碰你的安全密钥/验证设备...';
+                msg.className = 'msg';
+
                 const options = await (await fetch('/api/webauthn/register-options')).json();
                 const attResp = await startRegistration(options);
-                // Attach chosen name so server can save it
                 attResp._passkeyName = passkeyName;
+                
                 const result = await (await fetch('/api/webauthn/register-verify', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -222,21 +252,19 @@
                 })).json();
 
                 if (result.verified) {
-                    msg.textContent = t('msg_pk_added', passkeyName);
+                    msg.textContent = '通行密钥添加成功！';
                     msg.className = 'msg msg-ok';
-                    loadStatus();
+                    setTimeout(() => {
+                        document.getElementById('passkeyModal').style.display = 'none';
+                        loadStatus();
+                    }, 1200);
                 } else {
                     throw new Error('Verification failed');
                 }
             } catch (e) {
-                msg.textContent = 'Error: ' + (e.message || t('msg_cancel'));
+                msg.textContent = '错误: ' + (e.message || '取消或失败');
                 msg.className = 'msg msg-err';
             }
-        });
-
-        // Allow pressing Enter in the name input to confirm
-        document.getElementById('passkeyNameInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('confirmAddPasskeyBtn').click();
         });
 
         /* ── 2FA General Setup ── */
@@ -430,30 +458,61 @@
             }
         }
 
+        /* FIDO2 Registration Modal */
         document.getElementById('addFido2KeyBtn').addEventListener('click', () => {
+            document.getElementById('fido2Modal').style.display = 'flex';
+            document.getElementById('fido2Step1').style.display = 'block';
+            document.getElementById('fido2Step2').style.display = 'none';
             document.getElementById('fido2KeyNameInput').value = '';
-            document.getElementById('fido2Msg').textContent = '';
-            document.getElementById('fido2Msg').className = 'msg';
-            document.getElementById('fido2NamePanel').style.display = 'block';
-            document.getElementById('fido2AddBtnRow').style.display = 'none';
+            document.getElementById('fido2ConfirmPwd').value = '';
+            document.getElementById('fido2Msg1').textContent = '';
+            document.getElementById('fido2Msg2').textContent = '';
             document.getElementById('fido2KeyNameInput').focus();
         });
 
-        document.getElementById('cancelAddFido2KeyBtn').addEventListener('click', () => {
-            document.getElementById('fido2NamePanel').style.display = 'none';
-            document.getElementById('fido2AddBtnRow').style.display = 'flex';
+        const cancelFido2 = () => {
+            document.getElementById('fido2Modal').style.display = 'none';
+        };
+        document.getElementById('cancelFido2Btn1')?.addEventListener('click', cancelFido2);
+        document.getElementById('cancelFido2Btn2')?.addEventListener('click', cancelFido2);
+
+        document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
+            const f2Name = document.getElementById('fido2KeyNameInput').value.trim();
+            document.getElementById('fido2Step1').style.display = 'none';
+            document.getElementById('fido2Step2').style.display = 'block';
+            setTimeout(() => document.getElementById('fido2ConfirmPwd').focus(), 100);
         });
 
-        document.getElementById('confirmAddFido2KeyBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('fido2Msg');
+        document.getElementById('confirmAddFido2KeyBtn')?.addEventListener('click', async () => {
+            const msg = document.getElementById('fido2Msg2');
             const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
+            const currentPassword = document.getElementById('fido2ConfirmPwd').value;
+            msg.textContent = '';
+            
+            if (!currentPassword) {
+                msg.textContent = t('msg_enter_current_pwd');
+                msg.className = 'msg msg-err';
+                return;
+            }
 
-            document.getElementById('fido2NamePanel').style.display = 'none';
-            document.getElementById('fido2AddBtnRow').style.display = 'flex';
-
-            msg.textContent = t('msg_preparing');
-            msg.className = 'msg';
             try {
+                // Verify password first
+                const verifyRes = await fetch('/api/verify-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ currentPassword })
+                });
+                const verifyData = await verifyRes.json();
+                if (!verifyData.success) {
+                    msg.textContent = verifyData.message || 'Error';
+                    msg.className = 'msg msg-err';
+                    return;
+                }
+
+                // Password is correct, start WebAuthn
+                msg.textContent = '请触碰你的 FIDO2 安全密钥...';
+                msg.className = 'msg';
+
                 const optionsRes = await fetch('/api/fido2/register-options');
                 if (!optionsRes.ok) {
                     const err = await optionsRes.json();
@@ -464,28 +523,27 @@
                 const attResp = await startRegistration(options);
                 attResp._keyName = keyName;
                 
-                const verifyRes = await fetch('/api/fido2/register-verify', {
+                const verifyAuthRes = await fetch('/api/fido2/register-verify', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(attResp)
                 });
-                const result = await verifyRes.json();
+                const result = await verifyAuthRes.json();
 
                 if (result.verified) {
-                    msg.textContent = t('msg_fido2_key_added', keyName);
+                    msg.textContent = '安全密钥添加成功！';
                     msg.className = 'msg msg-ok';
-                    loadStatus();
+                    setTimeout(() => {
+                        document.getElementById('fido2Modal').style.display = 'none';
+                        loadStatus();
+                    }, 1200);
                 } else {
-                    throw new Error(result.error || 'Verification failed');
+                    throw new Error('Verification failed');
                 }
             } catch (e) {
-                msg.textContent = 'Error: ' + (e.message || t('msg_cancel'));
+                msg.textContent = '错误: ' + (e.message || '取消或失败');
                 msg.className = 'msg msg-err';
             }
-        });
-
-        document.getElementById('fido2KeyNameInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('confirmAddFido2KeyBtn').click();
         });
 
         document.getElementById('enableFido2Btn').addEventListener('click', async () => {

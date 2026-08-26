@@ -510,6 +510,20 @@ app.post('/api/webauthn/login-verify', loginLimiter, async (req, res) => {
 /* ---- ADMIN ROUTES ---- */
 
 /* Change username */
+
+app.post('/api/verify-password', authenticateJWT, (req, res) => {
+    const { currentPassword } = req.body;
+    db.get('SELECT password FROM users WHERE id = ?', [req.user.id], async (err, user) => {
+        if (!user) return res.status(401).json({ success: false, message: 'User not found' });
+        const pwdOk = await verifyPassword(currentPassword || '', user.password, req.user.id);
+        if (pwdOk) {
+            res.json({ success: true });
+        } else {
+            res.status(401).json({ success: false, message: '密码错误' });
+        }
+    });
+});
+
 app.post('/api/change-username', authenticateJWT, (req, res) => {
     // currentPassword required to confirm identity
     const { newUsername, currentPassword } = req.body;
