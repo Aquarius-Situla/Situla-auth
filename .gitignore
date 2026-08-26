@@ -20,3 +20,9 @@ logs/
 
 # Tools used during development (not part of the app)
 svg_produce/
+
+# Temporary patch/fix scripts (never commit these)
+# If you need a one-off script, put it in scripts/scratch/ instead
+/*.py
+/patch_*.js
+/fix_*.js
