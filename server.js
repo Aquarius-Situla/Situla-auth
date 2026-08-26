@@ -1001,59 +1001,12 @@ app.post('/api/logout-all', authenticateJWT, (req, res) => {
     });
 });
 
-/* ── OIDC Router Delegation ── 
- * We mount this before the wildcard route so /oidc/* requests aren't intercepted 
- * by the index.html fallback. The actual implementation is loaded asynchronously below. */
-let oidcHandler = null;
-app.use('/oidc', (req, res, next) => {
-    // For interaction routes that we handle natively
-    if (req.path.startsWith('/interaction/')) {
-        return next();
-    }
-    if (oidcHandler) return oidcHandler(req, res, next);
-    res.status(503).json({ error: 'OIDC Provider not ready yet' });
-});
-
-// We need a specific route for the interaction handler we write ourselves
-app.get('/oidc/interaction/:uid', async (req, res) => {
-    if (!global.oidcProviderInstance) return res.status(503).send('Not ready');
-    const oidcProvider = global.oidcProviderInstance;
-    try {
-        const interaction = await oidcProvider.interactionDetails(req, res);
-
-        const token = req.cookies[COOKIE_NAME];
-        if (token) {
-            try {
-                const jwt = require('jsonwebtoken');
-                const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
-                const currentVersion = tokenVersionCache.get(decoded.id) || 0;
-                if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
-                    const result = { login: { accountId: String(decoded.id) } };
-                    return await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
-                }
-            } catch (e) {}
-        }
-
-        const returnTo = `/oidc/interaction/${interaction.uid}`;
-        return res.redirect(`/?rd=${encodeURIComponent(returnTo)}`);
-    } catch (e) {
-        console.error('[OIDC Interaction]', e.message);
-        return res.status(500).send('OIDC interaction error');
-    }
-});
-
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
     res.redirect(302, '/favicon.svg');
 });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
-app.use((err, req, res, next) => {
-    console.error('[Error]', err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-});
 
 /* ── Security Migrations ── */
 db.serialize(() => {
@@ -1092,14 +1045,40 @@ db.serialize(() => {
 
 const port = process.env.PORT || 3000;
 
-/* ── OIDC Provider Startup ── */
+/* ── OIDC Provider Startup & Catch-all Routing ── */
 (async () => {
     try {
         // Dynamically import the ESM oidc module from CJS context
         const { default: oidcProvider } = await import('./oidc.mjs');
 
-        global.oidcProviderInstance = oidcProvider;
-        oidcHandler = oidcProvider.callback();
+        // 1. Mount the custom interaction route
+        app.get('/oidc/interaction/:uid', async (req, res) => {
+            try {
+                const interaction = await oidcProvider.interactionDetails(req, res);
+
+                const token = req.cookies[COOKIE_NAME];
+                if (token) {
+                    try {
+                        const jwt = require('jsonwebtoken');
+                        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+                        const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+                        if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
+                            const result = { login: { accountId: String(decoded.id) } };
+                            return await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+                        }
+                    } catch (e) {}
+                }
+
+                const returnTo = `/oidc/interaction/${interaction.uid}`;
+                return res.redirect(`/?rd=${encodeURIComponent(returnTo)}`);
+            } catch (e) {
+                console.error('[OIDC Interaction]', e.message);
+                return res.status(500).send('OIDC interaction error');
+            }
+        });
+
+        // 2. Mount the full OIDC provider middleware BEFORE the wildcard route!
+        app.use('/oidc', oidcProvider.callback());
 
         console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
         console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
@@ -1107,6 +1086,15 @@ const port = process.env.PORT || 3000;
         console.error('[OIDC] Failed to initialize OIDC provider:', e.message);
         console.warn('[OIDC] Server will start WITHOUT OIDC support.');
     }
+
+    // 3. Mount the wildcard route LAST, so it only catches unmatched requests (like React SPA routing)
+    app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+    
+    // 4. Finally mount the error handler
+    app.use((err, req, res, next) => {
+        console.error('[Error]', err.stack);
+        res.status(500).json({ error: 'Internal Server Error' });
+    });
 
     app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));
 })();
