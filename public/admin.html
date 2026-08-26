@@ -488,6 +488,20 @@
                     <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
                 </div>
 
+                <!-- Inline naming panel (shown instead of prompt) -->
+                <div id="OLD_passkeyNamePanel" style="display:none!important;" style="display:none; margin-top:14px;">
+                    <div class="form-fields" style="margin-bottom:10px;">
+                        <input type="text" class="field-input" id="OLD_passkeyNameInput"
+                               data-i18n-placeholder="placeholder_pk_name"
+                               placeholder="给这把通行密钥起个名字（可留空）"
+                               autocomplete="off" maxlength="64">
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-solid" id="OLD_confirmAddPasskeyBtn" data-i18n="btn_confirm_add_pk">确认并注册</button>
+                        <button class="btn-outline" id="OLD_cancelAddPasskeyBtn" data-i18n="btn_cancel">取消</button>
+                    </div>
+                </div>
+
                 <div class="msg" id="passkeyMsg"></div>
             </div>
 
@@ -542,6 +556,21 @@
                         <div class="btn-row" style="margin-top:8px;" id="fido2AddBtnRow">
                             <button class="btn-outline" id="addFido2KeyBtn" data-i18n="btn_add_fido2_key">＋ 添加安全密钥</button>
                         </div>
+                        <!-- Inline naming panel -->
+                        <div id="OLD_fido2NamePanel" style="display:none!important;" style="display:none; margin-top:14px;">
+                            <div class="form-fields" style="margin-bottom:10px;">
+                                <input type="text" class="field-input" id="OLD_fido2KeyNameInput"
+                                       data-i18n-placeholder="placeholder_fido2_key_name"
+                                       placeholder="给这把安全密钥起个名字（可留空）"
+                                       autocomplete="off" maxlength="40">
+                            </div>
+                            <div class="btn-row">
+                                <button class="btn-solid" id="OLD_confirmAddFido2KeyBtn" data-i18n="btn_add_fido2_key">添加安全密钥</button>
+                                <button class="btn-outline" id="OLD_cancelAddFido2KeyBtn" data-i18n="btn_cancel">取消</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="btn-row" style="margin-top:14px;">
                         <button class="btn-outline" id="enableFido2Btn" data-i18n="btn_enable_fido2" style="display:none;">启用 FIDO2 2FA</button>
                         <button class="btn-danger" id="disableFido2Btn" data-i18n="btn_disable_2fa" style="display:none;">禁用 2FA</button>
@@ -835,6 +864,6 @@ fill="currentColor" stroke="none">
             </div>
         </div>
 
-    <script src="/js/admin.js?v=12" defer></script>
+    <script src="/js/admin.js?v=13" defer></script>
 </body>
 </html>
