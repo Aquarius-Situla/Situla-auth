@@ -150,7 +150,7 @@ function loadClients() {
 }
 
 /* MARK: Provider */
-const issuer  = process.env.OIDC_ISSUER || `https://${process.env.RP_ID || "localhost"}`;
+const issuer  = process.env.OIDC_ISSUER || `https://${process.env.RP_ID || "localhost"}/oidc`;
 const jwks    = loadOrGenerateJWKS();
 
 const provider = new Provider(issuer, {
