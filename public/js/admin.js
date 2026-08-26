@@ -522,13 +522,13 @@
 
         /* ── Change username ── */
         document.getElementById('showUsernameFormBtn').addEventListener('click', () => {
-            document.getElementById('usernameFormPanel').style.display = 'block';
-            document.getElementById('showUsernameFormBtn').style.display = 'none';
+            document.getElementById('usernameModal').style.display = 'flex';
+            
         });
 
         document.getElementById('cancelUsernameBtn').addEventListener('click', () => {
-            document.getElementById('usernameFormPanel').style.display = 'none';
-            document.getElementById('showUsernameFormBtn').style.display = '';
+            document.getElementById('usernameModal').style.display = 'none';
+            
             document.getElementById('newUsername').value = '';
             document.getElementById('usernameConfirmPwd').value = '';
             document.getElementById('usernameMsg').textContent = '';
@@ -553,6 +553,7 @@
                 if (data.success) {
                     msg.textContent = t('msg_username_changed', newUsername);
                     msg.className = 'msg msg-ok';
+                    setTimeout(() => document.getElementById('usernameModal').style.display = 'none', 1000);
                     document.getElementById('newUsername').value = '';
                     document.getElementById('usernameConfirmPwd').value = '';
                 } else {
@@ -567,13 +568,13 @@
 
         /* ── Change email ── */
         document.getElementById('showEmailFormBtn').addEventListener('click', () => {
-            document.getElementById('emailFormPanel').style.display = 'block';
-            document.getElementById('showEmailFormBtn').style.display = 'none';
+            document.getElementById('emailModal').style.display = 'flex';
+            
         });
 
         document.getElementById('cancelEmailBtn').addEventListener('click', () => {
-            document.getElementById('emailFormPanel').style.display = 'none';
-            document.getElementById('showEmailFormBtn').style.display = '';
+            document.getElementById('emailModal').style.display = 'none';
+            
             document.getElementById('emailConfirmPwd').value = '';
             document.getElementById('emailMsg').textContent = '';
         });
@@ -618,13 +619,13 @@
 
         /* ── Change password ── */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
-            document.getElementById('passwordFormPanel').style.display = 'block';
-            document.getElementById('showPasswordFormBtn').style.display = 'none';
+            document.getElementById('passwordModal').style.display = 'flex';
+            
         });
 
         document.getElementById('cancelPasswordBtn').addEventListener('click', () => {
-            document.getElementById('passwordFormPanel').style.display = 'none';
-            document.getElementById('showPasswordFormBtn').style.display = '';
+            document.getElementById('passwordModal').style.display = 'none';
+            
             document.getElementById('currentPassword').value = '';
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
@@ -654,6 +655,7 @@
                 if (data.success) {
                     msg.textContent = t('msg_pwd_changed');
                     msg.className = 'msg msg-ok';
+                    setTimeout(() => document.getElementById('passwordModal').style.display = 'none', 1000);
                     document.getElementById('currentPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
