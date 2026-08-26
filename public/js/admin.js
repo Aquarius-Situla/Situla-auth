@@ -708,19 +708,114 @@
         });
 
 
+
+
+// --- OIDC & Elevation Logic ---
+
+let pendingElevationCallback = null;
+
+function requestElevation(callback) {
+    pendingElevationCallback = callback;
+    document.getElementById('elevationTotpForm').style.display = 'none';
+    document.getElementById('elevationCancelRow').style.display = 'block';
+    const methodsDiv = document.getElementById('elevationMethods');
+    methodsDiv.innerHTML = '';
+    
+    // Check user's available 2FA methods from window.currentUserStatus (fetched by loadStatus)
+    const status = window.currentUserStatus || {};
+    let hasMethods = false;
+    
+    if (status.passkeyCount > 0) {
+        hasMethods = true;
+        const pkBtn = document.createElement('button');
+        pkBtn.className = 'btn-outline';
+        pkBtn.textContent = '使用通行密钥 (Passkey)';
+        pkBtn.onclick = elevateWithPasskey;
+        methodsDiv.appendChild(pkBtn);
+    }
+    
+    if (status.hasTOTP) {
+        hasMethods = true;
+        const totpBtn = document.createElement('button');
+        totpBtn.className = 'btn-outline';
+        totpBtn.textContent = '使用身份验证器 (TOTP) 或恢复码';
+        totpBtn.onclick = () => {
+            methodsDiv.style.display = 'none';
+            document.getElementById('elevationCancelRow').style.display = 'none';
+            document.getElementById('elevationTotpForm').style.display = 'block';
+            document.getElementById('elevationTotpInput').value = '';
+            document.getElementById('elevationTotpInput').focus();
+        };
+        methodsDiv.appendChild(totpBtn);
+    }
+    
+    // Note: FIDO2 hardware keys can use the Passkey flow (WebAuthn). 
+    // We also support status.fido2Count if they are separate, but WebAuthn handles both.
+    
+    if (!hasMethods) {
+        methodsDiv.innerHTML = '<div style="color:#ff3b30;font-size:14px;">您需要先在上方配置 2FA 或通行密钥才能执行此操作。</div>';
+    } else {
+        methodsDiv.style.display = 'flex';
+    }
+    
+    document.getElementById('elevationModal').style.display = 'flex';
+}
+
+function cancelElevation() {
+    document.getElementById('elevationModal').style.display = 'none';
+    pendingElevationCallback = null;
+}
+
+async function elevateWithPasskey() {
+    try {
+        const resp = await fetch('/api/webauthn/login-options');
+        const options = await resp.json();
+        if (options.error) return alert(options.error);
+        
+        const assertion = await SimpleWebAuthnBrowser.startAuthentication(options);
+        const verifyResp = await fetch('/api/webauthn/login-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(assertion)
+        });
+        const verifyData = await verifyResp.json();
+        
+        if (verifyData.verified) {
+            document.getElementById('elevationModal').style.display = 'none';
+            if (pendingElevationCallback) pendingElevationCallback();
+        } else {
+            alert('验证失败');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('验证取消或出错');
+    }
+}
+
+document.getElementById('confirmElevationTotpBtn')?.addEventListener('click', async () => {
+    const totp = document.getElementById('elevationTotpInput').value.trim();
+    if (!totp) return;
+    
+    const res = await fetch('/api/auth/elevate/totp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ totp })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('elevationModal').style.display = 'none';
+        if (pendingElevationCallback) pendingElevationCallback();
+    } else {
+        alert(data.message || '验证失败');
+    }
+});
+
 async function loadOidcClients() {
     const res = await fetch('/api/oidc/clients');
-    if (res.status === 403) {
-        document.getElementById('oidcErrorMsg').textContent = '⚠️ 权限不足：您当前未处于高安全级别会话（Passkey/2FA），无法管理 OIDC 应用。';
-        document.getElementById('oidcErrorMsg').style.display = 'block';
-        document.getElementById('addOidcBtn').disabled = true;
-        document.getElementById('addOidcBtn').style.opacity = '0.5';
-        return;
-    }
     const data = await res.json();
     const list = document.getElementById('oidcClientList');
-    if (!list) return; // Wait until UI exists
-    
+    if (!list) return;
     list.innerHTML = '';
     
     if (!data || data.length === 0) {
@@ -749,10 +844,14 @@ async function loadOidcClients() {
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
         delBtn.textContent = '删除';
-        delBtn.onclick = async () => {
+        delBtn.onclick = () => {
             if(confirm('确定删除该第三方应用？删除后它将无法通过本系统登录。')) {
-                await fetch('/api/oidc/clients/' + client.id, { method: 'DELETE' });
-                loadOidcClients();
+                performOidcAction(async () => {
+                    const r = await fetch('/api/oidc/clients/' + client.id, { method: 'DELETE' });
+                    if (r.status === 403) return r;
+                    loadOidcClients();
+                    return r;
+                });
             }
         };
         
@@ -762,7 +861,27 @@ async function loadOidcClients() {
     });
 }
 
+// Wrapper for actions that require Step-Up Auth
+async function performOidcAction(actionFn) {
+    // We don't know for sure if the current cookie has auth_method yet, so we just try it.
+    // Wait, the API might not support a "dry run". But for DELETE we can't dry run.
+    // Actually, we can check window.currentUserStatus to see if we need elevation? 
+    // No, currentUserStatus doesn't have auth_method.
+    // We can just try the action, if 403, elevate and retry!
+    
+    // Let's modify actionFn to be aware of 403.
+    const res = await actionFn();
+    if (res && res.status === 403) {
+        requestElevation(async () => {
+            // Elevated successfully! Retry!
+            await actionFn();
+        });
+    }
+}
+
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
+    // Before showing the modal, check if they can even submit it by checking status?
+    // Let's just show the add modal. If they submit and get 403, we elevate then.
     document.getElementById('oidcAppName').value = '';
     document.getElementById('oidcRedirectUris').value = '';
     document.getElementById('oidcModal').style.display = 'flex';
@@ -771,26 +890,42 @@ document.getElementById('addOidcBtn')?.addEventListener('click', () => {
 document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
     const name = document.getElementById('oidcAppName').value.trim();
     const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
-    
     if (!name || uris.length === 0) return alert('请填写完整的应用名称和至少一个重定向URI');
     
-    const res = await fetch('/api/oidc/clients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_name: name, redirect_uris: uris })
-    });
+    const doAdd = async () => {
+        const res = await fetch('/api/oidc/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client_name: name, redirect_uris: uris })
+        });
+        if (res.status === 403) return res; // Return response so performOidcAction can catch it
+        
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('oidcModal').style.display = 'none';
+            document.getElementById('newOidcClientId').textContent = data.client_id;
+            document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+            document.getElementById('oidcSecretModal').style.display = 'flex';
+            loadOidcClients();
+        } else {
+            alert(data.message || '添加失败');
+        }
+        return res;
+    };
     
-    const data = await res.json();
-    if (data.success) {
-        document.getElementById('oidcModal').style.display = 'none';
-        document.getElementById('newOidcClientId').textContent = data.client_id;
-        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
-        document.getElementById('oidcSecretModal').style.display = 'flex';
-        loadOidcClients();
-    } else {
-        alert(data.message || '添加失败');
-    }
+    performOidcAction(doAdd);
 });
 
 // Call it on load
 setTimeout(() => { if (document.getElementById('oidcClientList')) loadOidcClients(); }, 500);
+
+// We need to inject window.currentUserStatus inside loadStatus()
+const originalLoadStatus = loadStatus;
+loadStatus = async function() {
+    await originalLoadStatus();
+    // Fetch it again to store in window (since original doesn't expose it)
+    try {
+        const res = await fetch('/api/status');
+        window.currentUserStatus = await res.json();
+    } catch(e) {}
+};

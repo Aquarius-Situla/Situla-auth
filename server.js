@@ -369,7 +369,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     if (tempToken && totp) {
         try {
             const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
-            db.get('SELECT * FROM users WHERE id = ?', [decoded.temp_id], (err, user) => {
+            db.get('SELECT * FROM users WHERE id = ?', [targetUserId], (err, user) => {
                 if (!user || (!user.totp_secret && user.two_fa_method !== 'totp')) return res.status(401).json({ success: false, message: 'Invalid session' });
                 
                 if (authenticator.verify({ token: totp, secret: decrypt(user.totp_secret) })) {
@@ -1015,7 +1015,41 @@ const requireStepUpAuth = (req, res, next) => {
     next();
 };
 
-app.get('/api/oidc/clients', authenticateJWT, requireStepUpAuth, (req, res) => {
+
+app.post('/api/auth/elevate/totp', authenticateJWT, (req, res) => {
+    const { totp } = req.body;
+    db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
+        if (!user || (!user.totp_secret && user.two_fa_method !== 'totp')) return res.status(401).json({ success: false, message: '未配置 TOTP' });
+        
+        if (authenticator.verify({ token: totp, secret: decrypt(user.totp_secret) })) {
+            setAuthCookie(res, user, 'totp');
+            return res.json({ success: true });
+        }
+
+        const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
+        db.all('SELECT * FROM recovery_codes WHERE user_id = ? AND used = 0', [user.id], async (err2, rcList) => {
+            if (!rcList || rcList.length === 0) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+            
+            let validRc = null;
+            for (const rc of rcList) {
+                if (rc.code_hash.startsWith('$2b$') || rc.code_hash.startsWith('$2a$')) {
+                    if (await bcrypt.compare(normalised, rc.code_hash)) { validRc = rc; break; }
+                } else {
+                    if (crypto.createHash('sha256').update(normalised).digest('hex') === rc.code_hash) { validRc = rc; break; }
+                }
+            }
+
+            if (validRc) {
+                db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [validRc.id]);
+                setAuthCookie(res, user, 'recovery');
+                return res.json({ success: true, usedRecoveryCode: true });
+            }
+            res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+        });
+    });
+});
+
+app.get('/api/oidc/clients', authenticateJWT, (req, res) => {
     db.all('SELECT id, client_id, client_name, redirect_uris, created_at FROM oidc_clients ORDER BY id DESC', [], (err, rows) => {
         if (err) return res.status(500).json({ success: false, message: 'DB Error' });
         res.json(rows.map(r => ({ ...r, redirect_uris: JSON.parse(r.redirect_uris) })));

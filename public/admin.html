@@ -673,16 +673,14 @@
         <div class="settings-group" id="oidcCard">
             <div class="section">
                 <div class="section-header">
-                    <h3 data-i18n="oidc_title">OIDC 第三方应用</h3>
-                    <p class="section-desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。必须使用高安全级别会话管理。</p>
+                    <h3 data-i18n="oidc_title">OIDC 设置</h3>
+                    <p class="section-desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。</p>
                 </div>
-                
-                <div id="oidcErrorMsg" style="color: #ff3b30; display: none; font-size: 14px; margin-bottom: 15px;"></div>
                 
                 <div id="oidcClientList" class="key-list"></div>
                 
                 <div class="action-btn-container" style="margin-top: 15px;">
-                    <button class="apple-btn btn-secondary" id="addOidcBtn" data-i18n="oidc_add">添加第三方应用</button>
+                    <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加第三方应用</button>
                 </div>
             </div>
         </div>
@@ -724,6 +722,31 @@
                 </div>
                 <div class="modal-actions">
                     <button class="apple-btn btn-primary" onclick="document.getElementById('oidcSecretModal').style.display='none'">我已保存</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Elevation Modal (Step-Up Auth) -->
+        <div class="modal-overlay" id="elevationModal">
+            <div class="modal-card">
+                <h3 style="margin-top:0">安全验证</h3>
+                <p style="color:#636366; font-size:14px; margin-bottom:15px;">此操作需要更高的安全级别，请验证您的身份。</p>
+                
+                <div id="elevationMethods" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Dynamically populated based on user's 2fa settings -->
+                </div>
+                
+                <div id="elevationTotpForm" style="display: none; margin-top: 15px;">
+                    <input type="text" id="elevationTotpInput" class="apple-input" placeholder="6位数验证码或恢复码" maxlength="11">
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="apple-btn btn-secondary" onclick="cancelElevation()">取消</button>
+                        <button class="apple-btn btn-primary" id="confirmElevationTotpBtn">验证</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions" id="elevationCancelRow">
+                    <button class="apple-btn btn-secondary" onclick="cancelElevation()" style="width: 100%;">取消</button>
                 </div>
             </div>
         </div>
