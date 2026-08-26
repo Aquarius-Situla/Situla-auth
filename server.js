@@ -43,11 +43,6 @@ let DUMMY_HASH = '';
 const app = express();
 app.set('trust proxy', 1);
 
-app.use((req, res, next) => {
-    fs.appendFileSync('/app/request.log', `[REQ] ${req.method} ${req.url}\n`);
-    next();
-});
-
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
@@ -1082,12 +1077,6 @@ const port = process.env.PORT || 3000;
                 console.error('[OIDC Interaction]', e.message);
                 return res.status(500).send('OIDC interaction error');
             }
-        });
-
-        // DEBUG MIDDLEWARE FOR OIDC
-        app.use('/oidc', (req, res, next) => {
-            console.log(`[OIDC Request] method=${req.method} url=${req.url} originalUrl=${req.originalUrl} host=${req.headers.host} proto=${req.headers['x-forwarded-proto']}`);
-            next();
         });
 
         // 2. Mount the full OIDC provider middleware BEFORE the wildcard route!
