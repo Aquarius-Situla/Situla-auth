@@ -661,7 +661,79 @@
 
         
         <!-- Username Modal -->
+        
+        <!-- Username Modal -->
         <div class="modal-overlay" id="usernameModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="100%" height="100%" viewBox="0 0 1753.000000 1753.000000"
+ preserveAspectRatio="xMidYMid meet">
+<metadata>
+Created by potrace 1.16, written by Peter Selinger 2001-2019
+</metadata>
+<g transform="translate(0.000000,1753.000000) scale(0.100000,-0.100000)"
+fill="currentColor" stroke="none">
+<path d="M8555 16434 c-16 -2 -73 -9 -125 -15 -636 -71 -1216 -313 -1735 -723
+-617 -488 -1214 -1521 -1330 -2299 -45 -305 -45 -998 0 -1300 124 -824 728
+-1878 1360 -2372 759 -592 1609 -826 2505 -689 586 90 1093 318 1590 715 647
+517 1242 1608 1352 2479 22 175 18 962 -5 1115 -103 667 -451 1392 -956 1990
+-407 481 -1081 878 -1744 1025 -263 58 -745 97 -912 74z"/>
+<path d="M8310 7490 c-140 -10 -372 -26 -515 -35 -376 -24 -518 -44 -823 -116
+-68 -16 -215 -49 -325 -74 -579 -128 -1119 -331 -1839 -691 -864 -432 -1465
+-914 -2162 -1734 -736 -866 -1148 -1922 -1057 -2710 56 -485 442 -853 1006
+-959 378 -72 -210 -65 5965 -69 6247 -3 5979 -6 6376 73 693 139 1050 609 995
+1310 -87 1095 -749 2198 -1956 3259 -744 654 -2084 1301 -3180 1535 -77 16
+-216 48 -310 70 -315 74 -365 79 -1085 126 -594 39 -719 40 -1090 15z"/>
+</g>
+</svg></div>
+                <h3 data-i18n="section_username_title">修改用户名</h3>
+                <p class="modal-desc" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
+                <input type="text" class="modal-input" id="newUsername" data-i18n-placeholder="placeholder_new_username" placeholder="新用户名" autocomplete="off">
+                <input type="password" class="modal-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                <div class="msg" id="usernameMsg" style="font-size: 14px; margin-top: 8px;"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" id="cancelUsernameBtn" data-i18n="btn_cancel">取消</button>
+                    <button class="modal-btn modal-btn-primary" id="changeUsernameBtn" data-i18n="btn_save_username">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Modal -->
+        <div class="modal-overlay" id="emailModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <clipPath id="envelope-clip">
+      <!-- Outer boundary of the envelope stroke: x-8, y-8, w+16, h+16, rx+8 -->
+      <rect x="16" y="48" width="224" height="160" rx="24" ry="24" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#envelope-clip)">
+    <!-- Box -->
+    <rect x="24" y="56" width="208" height="144" rx="16" ry="16" fill="none" stroke="currentColor" stroke-width="16" />
+    
+    <!-- Flap (V shape). We make it start slightly outside so the clip perfectly trims it to the rounded corner! -->
+    <!-- Start at x=16, y=48 (top left outer corner), go to center, then x=240, y=48 -->
+    <polyline points="16,48 128,136 240,48" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg></div>
+                <h3 data-i18n="section_email_title">绑定邮箱</h3>
+                <p class="modal-desc" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份。</p>
+                <input type="email" class="modal-input" id="newEmail" data-i18n-placeholder="placeholder_new_email" placeholder="你的邮箱地址" autocomplete="email">
+                <input type="password" class="modal-input" id="emailConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
+                <div class="msg" id="emailMsg" style="font-size: 14px; margin-top: 8px;"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" id="cancelEmailBtn" data-i18n="btn_cancel">取消</button>
+                    <button class="modal-btn modal-btn-primary" id="changeEmailBtn" data-i18n="btn_save_email">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div class="modal-overlay" id="passwordModal" style="display: none;">
             <div class="modal-card">
                 <div class="modal-icon"><svg width="100%" height="100%" viewBox="0 0 72 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>Group</title>
@@ -738,6 +810,6 @@
             </div>
         </div>
 
-    <script src="/js/admin.js?v=4" defer></script>
+    <script src="/js/admin.js?v=5" defer></script>
 </body>
 </html>
