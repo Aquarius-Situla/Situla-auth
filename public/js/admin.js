@@ -929,3 +929,14 @@ loadStatus = async function() {
         window.currentUserStatus = await res.json();
     } catch(e) {}
 };
+
+
+document.getElementById('cancelOidcBtn')?.addEventListener('click', () => {
+    document.getElementById('oidcModal').style.display = 'none';
+});
+document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => {
+    document.getElementById('oidcSecretModal').style.display = 'none';
+});
+document.getElementById('cancelElevationBtn1')?.addEventListener('click', cancelElevation);
+document.getElementById('cancelElevationBtn2')?.addEventListener('click', cancelElevation);
+

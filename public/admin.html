@@ -706,7 +706,7 @@
                 <input type="text" id="oidcAppName" class="modal-input" placeholder="例如：Nextcloud">
                 <textarea id="oidcRedirectUris" class="modal-input" placeholder="重定向 URI (一行一个)"></textarea>
                 <div class="modal-actions">
-                    <button class="modal-btn modal-btn-secondary" onclick="document.getElementById('oidcModal').style.display='none'">取消</button>
+                    <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn">取消</button>
                     <button class="modal-btn modal-btn-primary" id="confirmAddOidcBtn">创建</button>
                 </div>
             </div>
@@ -720,7 +720,7 @@
                 <div id="newOidcClientSecret" class="modal-secret-display"></div>
                 <p class="modal-desc">Client ID: <span id="newOidcClientId" style="user-select:all;font-family:monospace;"></span><br>请将此密码输入到你要登录的应用配置中。密码区分大小写，且仅显示这一次。</p>
                 <div class="modal-actions">
-                    <button class="modal-btn modal-btn-primary" onclick="document.getElementById('oidcSecretModal').style.display='none'">完成</button>
+                    <button class="modal-btn modal-btn-primary" id="finishOidcSecretBtn">完成</button>
                 </div>
             </div>
         </div>
@@ -739,13 +739,13 @@
                 <div id="elevationTotpForm" style="display: none; margin-top: 15px;">
                     <input type="text" id="elevationTotpInput" class="modal-input" placeholder="6位数验证码或恢复码" maxlength="11">
                     <div class="modal-actions">
-                        <button class="modal-btn modal-btn-secondary" onclick="cancelElevation()">取消</button>
+                        <button class="modal-btn modal-btn-secondary" id="cancelElevationBtn1">取消</button>
                         <button class="modal-btn modal-btn-primary" id="confirmElevationTotpBtn">继续</button>
                     </div>
                 </div>
 
                 <div class="modal-actions" id="elevationCancelRow">
-                    <button class="modal-btn modal-btn-secondary" onclick="cancelElevation()" style="width: 100%; border: none; color: #0071e3;">取消</button>
+                    <button class="modal-btn modal-btn-secondary" id="cancelElevationBtn2" style="width: 100%; border: none; color: #0071e3;">取消</button>
                 </div>
             </div>
         </div>
