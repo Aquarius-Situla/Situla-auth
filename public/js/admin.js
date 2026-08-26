@@ -931,12 +931,15 @@ loadStatus = async function() {
 };
 
 
-document.getElementById('cancelOidcBtn')?.addEventListener('click', () => {
-    document.getElementById('oidcModal').style.display = 'none';
-});
-document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => {
-    document.getElementById('oidcSecretModal').style.display = 'none';
-});
-document.getElementById('cancelElevationBtn1')?.addEventListener('click', cancelElevation);
-document.getElementById('cancelElevationBtn2')?.addEventListener('click', cancelElevation);
 
+
+
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'cancelOidcBtn') {
+        document.getElementById('oidcModal').style.display = 'none';
+    } else if (e.target.id === 'finishOidcSecretBtn') {
+        document.getElementById('oidcSecretModal').style.display = 'none';
+    } else if (e.target.id === 'cancelElevationBtn1' || e.target.id === 'cancelElevationBtn2') {
+        cancelElevation();
+    }
+});
