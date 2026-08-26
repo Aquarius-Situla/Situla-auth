@@ -42,6 +42,12 @@ let DUMMY_HASH = '';
 
 const app = express();
 app.set('trust proxy', 1);
+
+app.use((req, res, next) => {
+    console.log(`[GLOBAL REQ] method=${req.method} url=${req.url} originalUrl=${req.originalUrl}`);
+    next();
+});
+
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
