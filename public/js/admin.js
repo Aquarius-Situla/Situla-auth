@@ -891,3 +891,71 @@ document.addEventListener('click', (e) => {
         cancelElevation();
     }
 });
+
+// --- Recovery Codes Logic ---
+document.getElementById('genRcBtn')?.addEventListener('click', () => {
+    document.getElementById('rcModal').style.display = 'flex';
+    document.getElementById('rcConfirmPwd').value = '';
+    document.getElementById('rcMsg').textContent = '';
+    setTimeout(() => document.getElementById('rcConfirmPwd').focus(), 100);
+});
+
+document.getElementById('cancelRcBtn')?.addEventListener('click', () => {
+    document.getElementById('rcModal').style.display = 'none';
+});
+
+document.getElementById('confirmGenRcBtn')?.addEventListener('click', async () => {
+    const pwd = document.getElementById('rcConfirmPwd').value;
+    const msg = document.getElementById('rcMsg');
+    msg.textContent = '';
+    
+    if (!pwd) {
+        msg.textContent = t('msg_enter_current_pwd');
+        msg.className = 'msg msg-err';
+        return;
+    }
+    
+    try {
+        const verifyRes = await fetch('/api/verify-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ currentPassword: pwd })
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+            msg.textContent = verifyData.message || 'Error';
+            msg.className = 'msg msg-err';
+            return;
+        }
+        
+        // Generate codes
+        const res = await fetch('/api/recovery-codes/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('rcModal').style.display = 'none';
+            document.getElementById('rcPanel').style.display = 'block';
+            document.getElementById('rcList').innerHTML = data.codes.join('<br>');
+            document.getElementById('rcBadge').textContent = '已生成 (8)';
+            document.getElementById('rcBadge').className = 'badge badge-enabled';
+        } else {
+            msg.textContent = data.message || 'Error generating codes';
+            msg.className = 'msg msg-err';
+        }
+    } catch (e) {
+        msg.textContent = 'Network error';
+        msg.className = 'msg msg-err';
+    }
+});
+
+document.getElementById('copyRcBtn')?.addEventListener('click', () => {
+    const list = document.getElementById('rcList').innerText.replace(/\n/g, ' ');
+    navigator.clipboard.writeText(list).then(() => {
+        const btn = document.getElementById('copyRcBtn');
+        const oldText = btn.textContent;
+        btn.textContent = '已复制';
+        setTimeout(() => btn.textContent = oldText, 2000);
+    });
+});
