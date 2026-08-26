@@ -648,38 +648,70 @@
         });
 
 
+        /* Change password */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').style.display = 'flex';
-            
-        });
-
-        document.getElementById('cancelPasswordBtn').addEventListener('click', () => {
-            document.getElementById('passwordModal').style.display = 'none';
-            
+            document.getElementById('passwordStep1').style.display = 'block';
+            document.getElementById('passwordStep2').style.display = 'none';
             document.getElementById('currentPassword').value = '';
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
-            document.getElementById('passwordMsg').textContent = '';
+            document.getElementById('passwordMsg1').textContent = '';
+            document.getElementById('passwordMsg2').textContent = '';
+        });
+
+        const cancelPassword = () => {
+            document.getElementById('passwordModal').style.display = 'none';
+        };
+        document.getElementById('cancelPasswordBtn1')?.addEventListener('click', cancelPassword);
+        document.getElementById('cancelPasswordBtn2')?.addEventListener('click', cancelPassword);
+
+        document.getElementById('continuePasswordBtn')?.addEventListener('click', () => {
+            const newPwd = document.getElementById('newPassword').value;
+            const confirmPwd = document.getElementById('confirmPassword').value;
+            const msg1 = document.getElementById('passwordMsg1');
+            msg1.textContent = '';
+            
+            if (!newPwd || !confirmPwd) {
+                msg1.textContent = t('msg_enter_new_pwd');
+                msg1.className = 'msg msg-err';
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                msg1.textContent = t('msg_pwd_mismatch');
+                msg1.className = 'msg msg-err';
+                return;
+            }
+            if (newPwd.length < 8) {
+                msg1.textContent = t('msg_pwd_too_short');
+                msg1.className = 'msg msg-err';
+                return;
+            }
+            
+            // Move to Step 2
+            document.getElementById('passwordStep1').style.display = 'none';
+            document.getElementById('passwordStep2').style.display = 'block';
+            setTimeout(() => document.getElementById('currentPassword').focus(), 100);
         });
 
         document.getElementById('changePasswordBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('passwordMsg');
+            const msg = document.getElementById('passwordMsg2');
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             msg.textContent = '';
-
-            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
-            if (!newPassword)     { msg.textContent = t('msg_enter_new_pwd'); msg.className = 'msg msg-err'; return; }
-            if (newPassword !== confirmPassword) { msg.textContent = t('msg_pwd_mismatch'); msg.className = 'msg msg-err'; return; }
-            if (newPassword === currentPassword) { msg.textContent = t('msg_pwd_same'); msg.className = 'msg msg-err'; return; }
+            
+            if (!currentPassword) { 
+                msg.textContent = t('msg_enter_current_pwd'); 
+                msg.className = 'msg msg-err'; 
+                return; 
+            }
 
             try {
                 const res = await fetch('/api/change-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    // Raw string via JSON — &, #, *, @, \, " etc. all safe
-                    body: JSON.stringify({ currentPassword, newPassword })
+                    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -690,226 +722,15 @@
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
                 } else {
-                    msg.textContent = data.message || t('msg_change_failed');
+                    msg.textContent = data.message || 'Error';
                     msg.className = 'msg msg-err';
                 }
-            } catch {
-                msg.textContent = t('msg_network_error');
+            } catch (err) {
+                msg.textContent = 'Network error';
                 msg.className = 'msg msg-err';
             }
         });
 
-        /* ── Recovery codes ── */
-        document.getElementById('genRcBtn').addEventListener('click', async () => {
-            const hasExisting = document.getElementById('rcBadge').textContent !== t('badge_not_gen');
-            if (hasExisting) {
-                if (!confirm(t('alert_regen_rc'))) return;
-            }
-            const res  = await fetch('/api/recovery-codes/generate', { method: 'POST' });
-            const data = await res.json();
-            if (!data.success) return;
-
-            // Display codes
-            const listEl = document.getElementById('rcList');
-            listEl.innerHTML = data.codes.map(c => `<div>${escapeHTML(c)}</div>`).join('');
-            document.getElementById('rcPanel').style.display = 'block';
-            document.getElementById('rcMsg').textContent = '';
-            updateRcCard(true, data.codes.length);
-        });
-
-        document.getElementById('copyRcBtn').addEventListener('click', () => {
-            const codes = [...document.querySelectorAll('#rcList div')].map(d => d.textContent).join('\n');
-            navigator.clipboard.writeText(codes).then(() => {
-                const msg = document.getElementById('rcMsg');
-                msg.textContent = t('msg_copied');
-                msg.className = 'msg msg-ok';
-            });
-        });
-
-        /* ── Logout ── */
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await fetch('/api/logout', { method: 'POST' });
-            window.location.href = '/';
-        });
-
-        document.getElementById('logoutAllBtn').addEventListener('click', async () => {
-            if (confirm(t('msg_logout_all_confirm') || '确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。')) {
-                await fetch('/api/logout-all', { method: 'POST' });
-                window.location.href = '/';
-            }
-        });
-
-
-
-
-// --- OIDC & Elevation Logic ---
-
-let pendingElevationCallback = null;
-
-function requestElevation(callback) {
-    pendingElevationCallback = callback;
-    document.getElementById('elevationTotpForm').style.display = 'none';
-    document.getElementById('elevationCancelRow').style.display = 'block';
-    const methodsDiv = document.getElementById('elevationMethods');
-    methodsDiv.innerHTML = '';
-    
-    // Check user's available 2FA methods from window.currentUserStatus (fetched by loadStatus)
-    const status = window.currentUserStatus || {};
-    let hasMethods = false;
-    
-    if (status.passkeyCount > 0) {
-        hasMethods = true;
-        const pkBtn = document.createElement('button');
-        pkBtn.className = 'modal-btn modal-btn-secondary';
-        pkBtn.textContent = '使用通行密钥 (Passkey)';
-        pkBtn.onclick = elevateWithPasskey;
-        methodsDiv.appendChild(pkBtn);
-    }
-    
-    if (status.hasTOTP) {
-        hasMethods = true;
-        const totpBtn = document.createElement('button');
-        totpBtn.className = 'modal-btn modal-btn-secondary';
-        totpBtn.textContent = '使用身份验证器 (TOTP) 或恢复码';
-        totpBtn.onclick = () => {
-            methodsDiv.style.display = 'none';
-            document.getElementById('elevationCancelRow').style.display = 'none';
-            document.getElementById('elevationTotpForm').style.display = 'block';
-            document.getElementById('elevationTotpInput').value = '';
-            document.getElementById('elevationTotpInput').focus();
-        };
-        methodsDiv.appendChild(totpBtn);
-    }
-    
-    // Note: FIDO2 hardware keys can use the Passkey flow (WebAuthn). 
-    // We also support status.fido2Count if they are separate, but WebAuthn handles both.
-    
-    if (!hasMethods) {
-        methodsDiv.innerHTML = '<div style="color:#ff3b30;font-size:14px;">您需要先在上方配置 2FA 或通行密钥才能执行此操作。</div>';
-    } else {
-        methodsDiv.style.display = 'flex';
-    }
-    
-    document.getElementById('elevationModal').style.display = 'flex';
-}
-
-function cancelElevation() {
-    document.getElementById('elevationModal').style.display = 'none';
-    pendingElevationCallback = null;
-}
-
-async function elevateWithPasskey() {
-    try {
-        const resp = await fetch('/api/webauthn/login-options');
-        const options = await resp.json();
-        if (options.error) return alert(options.error);
-        
-        const assertion = await SimpleWebAuthnBrowser.startAuthentication(options);
-        const verifyResp = await fetch('/api/webauthn/login-verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(assertion)
-        });
-        const verifyData = await verifyResp.json();
-        
-        if (verifyData.verified) {
-            document.getElementById('elevationModal').style.display = 'none';
-            if (pendingElevationCallback) pendingElevationCallback();
-        } else {
-            alert('验证失败');
-        }
-    } catch (e) {
-        console.error(e);
-        alert('验证取消或出错');
-    }
-}
-
-document.getElementById('confirmElevationTotpBtn')?.addEventListener('click', async () => {
-    const totp = document.getElementById('elevationTotpInput').value.trim();
-    if (!totp) return;
-    
-    const res = await fetch('/api/auth/elevate/totp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ totp })
-    });
-    
-    const data = await res.json();
-    if (data.success) {
-        document.getElementById('elevationModal').style.display = 'none';
-        if (pendingElevationCallback) pendingElevationCallback();
-    } else {
-        alert(data.message || '验证失败');
-    }
-});
-
-async function loadOidcClients() {
-    const res = await fetch('/api/oidc/clients');
-    const data = await res.json();
-    const list = document.getElementById('oidcClientList');
-    if (!list) return;
-    list.innerHTML = '';
-    
-    if (!data || data.length === 0) {
-        list.innerHTML = '<div style="color: #86868b; font-size: 14px; padding: 10px 0;">暂无接入的应用</div>';
-        return;
-    }
-    
-    data.forEach(client => {
-        const item = document.createElement('div');
-        item.className = 'key-item';
-        
-        const info = document.createElement('div');
-        info.className = 'key-info';
-        
-        const name = document.createElement('div');
-        name.className = 'key-name';
-        name.textContent = client.client_name;
-        
-        const meta = document.createElement('div');
-        meta.className = 'key-meta';
-        meta.textContent = client.client_id;
-        
-        info.appendChild(name);
-        info.appendChild(meta);
-        
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.textContent = '删除';
-        delBtn.onclick = () => {
-            if(confirm('确定删除该第三方应用？删除后它将无法通过本系统登录。')) {
-                performOidcAction(async () => {
-                    const r = await fetch('/api/oidc/clients/' + client.id, { method: 'DELETE' });
-                    if (r.status === 403) return r;
-                    loadOidcClients();
-                    return r;
-                });
-            }
-        };
-        
-        item.appendChild(info);
-        item.appendChild(delBtn);
-        list.appendChild(item);
-    });
-}
-
-// Wrapper for actions that require Step-Up Auth
-async function performOidcAction(actionFn) {
-    // We don't know for sure if the current cookie has auth_method yet, so we just try it.
-    // Wait, the API might not support a "dry run". But for DELETE we can't dry run.
-    // Actually, we can check window.currentUserStatus to see if we need elevation? 
-    // No, currentUserStatus doesn't have auth_method.
-    // We can just try the action, if 403, elevate and retry!
-    
-    // Let's modify actionFn to be aware of 403.
-    const res = await actionFn();
-    if (res && res.status === 403) {
-        requestElevation(async () => {
-            // Elevated successfully! Retry!
-            await actionFn();
-        });
-    }
-}
 
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
     document.getElementById('oidcModal').style.display = 'flex';
