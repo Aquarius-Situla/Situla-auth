@@ -211,6 +211,8 @@ const ALL_TRUST_ROOTS = [...new Set([DEFAULT_TRUST_ROOT, ...EXTRA_TRUST_ROOTS])]
  * the hostname must equal a trust root or be a direct/indirect subdomain of one.
  */
 function isTrustedRedirect(url) {
+    // Allow internal OIDC interaction paths (relative URL, no hostname)
+    if (url && url.startsWith('/oidc/interaction/')) return true;
     try {
         const hostname = new URL(url).hostname.toLowerCase();
         return ALL_TRUST_ROOTS.some(root =>
@@ -1048,4 +1050,59 @@ db.serialize(() => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));
+
+/* ── OIDC Provider Startup ── */
+(async () => {
+    try {
+        // Dynamically import the ESM oidc module from CJS context
+        const { default: oidcProvider } = await import('./oidc.js');
+
+        /* ── OIDC Interaction Route ── 
+         * When a client app redirects a user to log in via OIDC,
+         * oidc-provider redirects them here first.
+         * We bridge this to our existing Situla session cookie. */
+        app.get('/oidc/interaction/:uid', async (req, res) => {
+            try {
+                const interaction = await oidcProvider.interactionDetails(req, res);
+
+                // Check if user already has a valid Situla session
+                const token = req.cookies[COOKIE_NAME];
+                if (token) {
+                    try {
+                        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+                        const currentVersion = tokenVersionCache.get(decoded.id) || 0;
+                        if (decoded.token_version === currentVersion && (!decoded.jti || !revokedTokensCache.has(decoded.jti))) {
+                            // Already logged in — complete the interaction automatically
+                            const result = {
+                                login: { accountId: String(decoded.id) },
+                            };
+                            return await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+                        }
+                    } catch (e) {
+                        // Invalid session — fall through to login redirect
+                    }
+                }
+
+                // Not logged in: redirect to login page, encoding the OIDC interaction uid
+                // After login, our existing redirect logic will return here automatically
+                // because the user's Cookie will be set and /oidc/interaction/:uid will auto-complete.
+                const returnTo = `/oidc/interaction/${interaction.uid}`;
+                return res.redirect(`/?rd=${encodeURIComponent(returnTo)}`);
+            } catch (e) {
+                console.error('[OIDC Interaction]', e.message);
+                return res.status(500).send('OIDC interaction error');
+            }
+        });
+
+        // Mount the full OIDC provider (handles /oidc/auth, /oidc/token, /oidc/userinfo, etc.)
+        app.use('/oidc', oidcProvider.callback());
+
+        console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
+        console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
+    } catch (e) {
+        console.error('[OIDC] Failed to initialize OIDC provider:', e.message);
+        console.warn('[OIDC] Server will start WITHOUT OIDC support.');
+    }
+
+    app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));
+})();

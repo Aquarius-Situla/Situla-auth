@@ -271,7 +271,72 @@ This project is open-sourced under the **AGPL-3.0 License**.
 
 ---
 
-## 🗺️ Roadmap (未来计划)
+## 🔐 OIDC Provider (OpenID Connect)
 
-- [ ] **OIDC (OpenID Connect) Support**: Future plans include adding native OIDC provider capabilities, allowing Situla Auth to act as a lightweight identity provider for modern applications without relying solely on Nginx reverse proxy headers.
-  *(计划未来增加原生 OIDC 支持，让 Situla Auth 能够作为现代应用的标准轻量级身份提供商，而不再仅依赖 Nginx 的反向代理 Header 注入。)*
+Situla Auth can act as a native **OpenID Connect Identity Provider**, allowing any OIDC-compatible application (Grafana, Gitea, Nextcloud, Jellyfin, etc.) to use it as a login source — no Nginx header injection required.
+
+### Discovery Endpoint
+
+Once deployed, the OIDC metadata is available at:
+```
+https://<your-auth-domain>/oidc/.well-known/openid-configuration
+```
+
+### Configuration (`.env`)
+
+Add the following variables to your `.env` file:
+
+```env
+# Required: your auth domain (no trailing slash)
+# OIDC_ISSUER is auto-derived from RP_ID if not set.
+OIDC_ISSUER=https://auth.example.com
+
+# Required: JSON array of registered client applications
+# Fields per client: client_id, client_secret, redirect_uris (array), grant_types (optional)
+OIDC_CLIENTS=[{"client_id":"grafana","client_secret":"strong-secret-here","redirect_uris":["https://grafana.example.com/login/generic_oauth"]},{"client_id":"gitea","client_secret":"another-secret","redirect_uris":["https://gitea.example.com/user/oauth2/situla/callback"]}]
+
+# Auto-generated on first startup and persisted here. DO NOT change manually.
+# OIDC_JWKS={"keys":[...]}
+```
+
+> [!IMPORTANT]
+> After editing `OIDC_CLIENTS`, run `docker compose restart` (no rebuild needed).
+> The RSA signing key (`OIDC_JWKS`) is auto-generated on first boot and saved to `.env` automatically.
+
+### Supported Scopes & Claims
+
+| Scope | Claims returned |
+|---|---|
+| `openid` | `sub` (user ID) |
+| `profile` | `preferred_username`, `name` |
+| `email` | `email`, `email_verified` |
+
+### Application Configuration Examples
+
+**Grafana** (`grafana.ini`):
+```ini
+[auth.generic_oauth]
+enabled = true
+name = Situla Auth
+client_id = grafana
+client_secret = strong-secret-here
+scopes = openid profile email
+auth_url = https://auth.example.com/oidc/auth
+token_url = https://auth.example.com/oidc/token
+api_url = https://auth.example.com/oidc/userinfo
+```
+
+**Gitea** (Admin Panel → Authentication Sources → OAuth2):
+```
+Provider: OpenID Connect
+Client ID: gitea
+Client Secret: another-secret
+OpenID Connect Auto Discovery URL: https://auth.example.com/oidc/.well-known/openid-configuration
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [x] **OIDC (OpenID Connect) Support**: ✅ Situla Auth now acts as a native OpenID Connect Identity Provider, supporting Authorization Code Flow with mandatory PKCE.
+

@@ -71,6 +71,22 @@ db.serialize(() => {
     // two_fa_method: NULL (no 2FA) | 'totp' | 'fido2'
     db.run(`ALTER TABLE users ADD COLUMN two_fa_method TEXT DEFAULT NULL`, () => {});
 
+    // v2.2 migrations: OIDC provider support
+    db.run(`CREATE TABLE IF NOT EXISTS oidc_store (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        granted_at INTEGER,
+        consumed_at INTEGER,
+        expires_at INTEGER,
+        uid TEXT,
+        user_code TEXT,
+        grant_id TEXT
+    )`, () => {});
+    db.run(`CREATE INDEX IF NOT EXISTS oidc_store_uid ON oidc_store(uid)`, () => {});
+    db.run(`CREATE INDEX IF NOT EXISTS oidc_store_user_code ON oidc_store(user_code)`, () => {});
+    db.run(`CREATE INDEX IF NOT EXISTS oidc_store_grant_id ON oidc_store(grant_id)`, () => {});
+
 });
 
 module.exports = db;
