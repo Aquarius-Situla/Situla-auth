@@ -1091,7 +1091,15 @@ const port = process.env.PORT || 3000;
         });
 
         // 2. Mount the full OIDC provider middleware BEFORE the wildcard route!
-        app.use('/oidc', oidcProvider.callback());
+        // We use a custom wrapper to forcibly set the exact path oidc-provider expects
+        // because Express sub-routing and proxy headers are notoriously tricky with Koa adapters.
+        app.use('/oidc', (req, res, next) => {
+            // Force the host and protocol to match the issuer to prevent oidc-provider from rejecting it
+            req.headers.host = process.env.RP_ID || 'auth.aquanexus.me';
+            req.headers['x-forwarded-proto'] = 'https';
+            // oidc-provider callback is an express middleware
+            oidcProvider.callback()(req, res, next);
+        });
 
         console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
         console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
