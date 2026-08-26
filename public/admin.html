@@ -663,39 +663,15 @@
         <!-- Username Modal -->
         <div class="modal-overlay" id="usernameModal" style="display: none;">
             <div class="modal-card">
-                <div class="modal-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                <h3 data-i18n="section_username_title">修改用户名</h3>
-                <p class="modal-desc" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
-                <input type="text" class="modal-input" id="newUsername" data-i18n-placeholder="placeholder_new_username" placeholder="新用户名" autocomplete="off">
-                <input type="password" class="modal-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
-                <div class="msg" id="usernameMsg" style="font-size: 14px; margin-top: 8px;"></div>
-                <div class="modal-actions">
-                    <button class="modal-btn modal-btn-secondary" id="cancelUsernameBtn" data-i18n="btn_cancel">取消</button>
-                    <button class="modal-btn modal-btn-primary" id="changeUsernameBtn" data-i18n="btn_save_username">保存</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Email Modal -->
-        <div class="modal-overlay" id="emailModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-                <h3 data-i18n="section_email_title">绑定邮箱</h3>
-                <p class="modal-desc" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份。</p>
-                <input type="email" class="modal-input" id="newEmail" data-i18n-placeholder="placeholder_new_email" placeholder="你的邮箱地址" autocomplete="email">
-                <input type="password" class="modal-input" id="emailConfirmPwd" data-i18n-placeholder="placeholder_current_pwd" placeholder="当前密码（确认身份）" autocomplete="current-password">
-                <div class="msg" id="emailMsg" style="font-size: 14px; margin-top: 8px;"></div>
-                <div class="modal-actions">
-                    <button class="modal-btn modal-btn-secondary" id="cancelEmailBtn" data-i18n="btn_cancel">取消</button>
-                    <button class="modal-btn modal-btn-primary" id="changeEmailBtn" data-i18n="btn_save_email">保存</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Password Modal -->
-        <div class="modal-overlay" id="passwordModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <div class="modal-icon"><svg width="100%" height="100%" viewBox="0 0 72 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(0.000000, 0.441452)">
+            <rect id="Rectangle" x="0" y="0" width="72" height="72"></rect>
+            <path d="M64.2481971,14.4931046 L65.5958533,13.1063859 C66.2989783,12.4032609 66.3185096,11.4266984 65.6349158,10.7431046 L65.1661658,10.2743546 C64.5411658,9.66888587 63.5450721,9.74701087 62.8810096,10.4110734 L61.5138221,11.7391984 L64.2481971,14.4931046 Z M42.9200721,33.6532609 L46.7677283,31.9735734 L62.8419471,15.8798234 L60.1075721,13.1845109 L44.0333533,29.2587296 L42.2755408,32.9696671 C42.0997596,33.3602921 42.5294471,33.8095109 42.9200721,33.6532609 Z M52.9200721,45.8602921 C56.4161658,45.8602921 58.3497596,44.0048234 58.3497596,40.5087296 L58.3497596,25.0595109 L55.0099158,28.3993546 L55.0099158,40.4306046 C55.0099158,41.9149796 54.1700721,42.7548234 52.6661658,42.7548234 L15.7716346,42.7548234 C14.2677283,42.7548234 13.4278846,41.9149796 13.4278846,40.4306046 L13.4278846,24.9618546 C13.4278846,23.4579484 14.2677283,22.6376359 15.7716346,22.6376359 L45.9669471,22.6376359 L49.0528846,19.5321671 L15.5177283,19.5321671 C12.0216346,19.5321671 10.0880408,21.3876359 10.0880408,24.8837296 L10.0880408,40.5087296 C10.0880408,44.0048234 12.0216346,45.8602921 15.5177283,45.8602921 L52.9200721,45.8602921 Z M20.2638221,35.3915421 C21.7481971,35.3915421 22.9591346,34.1806046 22.9591346,32.6962296 C22.9591346,31.2118546 21.7481971,30.0009171 20.2638221,30.0009171 C18.7794471,30.0009171 17.5685096,31.2118546 17.5685096,32.6962296 C17.5685096,34.1806046 18.7794471,35.3915421 20.2638221,35.3915421 Z M28.3302283,35.3915421 C29.8146033,35.3915421 31.0255408,34.1806046 31.0255408,32.6962296 C31.0255408,31.2118546 29.8146033,30.0009171 28.3302283,30.0009171 C26.8458533,30.0009171 25.6349158,31.2118546 25.6349158,32.6962296 C25.6349158,34.1806046 26.8458533,35.3915421 28.3302283,35.3915421 Z M36.3966346,35.3915421 C37.8810096,35.3915421 39.0919471,34.1806046 39.0919471,32.6962296 C39.0919471,31.2118546 37.8810096,30.0009171 36.3966346,30.0009171 C34.9122596,30.0009171 33.7013221,31.2118546 33.7013221,32.6962296 C33.7013221,34.1806046 34.9122596,35.3915421 36.3966346,35.3915421 Z" id="􀈏" fill="currentColor" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg></div>
                 <h3 data-i18n="section_password_title">修改密码</h3>
                 <p class="modal-desc" data-i18n="section_password_desc">支持任意特殊字符，包括 & # @ * 等。</p>
                 <input type="password" class="modal-input" id="currentPassword" data-i18n-placeholder="placeholder_current_pwd_only" placeholder="当前密码" autocomplete="current-password">
@@ -762,6 +738,6 @@
             </div>
         </div>
 
-    <script src="/js/admin.js?v=3" defer></script>
+    <script src="/js/admin.js?v=4" defer></script>
 </body>
 </html>
