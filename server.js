@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Situla Auth 2.0
  * Copyright (C) 2026 Situla
  *
@@ -299,13 +299,14 @@ function authenticateJWT(req, res, next) {
     }
 }
 
-function setAuthCookie(res, user) {
+function setAuthCookie(res, user, authMethod = 'unknown') {
     const tokenVersion = tokenVersionCache.get(user.id) || 0;
     const token = jwt.sign({ 
         id: user.id, 
         user: user.username, 
         email: user.email || '', 
         token_version: tokenVersion,
+        auth_method: authMethod,
         jti: crypto.randomUUID()
     }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie(COOKIE_NAME, token, {
@@ -372,7 +373,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                 if (!user || (!user.totp_secret && user.two_fa_method !== 'totp')) return res.status(401).json({ success: false, message: 'Invalid session' });
                 
                 if (authenticator.verify({ token: totp, secret: decrypt(user.totp_secret) })) {
-                    setAuthCookie(res, user);
+                    setAuthCookie(res, user, 'totp');
                     return res.json({ success: true });
                 }
 
@@ -393,7 +394,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
                     if (!validRc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
                     
                     db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [validRc.id]);
-                    setAuthCookie(res, user);
+                    setAuthCookie(res, user, 'recovery');
                     res.json({ success: true, usedRecoveryCode: true });
                 });
             });
@@ -420,7 +421,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
             const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
             return res.json({ success: false, requireTotp: true, tempToken, twoFaMethod });
         }
-        setAuthCookie(res, user);
+        setAuthCookie(res, user, 'password');
         res.json({ success: true });
     });
 });
@@ -495,7 +496,7 @@ app.post('/api/webauthn/login-verify', loginLimiter, async (req, res) => {
                 
                 if (verification.verified) {
                     db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, passkey.id]);
-                    setAuthCookie(res, user);
+                    setAuthCookie(res, user, 'passkey');
                     return res.json({ verified: true });
                 }
             } catch (error) {
@@ -960,7 +961,7 @@ app.post('/api/fido2/verify', loginLimiter, async (req, res) => {
                     db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, key.id]);
                     db.get('SELECT * FROM users WHERE id = ?', [userId], (err2, user) => {
                         if (!user) return res.status(400).json({ error: 'User not found' });
-                        setAuthCookie(res, user);
+                        setAuthCookie(res, user, 'fido2');
                         res.json({ verified: true });
                     });
                 } else {
@@ -999,6 +1000,53 @@ app.post('/api/logout-all', authenticateJWT, (req, res) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         tokenVersionCache.set(userId, newVersion);
         res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
+        res.json({ success: true });
+    });
+});
+
+/* ── OIDC Clients Management ── */
+
+const requireStepUpAuth = (req, res, next) => {
+    // Only allow OIDC client configuration for highly secure sessions
+    const validMethods = ['passkey', 'totp', 'fido2', 'recovery'];
+    if (!validMethods.includes(req.user.auth_method)) {
+        return res.status(403).json({ success: false, message: '您的当前会话安全级别过低，请先使用 Passkey 或 2FA 重新登录以管理 OIDC 客户端。' });
+    }
+    next();
+};
+
+app.get('/api/oidc/clients', authenticateJWT, requireStepUpAuth, (req, res) => {
+    db.all('SELECT id, client_id, client_name, redirect_uris, created_at FROM oidc_clients ORDER BY id DESC', [], (err, rows) => {
+        if (err) return res.status(500).json({ success: false, message: 'DB Error' });
+        res.json(rows.map(r => ({ ...r, redirect_uris: JSON.parse(r.redirect_uris) })));
+    });
+});
+
+app.post('/api/oidc/clients', authenticateJWT, requireStepUpAuth, (req, res) => {
+    const { client_name, redirect_uris } = req.body;
+    if (!client_name || !redirect_uris || !Array.isArray(redirect_uris)) {
+        return res.status(400).json({ success: false, message: 'Invalid payload' });
+    }
+    
+    const client_id = 'client_' + crypto.randomBytes(8).toString('hex');
+    const client_secret = crypto.randomBytes(32).toString('base64url');
+    const encryptedSecret = encrypt(client_secret);
+    const createdAt = new Date().toISOString();
+    
+    db.run(
+        'INSERT INTO oidc_clients (client_id, client_secret_enc, client_name, redirect_uris, created_at) VALUES (?, ?, ?, ?, ?)',
+        [client_id, encryptedSecret, client_name, JSON.stringify(redirect_uris), createdAt],
+        function(err) {
+            if (err) return res.status(500).json({ success: false, message: 'DB Error' });
+            // Only return the secret ONCE right after creation
+            res.json({ success: true, client_id, client_secret, client_name });
+        }
+    );
+});
+
+app.delete('/api/oidc/clients/:id', authenticateJWT, requireStepUpAuth, (req, res) => {
+    db.run('DELETE FROM oidc_clients WHERE id = ?', [req.params.id], function(err) {
+        if (err) return res.status(500).json({ success: false, message: 'DB Error' });
         res.json({ success: true });
     });
 });
