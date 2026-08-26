@@ -1079,9 +1079,7 @@ const port = process.env.PORT || 3000;
         });
 
         // 2. Mount the full OIDC provider middleware BEFORE the wildcard route!
-        // We do NOT use app.use('/oidc', ...) because oidc-provider expects the full original URL
-        // to match against its configured issuer path (which already includes /oidc).
-        app.use(oidcProvider.callback());
+        app.use('/oidc', oidcProvider.callback());
 
         console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
         console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
