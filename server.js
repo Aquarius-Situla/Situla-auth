@@ -1078,6 +1078,12 @@ const port = process.env.PORT || 3000;
             }
         });
 
+        // DEBUG MIDDLEWARE FOR OIDC
+        app.use('/oidc', (req, res, next) => {
+            console.log(`[OIDC Request] method=${req.method} url=${req.url} originalUrl=${req.originalUrl} host=${req.headers.host} proto=${req.headers['x-forwarded-proto']}`);
+            next();
+        });
+
         // 2. Mount the full OIDC provider middleware BEFORE the wildcard route!
         app.use('/oidc', oidcProvider.callback());
 
