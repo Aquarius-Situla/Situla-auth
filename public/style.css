@@ -475,6 +475,8 @@ input:focus {
     justify-content: center;
     align-items: center;
     color: #0071e3;
+    background: transparent !important;
+    border-radius: 0 !important;
 }
 .modal-card h3 {
     font-size: 20px;
@@ -580,5 +582,9 @@ textarea.modal-input {
     .modal-input {
         border-color: #3a3a3c;
         color: #ffffff;
+    }
+    .modal-icon {
+        background: transparent !important;
+        color: #0a84ff;
     }
 }
