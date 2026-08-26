@@ -521,32 +521,48 @@
         });
 
         /* ── Change username ── */
+
+        /* Change username */
         document.getElementById('showUsernameFormBtn').addEventListener('click', () => {
             document.getElementById('usernameModal').style.display = 'flex';
-            
-        });
-
-        document.getElementById('cancelUsernameBtn').addEventListener('click', () => {
-            document.getElementById('usernameModal').style.display = 'none';
-            
+            document.getElementById('usernameStep1').style.display = 'block';
+            document.getElementById('usernameStep2').style.display = 'none';
             document.getElementById('newUsername').value = '';
             document.getElementById('usernameConfirmPwd').value = '';
-            document.getElementById('usernameMsg').textContent = '';
+            document.getElementById('usernameMsg1').textContent = '';
+            document.getElementById('usernameMsg2').textContent = '';
+        });
+
+        const cancelUsername = () => {
+            document.getElementById('usernameModal').style.display = 'none';
+        };
+        document.getElementById('cancelUsernameBtn1')?.addEventListener('click', cancelUsername);
+        document.getElementById('cancelUsernameBtn2')?.addEventListener('click', cancelUsername);
+
+        document.getElementById('continueUsernameBtn')?.addEventListener('click', () => {
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const msg1 = document.getElementById('usernameMsg1');
+            msg1.textContent = '';
+            if (!newUsername) { msg1.textContent = t('msg_enter_new_username'); msg1.className = 'msg msg-err'; return; }
+            
+            // Move to step 2
+            document.getElementById('usernameStep1').style.display = 'none';
+            document.getElementById('usernameStep2').style.display = 'block';
+            // Auto focus the password field
+            setTimeout(() => document.getElementById('usernameConfirmPwd').focus(), 100);
         });
 
         document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('usernameMsg');
+            const msg = document.getElementById('usernameMsg2');
             const newUsername = document.getElementById('newUsername').value.trim();
             const currentPassword = document.getElementById('usernameConfirmPwd').value;
             msg.textContent = '';
-            if (!newUsername) { msg.textContent = t('msg_enter_new_username'); msg.className = 'msg msg-err'; return; }
             if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
 
             try {
                 const res = await fetch('/api/change-username', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    // JSON.stringify handles all special characters in passwords automatically
                     body: JSON.stringify({ newUsername, currentPassword })
                 });
                 const data = await res.json();
@@ -557,42 +573,56 @@
                     document.getElementById('newUsername').value = '';
                     document.getElementById('usernameConfirmPwd').value = '';
                 } else {
-                    msg.textContent = data.message || t('msg_change_failed');
+                    msg.textContent = data.message || 'Error';
                     msg.className = 'msg msg-err';
                 }
-            } catch {
-                msg.textContent = t('msg_network_error');
+            } catch (err) {
+                msg.textContent = 'Network error';
                 msg.className = 'msg msg-err';
             }
         });
 
-        /* ── Change email ── */
+
+        /* Change email */
         document.getElementById('showEmailFormBtn').addEventListener('click', () => {
             document.getElementById('emailModal').style.display = 'flex';
-            
+            document.getElementById('emailStep1').style.display = 'block';
+            document.getElementById('emailStep2').style.display = 'none';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('emailConfirmPwd').value = '';
+            document.getElementById('emailMsg1').textContent = '';
+            document.getElementById('emailMsg2').textContent = '';
         });
 
-        document.getElementById('cancelEmailBtn').addEventListener('click', () => {
+        const cancelEmail = () => {
             document.getElementById('emailModal').style.display = 'none';
+        };
+        document.getElementById('cancelEmailBtn1')?.addEventListener('click', cancelEmail);
+        document.getElementById('cancelEmailBtn2')?.addEventListener('click', cancelEmail);
+
+        document.getElementById('continueEmailBtn')?.addEventListener('click', () => {
+            const newEmail = document.getElementById('newEmail').value.trim();
+            const msg1 = document.getElementById('emailMsg1');
+            msg1.textContent = '';
+            if (!newEmail) { msg1.textContent = t('msg_enter_email'); msg1.className = 'msg msg-err'; return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                msg1.textContent = t('msg_invalid_email'); 
+                msg1.className = 'msg msg-err'; 
+                return;
+            }
             
-            document.getElementById('emailConfirmPwd').value = '';
-            document.getElementById('emailMsg').textContent = '';
+            // Move to step 2
+            document.getElementById('emailStep1').style.display = 'none';
+            document.getElementById('emailStep2').style.display = 'block';
+            setTimeout(() => document.getElementById('emailConfirmPwd').focus(), 100);
         });
 
         document.getElementById('changeEmailBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('emailMsg');
+            const msg = document.getElementById('emailMsg2');
             const newEmail = document.getElementById('newEmail').value.trim();
             const currentPassword = document.getElementById('emailConfirmPwd').value;
             msg.textContent = '';
-            if (!newEmail) { msg.textContent = t('msg_enter_email'); msg.className = 'msg msg-err'; return; }
             if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
-
-            // Basic regex format validation
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-                msg.textContent = t('msg_invalid_email'); 
-                msg.className = 'msg msg-err'; 
-                return;
-            }
 
             try {
                 const res = await fetch('/api/change-email', {
@@ -602,22 +632,22 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = t('msg_email_changed');
+                    msg.textContent = t('msg_email_changed', newEmail);
                     msg.className = 'msg msg-ok';
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    setTimeout(() => document.getElementById('emailModal').style.display = 'none', 1000);
+                    document.getElementById('newEmail').value = '';
+                    document.getElementById('emailConfirmPwd').value = '';
                 } else {
-                    msg.textContent = data.message || t('msg_change_failed');
+                    msg.textContent = data.message || 'Error';
                     msg.className = 'msg msg-err';
                 }
-            } catch {
-                msg.textContent = t('msg_network_error');
+            } catch (err) {
+                msg.textContent = 'Network error';
                 msg.className = 'msg msg-err';
             }
         });
 
-        /* ── Change password ── */
+
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').style.display = 'flex';
             
