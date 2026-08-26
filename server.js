@@ -1001,6 +1001,16 @@ app.post('/api/logout-all', authenticateJWT, (req, res) => {
     });
 });
 
+/* ── OIDC Router Delegation ── 
+ * We mount this before the wildcard route so /oidc/* requests aren't intercepted 
+ * by the index.html fallback. The actual implementation is loaded asynchronously below. */
+const oidcRouter = express.Router();
+let oidcReady = false;
+app.use('/oidc', (req, res, next) => {
+    if (oidcReady) return oidcRouter(req, res, next);
+    res.status(503).json({ error: 'OIDC Provider not ready yet' });
+});
+
 app.get('/admin', authenticateJWT, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png', '/logo.png', '/logo.svg', '/icon.png', '/icon.svg'], (req, res) => {
@@ -1061,7 +1071,7 @@ const port = process.env.PORT || 3000;
          * When a client app redirects a user to log in via OIDC,
          * oidc-provider redirects them here first.
          * We bridge this to our existing Situla session cookie. */
-        app.get('/oidc/interaction/:uid', async (req, res) => {
+        oidcRouter.get('/interaction/:uid', async (req, res) => {
             try {
                 const interaction = await oidcProvider.interactionDetails(req, res);
 
@@ -1094,8 +1104,10 @@ const port = process.env.PORT || 3000;
             }
         });
 
-        // Mount the full OIDC provider (handles /oidc/auth, /oidc/token, /oidc/userinfo, etc.)
-        app.use('/oidc', oidcProvider.callback());
+        // Mount the full OIDC provider (handles /auth, /token, /userinfo, etc.)
+        oidcRouter.use(oidcProvider.callback());
+        
+        oidcReady = true;
 
         console.log(`[OIDC] Provider mounted at ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc`);
         console.log(`[OIDC] Discovery: ${process.env.OIDC_ISSUER || `https://${process.env.RP_ID}`}/oidc/.well-known/openid-configuration`);
