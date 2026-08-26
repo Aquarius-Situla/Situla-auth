@@ -32,9 +32,15 @@ Mature authentication solutions like **authentik** or **Authelia** are incredibl
 
 ## ✨ Features
 
-- **Passkey (WebAuthn)**: Passwordless login via Face ID, Touch ID, Windows Hello, or hardware keys.
-- **Two-Factor Authentication**: TOTP support (Google Authenticator, iOS Passwords, etc.)
-- **Recovery Codes**: One-time backup codes when 2FA device is unavailable.
+- **Passkey (WebAuthn) Passwordless Login**: Log in effortlessly via Face ID, Touch ID, or Windows Hello.
+- **Robust Two-Factor Authentication (2FA)**:
+  - **FIDO2 Security Keys**: Use hardware keys (e.g., YubiKey) as a phishing-resistant second factor.
+  - **TOTP Authenticator Apps**: Support for Google Authenticator, iOS Passwords, etc.
+- **NSA-Grade Defense-in-Depth Security**: 
+  - AES-256-GCM strong encryption for TOTP secrets at rest.
+  - Constant-time password verification to prevent timing-based username enumeration.
+  - Strict algorithmic enforcement for JWT session tokens (HS256).
+- **Recovery Codes**: Bcrypt-hashed one-time backup codes when 2FA devices are unavailable.
 - **Account Management**: Change username, password, manage Passkeys, generate recovery codes.
 - **Apple UI**: Clean, fluid interface following iOS/macOS design language. Seamlessly supports dark and light modes.
 - **Forward Auth**: Acts as an auth shield for Nginx Proxy Manager (`/verify` endpoint).
