@@ -706,3 +706,91 @@
                 window.location.href = '/';
             }
         });
+
+
+async function loadOidcClients() {
+    const res = await fetch('/api/oidc/clients');
+    if (res.status === 403) {
+        document.getElementById('oidcErrorMsg').textContent = '⚠️ 权限不足：您当前未处于高安全级别会话（Passkey/2FA），无法管理 OIDC 应用。';
+        document.getElementById('oidcErrorMsg').style.display = 'block';
+        document.getElementById('addOidcBtn').disabled = true;
+        document.getElementById('addOidcBtn').style.opacity = '0.5';
+        return;
+    }
+    const data = await res.json();
+    const list = document.getElementById('oidcClientList');
+    if (!list) return; // Wait until UI exists
+    
+    list.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        list.innerHTML = '<div style="color: #86868b; font-size: 14px; padding: 10px 0;">暂无接入的应用</div>';
+        return;
+    }
+    
+    data.forEach(client => {
+        const item = document.createElement('div');
+        item.className = 'key-item';
+        
+        const info = document.createElement('div');
+        info.className = 'key-info';
+        
+        const name = document.createElement('div');
+        name.className = 'key-name';
+        name.textContent = client.client_name;
+        
+        const meta = document.createElement('div');
+        meta.className = 'key-meta';
+        meta.textContent = client.client_id;
+        
+        info.appendChild(name);
+        info.appendChild(meta);
+        
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '删除';
+        delBtn.onclick = async () => {
+            if(confirm('确定删除该第三方应用？删除后它将无法通过本系统登录。')) {
+                await fetch('/api/oidc/clients/' + client.id, { method: 'DELETE' });
+                loadOidcClients();
+            }
+        };
+        
+        item.appendChild(info);
+        item.appendChild(delBtn);
+        list.appendChild(item);
+    });
+}
+
+document.getElementById('addOidcBtn')?.addEventListener('click', () => {
+    document.getElementById('oidcAppName').value = '';
+    document.getElementById('oidcRedirectUris').value = '';
+    document.getElementById('oidcModal').style.display = 'flex';
+});
+
+document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
+    const name = document.getElementById('oidcAppName').value.trim();
+    const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
+    
+    if (!name || uris.length === 0) return alert('请填写完整的应用名称和至少一个重定向URI');
+    
+    const res = await fetch('/api/oidc/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_name: name, redirect_uris: uris })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('oidcModal').style.display = 'none';
+        document.getElementById('newOidcClientId').textContent = data.client_id;
+        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+        document.getElementById('oidcSecretModal').style.display = 'flex';
+        loadOidcClients();
+    } else {
+        alert(data.message || '添加失败');
+    }
+});
+
+// Call it on load
+setTimeout(() => { if (document.getElementById('oidcClientList')) loadOidcClients(); }, 500);

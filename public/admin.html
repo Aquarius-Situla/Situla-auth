@@ -668,6 +668,25 @@
             </div>
         </div>
 
+        
+        <!-- OIDC Clients card -->
+        <div class="settings-group" id="oidcCard">
+            <div class="section">
+                <div class="section-header">
+                    <h3 data-i18n="oidc_title">OIDC 第三方应用</h3>
+                    <p class="section-desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。必须使用高安全级别会话管理。</p>
+                </div>
+                
+                <div id="oidcErrorMsg" style="color: #ff3b30; display: none; font-size: 14px; margin-bottom: 15px;"></div>
+                
+                <div id="oidcClientList" class="key-list"></div>
+                
+                <div class="action-btn-container" style="margin-top: 15px;">
+                    <button class="apple-btn btn-secondary" id="addOidcBtn" data-i18n="oidc_add">添加第三方应用</button>
+                </div>
+            </div>
+        </div>
+
         <div class="logout-row" style="display: flex; justify-content: center; gap: 20px;">
             <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
             <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: bold;">在所有设备上退出</span>
@@ -677,5 +696,37 @@
     
 
     <script src="/js/admin.js"></script>
+
+        <!-- Add OIDC Client Modal -->
+        <div class="modal-overlay" id="oidcModal">
+            <div class="modal-card">
+                <h3 style="margin-top:0" data-i18n="oidc_add_title">添加第三方应用</h3>
+                <input type="text" id="oidcAppName" class="apple-input" placeholder="应用名称 (如 Nextcloud)">
+                <textarea id="oidcRedirectUris" class="apple-input" placeholder="重定向 URI (一行一个)" style="height: 80px; margin-top: 10px;"></textarea>
+                <div class="modal-actions">
+                    <button class="apple-btn btn-secondary" onclick="document.getElementById('oidcModal').style.display='none'" data-i18n="cancel">取消</button>
+                    <button class="apple-btn btn-primary" id="confirmAddOidcBtn" data-i18n="confirm">确认</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OIDC Secret Display Modal -->
+        <div class="modal-overlay" id="oidcSecretModal">
+            <div class="modal-card">
+                <h3 style="margin-top:0">应用创建成功</h3>
+                <p style="color:#ff3b30; font-size:14px; font-weight:600;">请立刻妥善保存以下信息，Client Secret 只会显示这一次！</p>
+                <div style="text-align: left; background: #f0f0f5; padding: 10px; border-radius: 8px; margin: 15px 0;">
+                    <strong style="display:block;margin-bottom:5px;">Client ID:</strong>
+                    <code id="newOidcClientId" style="word-break: break-all; display:block; margin-bottom:15px; color:#1d1d1f;"></code>
+                    
+                    <strong style="display:block;margin-bottom:5px;">Client Secret:</strong>
+                    <code id="newOidcClientSecret" style="word-break: break-all; display:block; color:#1d1d1f;"></code>
+                </div>
+                <div class="modal-actions">
+                    <button class="apple-btn btn-primary" onclick="document.getElementById('oidcSecretModal').style.display='none'">我已保存</button>
+                </div>
+            </div>
+        </div>
+
 </body>
 </html>
