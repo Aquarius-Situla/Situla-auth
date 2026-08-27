@@ -694,3 +694,52 @@ textarea.modal-input {
 .apple-spinner-sm div:nth-child(10) { transform: rotate(270deg); animation-delay: -0.2s; }
 .apple-spinner-sm div:nth-child(11) { transform: rotate(300deg); animation-delay: -0.1s; }
 .apple-spinner-sm div:nth-child(12) { transform: rotate(330deg); animation-delay: 0s; }
+
+.log-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5ea;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+.log-item:last-child {
+    border-bottom: none;
+}
+.log-details {
+    font-size: 14px;
+    color: #1d1d1f;
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+.log-ip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: #86868b;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    letter-spacing: -0.2px;
+}
+.log-time {
+    font-size: 12px;
+    color: #86868b;
+}
+
+@media (prefers-color-scheme: dark) {
+    .log-item {
+        border-bottom-color: #2c2c2e;
+    }
+    .log-details {
+        color: #f5f5f7;
+    }
+    .log-ip, .log-time {
+        color: #8e8e93;
+    }
+    #loginLogsList {
+        border-color: #3a3a3c !important;
+        background: #1c1c1e;
+    }
+}

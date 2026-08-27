@@ -1030,9 +1030,16 @@ document.getElementById('viewLoginLogsBtn')?.addEventListener('click', async () 
             
             const div = document.createElement('div');
             div.className = 'log-item';
+            let locStr = log.location || '未知位置';
+            if (locStr === 'Unknown Location' || locStr === 'Unknown') locStr = '未知位置';
+            if (locStr === 'Local Network') locStr = '局域网';
+            
+            let devStr = log.device || '未知设备';
+            if (devStr === 'Unknown Device') devStr = '未知设备';
+
             div.innerHTML = `
-                <div class="log-details">${escapeHTML(log.location)} · ${escapeHTML(log.device)}</div>
-                <div class="log-ip">${escapeHTML(log.ip)}</div>
+                <div class="log-details">${escapeHTML(locStr)} · ${escapeHTML(devStr)}</div>
+                <div class="log-ip">${escapeHTML(log.ip || '')}</div>
                 <div class="log-time">${escapeHTML(localTime)}</div>
             `;
             listEl.appendChild(div);

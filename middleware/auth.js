@@ -107,35 +107,72 @@ function requireStepUpAuth(req, res, next) {
  */
 async function logLogin(req, userId, authMethod) {
     if (!req) return;
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+    let rawIp = req.headers['cf-connecting-ip'] || 
+                req.headers['x-real-ip'] || 
+                req.headers['x-forwarded-for'] || 
+                req.socket.remoteAddress || 
+                'Unknown';
+    
+    if (typeof rawIp === 'string' && rawIp.includes(',')) {
+        rawIp = rawIp.split(',')[0].trim();
+    }
+    
+    const cleanIp = String(rawIp).replace(/^::ffff:/, '').replace(/^\[|\]$/g, '').trim();
     const ua = req.headers['user-agent'] || 'Unknown Device';
     
-    let device = 'Unknown Device';
-    if (ua.includes('Windows')) device = 'Windows';
-    else if (ua.includes('Macintosh')) device = 'MacBook / iMac';
-    else if (ua.includes('iPhone')) device = 'iPhone';
+    let device = '未知设备';
+    if (ua.includes('iPhone')) device = 'iPhone';
     else if (ua.includes('iPad')) device = 'iPad';
-    else if (ua.includes('Android')) device = 'Android Device';
+    else if (ua.includes('Android')) device = 'Android 设备';
+    else if (ua.includes('Macintosh') || ua.includes('Mac OS')) device = 'Mac';
+    else if (ua.includes('Windows')) device = 'Windows PC';
     else if (ua.includes('Linux')) device = 'Linux';
     
-    let location = 'Unknown Location';
-    try {
-        let cleanIp = ip.split(',')[0].trim();
-        if (cleanIp !== '::1' && cleanIp !== '127.0.0.1' && !cleanIp.startsWith('192.168.') && !cleanIp.startsWith('10.') && !cleanIp.startsWith('172.16.')) {
-            const res = await fetch(`http://ip-api.com/json/${cleanIp}?lang=zh-CN`);
+    let location = '未知位置';
+    const isPrivate = !cleanIp || 
+                      cleanIp === 'Unknown' ||
+                      cleanIp === '::1' || 
+                      cleanIp === '127.0.0.1' || 
+                      cleanIp === 'localhost' ||
+                      cleanIp.startsWith('10.') || 
+                      cleanIp.startsWith('192.168.') || 
+                      cleanIp.startsWith('172.16.') || 
+                      cleanIp.startsWith('172.17.') || 
+                      cleanIp.startsWith('172.18.') || 
+                      cleanIp.startsWith('172.19.') || 
+                      cleanIp.startsWith('172.2') || 
+                      cleanIp.startsWith('172.3') || 
+                      cleanIp.startsWith('fc00:') || 
+                      cleanIp.startsWith('fd00:') || 
+                      cleanIp.startsWith('fe80:');
+    
+    if (isPrivate) {
+        location = '局域网';
+    } else {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(cleanIp)}?lang=zh-CN`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
             if (res.ok) {
                 const data = await res.json();
-                if (data.status === 'success') {
-                    location = `${data.country} ${data.city}`;
+                if (data && data.status === 'success') {
+                    const parts = [data.country, data.regionName, data.city].filter(Boolean);
+                    const unique = [...new Set(parts)];
+                    location = unique.join(' ') || data.country || '未知位置';
                 }
             }
-        } else {
-            location = 'Local Network';
+        } catch (e) {
+            if (req.headers['cf-ipcountry']) {
+                location = req.headers['cf-ipcountry'];
+            }
         }
-    } catch (e) { }
+    }
     
     db.run('INSERT INTO login_logs (user_id, ip, location, device) VALUES (?, ?, ?, ?)',
-           [userId, ip.substring(0, 45), location, device], (err) => {
+           [userId, cleanIp.substring(0, 64), location, device], (err) => {
                if (err) console.error('Error inserting login log:', err);
            });
 }
