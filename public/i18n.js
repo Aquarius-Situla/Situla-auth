@@ -75,7 +75,7 @@ const translations = {
         "msg_pwd_changed": "✓ 密码已成功更改",
         "msg_change_failed": "修改失败",
 
-        "section_pk_title": "通行密钥",
+        "section_pk_title": "Passkeys（通行密钥）",
         "section_pk_desc": "使用面容、指纹或设备密码安全登录，更快捷，更安全。",
         "badge_none": "未添加",
         "badge_pk_count": "{0} 把",
