@@ -172,14 +172,19 @@ async function verifyElevationOrPassword(req, res, password) {
     const JWT_SECRET = req.app.get('JWT_SECRET');
     const COOKIE_DOMAIN = req.app.get('COOKIE_DOMAIN');
 
-    if (password) {
+    const pwd = password || req.body?.currentPassword;
+
+    if (pwd) {
         // Check password
         const userId = req.user.id;
         const user = await new Promise((resolve) => {
             db.get('SELECT password FROM users WHERE id = ?', [userId], (err, row) => resolve(row));
         });
-        if (!user) return false;
-        const passwordOk = await verifyPassword(password, user.password, userId);
+        if (!user) {
+            res.status(401).json({ success: false, message: 'User not found' });
+            return false;
+        }
+        const passwordOk = await verifyPassword(pwd, user.password, userId);
         if (passwordOk) {
             // Set elevation cookie
             const elevationToken = jwt.sign({ id: userId, elevated: true }, JWT_SECRET, { expiresIn: '15m' });
@@ -189,12 +194,13 @@ async function verifyElevationOrPassword(req, res, password) {
             });
             return true;
         }
+        res.status(401).json({ success: false, message: '密码错误，请重试' });
         return false;
     } else {
         // No password provided, check elevation cookie
         const elevationToken = req.cookies[ELEVATION_COOKIE];
         if (!elevationToken) {
-            res.status(401).json({ success: false, error: 'Password required', requireElevation: true });
+            res.status(401).json({ success: false, message: '需要密码确认', requireElevation: true });
             return false;
         }
         try {
@@ -211,7 +217,7 @@ async function verifyElevationOrPassword(req, res, password) {
         } catch {
             // Token expired or invalid
         }
-        res.status(401).json({ success: false, error: 'Session expired', requireElevation: true });
+        res.status(401).json({ success: false, message: '特权会话已过期，请重新输入密码', requireElevation: true });
         return false;
     }
 }

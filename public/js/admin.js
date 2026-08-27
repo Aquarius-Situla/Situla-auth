@@ -13,7 +13,6 @@ function closeAllModals() {
     });
     document.querySelectorAll('input[type="password"]').forEach(inp => {
         inp.value = '';
-        inp.disabled = true;
     });
 }
 
@@ -26,8 +25,6 @@ function enterSudoStep(modalId, actionFn) {
         });
         return;
     }
-    
-    document.querySelectorAll('input[type="password"]').forEach(inp => inp.disabled = true);
     
     const modal = document.getElementById(modalId);
     if (!modal) return;
@@ -46,7 +43,6 @@ function enterSudoStep(modalId, actionFn) {
     modal.style.display = 'flex';
     
     if (pwdInp) {
-        pwdInp.disabled = false;
         pwdInp.value = '';
         setTimeout(() => pwdInp.focus(), 60);
     }
@@ -86,7 +82,7 @@ function enterSudoStep(modalId, actionFn) {
                     data = res;
                 }
                 
-                if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误'))) {
+                if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误' || data.message === '密码错误，请重试'))) {
                     if (msg) {
                         msg.textContent = data.message || t('msg_wrong_credentials');
                         msg.className = 'msg msg-err';
@@ -102,7 +98,7 @@ function enterSudoStep(modalId, actionFn) {
                     return;
                 }
                 
-                if (data && data.success === false) {
+                if (data && (data.success === false || data.error)) {
                     if (msg) {
                         msg.textContent = data.message || data.error || '操作失败';
                         msg.className = 'msg msg-err';
@@ -756,15 +752,13 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             closeAllModals();
             document.getElementById('passwordModal').style.display = 'flex';
             document.getElementById('passwordStep1').style.display = 'block';
-            document.getElementById('newPassword').disabled = false;
-            document.getElementById('confirmPassword').disabled = false;
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordMsg1').textContent = '';
             if (window.currentUsername) {
                 document.querySelectorAll('.sudo-username-field').forEach(inp => inp.value = window.currentUsername);
             }
-            setTimeout(() => document.getElementById('newPassword').focus(), 50);
+            setTimeout(() => document.getElementById('newPassword').focus(), 60);
         });
 
         document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);
