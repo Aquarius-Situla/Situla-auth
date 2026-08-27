@@ -1,5 +1,22 @@
 
 // Global fetch interceptor to handle elevation expiration
+function disableAllCurrentPasswords() {
+    document.querySelectorAll('.modal-overlay form').forEach(f => {
+        f.querySelectorAll('input').forEach(i => i.disabled = true);
+    });
+}
+
+function enableFormInputs(containerId, pwdInputId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const formEl = container.tagName === 'FORM' ? container : container.querySelector('form');
+    if (formEl) {
+        formEl.querySelectorAll('input').forEach(i => i.disabled = false);
+    }
+    const pwd = document.getElementById(pwdInputId);
+    if (pwd) pwd.disabled = false;
+}
+
 const originalFetch = window.fetch;
 window.fetch = async function(...args) {
     const res = await originalFetch.apply(this, args);
@@ -21,6 +38,8 @@ window.fetch = async function(...args) {
                     
                     if (step1s.length > 0) step1s[0].style.display = 'none';
                     if (step2s.length > 0) step2s[0].style.display = 'block';
+                    disableAllCurrentPasswords();
+                    if (pwdInputs.length > 0) pwdInputs[0].disabled = false;
                     if (pwdInputs.length > 0) {
                         const msg = pwdInputs[0].nextElementSibling;
                         if (msg && msg.classList.contains('msg')) {
@@ -249,12 +268,14 @@ window.fetch = async function(...args) {
 
         document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
             const pkName = document.getElementById('passkeyNameInput').value.trim();
+            disableAllCurrentPasswords();
             if (window.isElevated) {
                 document.getElementById('passkeyConfirmPwd').value = '';
                 document.getElementById('confirmAddPasskeyBtn').click();
             } else {
                 document.getElementById('passkeyStep1').style.display = 'none';
                 document.getElementById('passkeyStep2').style.display = 'block';
+                enableFormInputs('passkeyStep2', 'passkeyConfirmPwd');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('passkeyConfirmPwd').focus(); }, 100);
             }
         });
@@ -526,12 +547,14 @@ window.fetch = async function(...args) {
 
         document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
             const f2Name = document.getElementById('fido2KeyNameInput').value.trim();
+            disableAllCurrentPasswords();
             if (window.isElevated) {
                 document.getElementById('fido2ConfirmPwd').value = '';
                 document.getElementById('confirmAddFido2KeyBtn').click();
             } else {
                 document.getElementById('fido2Step1').style.display = 'none';
                 document.getElementById('fido2Step2').style.display = 'block';
+                enableFormInputs('fido2Step2', 'fido2ConfirmPwd');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('fido2ConfirmPwd').focus(); }, 100);
             }
         });
@@ -657,12 +680,14 @@ window.fetch = async function(...args) {
             if (!newUsername) { msg1.textContent = t('msg_enter_new_username'); msg1.className = 'msg msg-err'; return; }
             
             // Move to step 2
+            disableAllCurrentPasswords();
             if (window.isElevated) {
                 document.getElementById('usernameConfirmPwd').value = '';
                 document.getElementById('confirmChangeUsernameBtn').click();
             } else {
                 document.getElementById('usernameStep1').style.display = 'none';
                 document.getElementById('usernameStep2').style.display = 'block';
+                enableFormInputs('usernameStep2', 'usernameConfirmPwd');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('usernameConfirmPwd').focus(); }, 100);
             }
         });
@@ -727,12 +752,14 @@ window.fetch = async function(...args) {
             }
             
             // Move to step 2
+            disableAllCurrentPasswords();
             if (window.isElevated) {
                 document.getElementById('emailConfirmPwd').value = '';
                 document.getElementById('confirmChangeEmailBtn').click();
             } else {
                 document.getElementById('emailStep1').style.display = 'none';
                 document.getElementById('emailStep2').style.display = 'block';
+                enableFormInputs('emailStep2', 'emailConfirmPwd');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('emailConfirmPwd').focus(); }, 100);
             }
         });
@@ -809,12 +836,14 @@ window.fetch = async function(...args) {
             }
             
             // Move to Step 2
+            disableAllCurrentPasswords();
             if (window.isElevated) {
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('changePasswordBtn').click();
             } else {
                 document.getElementById('passwordStep1').style.display = 'none';
                 document.getElementById('passwordStep2').style.display = 'block';
+                enableFormInputs('passwordStep2', 'currentPassword');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('currentPassword').focus(); }, 100);
             }
         });
@@ -888,12 +917,14 @@ document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
     }
     
     // Move to step 2 (Password)
+    disableAllCurrentPasswords();
     if (window.isElevated) {
                 document.getElementById('oidcConfirmPwd').value = '';
                 document.getElementById('confirmAddOidcBtn').click();
             } else {
                 document.getElementById('oidcStep1').style.display = 'none';
                 document.getElementById('oidcStep2').style.display = 'block';
+                enableFormInputs('oidcStep2', 'oidcConfirmPwd');
                 setTimeout(() => { if (window.innerWidth > 600) document.getElementById('oidcConfirmPwd').focus(); }, 100);
             }
 });
@@ -966,10 +997,18 @@ document.addEventListener('click', (e) => {
 
 // --- Recovery Codes Logic ---
 document.getElementById('genRcBtn')?.addEventListener('click', () => {
-    document.getElementById('rcModal').style.display = 'flex';
-    document.getElementById('rcConfirmPwd').value = '';
-    document.getElementById('rcMsg').textContent = '';
-    setTimeout(() => { if (window.innerWidth > 600) document.getElementById('rcConfirmPwd').focus(); }, 100);
+    disableAllCurrentPasswords();
+    disableAllCurrentPasswords();
+    if (window.isElevated) {
+        document.getElementById('rcConfirmPwd').value = '';
+        document.getElementById('confirmGenRcBtn').click();
+    } else {
+        document.getElementById('rcModal').style.display = 'flex';
+        enableFormInputs('rcModal', 'rcConfirmPwd');
+        document.getElementById('rcConfirmPwd').value = '';
+        document.getElementById('rcMsg').textContent = '';
+        setTimeout(() => { if (window.innerWidth > 600) document.getElementById('rcConfirmPwd').focus(); }, 100);
+    }
 });
 
 document.getElementById('cancelRcBtn')?.addEventListener('click', () => {
@@ -1097,6 +1136,7 @@ document.getElementById('logoutAllBtn')?.addEventListener('click', async () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    disableAllCurrentPasswords();
     const forms = [
         {form: 'usernameForm', btn: 'confirmChangeUsernameBtn'},
         {form: 'emailForm', btn: 'confirmChangeEmailBtn'},
