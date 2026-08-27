@@ -377,14 +377,14 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             closeAllModals();
             document.getElementById('passkeyModal').style.display = 'flex';
             document.getElementById('passkeyStep1').style.display = 'block';
-            document.getElementById('passkeyNameInput').value = '';
+            document.getElementById('passkeyDeviceName').value = '';
             document.getElementById('passkeyMsg1').textContent = '';
         });
 
         document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
-            const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
+            const passkeyName = document.getElementById('passkeyDeviceName').value.trim() || t('default_pk_name');
             const msg1 = document.getElementById('passkeyMsg1');
             msg1.textContent = '';
             
@@ -620,14 +620,14 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             closeAllModals();
             document.getElementById('fido2Modal').style.display = 'flex';
             document.getElementById('fido2Step1').style.display = 'block';
-            document.getElementById('fido2KeyNameInput').value = '';
+            document.getElementById('fido2DeviceName').value = '';
             document.getElementById('fido2Msg1').textContent = '';
         });
 
         document.getElementById('cancelFido2Btn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
-            const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
+            const keyName = document.getElementById('fido2DeviceName').value.trim() || t('default_fido2_key_name');
             const msg1 = document.getElementById('fido2Msg1');
             msg1.textContent = '';
             

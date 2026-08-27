@@ -854,7 +854,7 @@ fill="currentColor" stroke="none">
                 <div id="passkeyStep1">
                     <h3>添加通行密钥</h3>
                     <p class="modal-desc">通行密钥允许您使用面容、指纹或设备密码安全地登录。</p>
-                    <input type="text" id="passkeyNameInput" class="modal-input" placeholder="给这把通行密钥起个名字" autocomplete="off" maxlength="64">
+                    <input type="text" id="passkeyDeviceName" name="deviceName" data-bwignore="true" class="modal-input" placeholder="给这把通行密钥起个名字" autocomplete="off" maxlength="64">
                     <div class="msg" id="passkeyMsg1" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn1" data-i18n="btn_cancel">取消</button>
@@ -862,7 +862,7 @@ fill="currentColor" stroke="none">
                     </div>
                 </div>
                 <div id="passkeyStep2" style="display: none;">
-                    <form id="passkeyForm" style="margin: 0; width: 100%;">
+                    <form id="passkeySudoForm" style="margin: 0; width: 100%;">
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="passkeyConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -883,7 +883,7 @@ fill="currentColor" stroke="none">
                 <div id="fido2Step1">
                     <h3>添加 FIDO2 安全密钥</h3>
                     <p class="modal-desc">使用硬件 USB 密钥或 NFC 设备进行超强安全验证。</p>
-                    <input type="text" id="fido2KeyNameInput" class="modal-input" placeholder="给这把安全密钥起个名字" autocomplete="off" maxlength="40">
+                    <input type="text" id="fido2DeviceName" name="deviceName" data-bwignore="true" class="modal-input" placeholder="给这把安全密钥起个名字" autocomplete="off" maxlength="40">
                     <div class="msg" id="fido2Msg1" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelFido2Btn1" data-i18n="btn_cancel">取消</button>
@@ -891,7 +891,7 @@ fill="currentColor" stroke="none">
                     </div>
                 </div>
                 <div id="fido2Step2" style="display: none;">
-                    <form id="fido2Form" style="margin: 0; width: 100%;">
+                    <form id="fido2SudoForm" style="margin: 0; width: 100%;">
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="fido2ConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -972,8 +972,8 @@ fill="currentColor" stroke="none">
                         
                         <h3 data-i18n="section_password_title">修改密码</h3>
                         <p class="modal-desc" data-i18n="section_password_desc">支持任意特殊字符，包括 & # @ * 等。</p>
-                        <input type="password" name="newPassword" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
-                        <input type="password" name="confirmPassword" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
+                        <input type="password" name="new-password" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
+                        <input type="password" name="confirm-new-password" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
                         <div class="msg" id="passwordMsg1" style="font-size: 14px; margin-top: 8px;"></div>
                         <div class="modal-actions">
                             <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasswordBtn1" data-i18n="btn_cancel">取消</button>
@@ -982,7 +982,7 @@ fill="currentColor" stroke="none">
                     </form>
                 </div>
                 <div id="passwordStep2" style="display: none;">
-                    <form id="passwordForm" style="margin: 0; width: 100%;">
+                    <form id="passwordSudoForm" style="margin: 0; width: 100%;">
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="passwordConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1054,7 +1054,7 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script src="/js/admin.js?v=58" defer></script>
+    <script src="/js/admin.js?v=59" defer></script>
 
 </body>
 </html>
