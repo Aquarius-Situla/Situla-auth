@@ -195,7 +195,7 @@
             document.getElementById('passkeyConfirmPwd').value = '';
             document.getElementById('passkeyMsg1').textContent = '';
             document.getElementById('passkeyMsg2').textContent = '';
-            document.getElementById('passkeyNameInput').focus();
+            if (window.innerWidth > 600) document.getElementById('passkeyNameInput').focus();
         });
 
         const cancelPasskey = () => {
@@ -208,7 +208,7 @@
             const pkName = document.getElementById('passkeyNameInput').value.trim();
             document.getElementById('passkeyStep1').style.display = 'none';
             document.getElementById('passkeyStep2').style.display = 'block';
-            setTimeout(() => document.getElementById('passkeyConfirmPwd').focus(), 100);
+            setTimeout(() => if (window.innerWidth > 600) document.getElementById('passkeyConfirmPwd').focus(), 100);
         });
 
         document.getElementById('confirmAddPasskeyBtn')?.addEventListener('click', async () => {
@@ -467,7 +467,7 @@
             document.getElementById('fido2ConfirmPwd').value = '';
             document.getElementById('fido2Msg1').textContent = '';
             document.getElementById('fido2Msg2').textContent = '';
-            document.getElementById('fido2KeyNameInput').focus();
+            if (window.innerWidth > 600) document.getElementById('fido2KeyNameInput').focus();
         });
 
         const cancelFido2 = () => {
@@ -480,7 +480,7 @@
             const f2Name = document.getElementById('fido2KeyNameInput').value.trim();
             document.getElementById('fido2Step1').style.display = 'none';
             document.getElementById('fido2Step2').style.display = 'block';
-            setTimeout(() => document.getElementById('fido2ConfirmPwd').focus(), 100);
+            setTimeout(() => if (window.innerWidth > 600) document.getElementById('fido2ConfirmPwd').focus(), 100);
         });
 
         document.getElementById('confirmAddFido2KeyBtn')?.addEventListener('click', async () => {
@@ -607,7 +607,7 @@
             document.getElementById('usernameStep1').style.display = 'none';
             document.getElementById('usernameStep2').style.display = 'block';
             // Auto focus the password field
-            setTimeout(() => document.getElementById('usernameConfirmPwd').focus(), 100);
+            setTimeout(() => if (window.innerWidth > 600) document.getElementById('usernameConfirmPwd').focus(), 100);
         });
 
         document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
@@ -672,7 +672,7 @@
             // Move to step 2
             document.getElementById('emailStep1').style.display = 'none';
             document.getElementById('emailStep2').style.display = 'block';
-            setTimeout(() => document.getElementById('emailConfirmPwd').focus(), 100);
+            setTimeout(() => if (window.innerWidth > 600) document.getElementById('emailConfirmPwd').focus(), 100);
         });
 
         document.getElementById('changeEmailBtn').addEventListener('click', async () => {
@@ -749,7 +749,7 @@
             // Move to Step 2
             document.getElementById('passwordStep1').style.display = 'none';
             document.getElementById('passwordStep2').style.display = 'block';
-            setTimeout(() => document.getElementById('currentPassword').focus(), 100);
+            setTimeout(() => if (window.innerWidth > 600) document.getElementById('currentPassword').focus(), 100);
         });
 
         document.getElementById('changePasswordBtn').addEventListener('click', async () => {
@@ -823,7 +823,7 @@ document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
     // Move to step 2 (Password)
     document.getElementById('oidcStep1').style.display = 'none';
     document.getElementById('oidcStep2').style.display = 'block';
-    setTimeout(() => document.getElementById('oidcConfirmPwd').focus(), 100);
+    setTimeout(() => if (window.innerWidth > 600) document.getElementById('oidcConfirmPwd').focus(), 100);
 });
 
 document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
@@ -897,7 +897,7 @@ document.getElementById('genRcBtn')?.addEventListener('click', () => {
     document.getElementById('rcModal').style.display = 'flex';
     document.getElementById('rcConfirmPwd').value = '';
     document.getElementById('rcMsg').textContent = '';
-    setTimeout(() => document.getElementById('rcConfirmPwd').focus(), 100);
+    setTimeout(() => if (window.innerWidth > 600) document.getElementById('rcConfirmPwd').focus(), 100);
 });
 
 document.getElementById('cancelRcBtn')?.addEventListener('click', () => {

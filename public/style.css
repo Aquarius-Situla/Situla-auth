@@ -588,3 +588,10 @@ textarea.modal-input {
         color: #0a84ff;
     }
 }
+
+@media (max-width: 600px) {
+    .modal-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+}
