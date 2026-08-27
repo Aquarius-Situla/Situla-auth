@@ -68,20 +68,22 @@ async function verifyPassword(plaintext, storedHash, userId) {
 function authenticateJWT(req, res, next) {
     const JWT_SECRET = req.app.get('JWT_SECRET');
     const token = req.cookies[COOKIE_NAME];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const fail = (msg) => {
+        if (req.path === '/admin') return res.redirect(302, '/');
+        res.status(401).json({ error: msg || 'Unauthorized' });
+    };
+
+    if (!token) return fail();
     try {
         const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
         const currentVersion = tokenVersionCache.get(decoded.id) || 0;
-        if (decoded.token_version !== currentVersion) {
-            return res.status(401).json({ error: 'Session expired' });
-        }
-        if (decoded.jti && revokedTokensCache.has(decoded.jti)) {
-            return res.status(401).json({ error: 'Session revoked' });
-        }
+        if (decoded.token_version !== currentVersion) return fail('Session expired');
+        if (decoded.jti && revokedTokensCache.has(decoded.jti)) return fail('Session revoked');
         req.user = decoded;
         next();
     } catch {
-        res.status(401).json({ error: 'Unauthorized' });
+        fail();
     }
 }
 
