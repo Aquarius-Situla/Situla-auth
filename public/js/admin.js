@@ -366,17 +366,17 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             msg1.textContent = '';
             
             const actionFn = async (pwd) => {
-                const optsRes = await fetch('/api/webauthn/register-options', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ currentPassword: pwd })
-                });
-                const opts = await optsRes.json();
-                if (!opts.success) return { success: false, message: opts.message || t('msg_wrong_credentials') };
+                const optsRes = await fetch('/api/webauthn/register-options');
+                if (!optsRes.ok) {
+                    const err = await optsRes.json().catch(() => ({}));
+                    return { success: false, message: err.error || err.message || '获取配置失败' };
+                }
+                const options = await optsRes.json();
 
                 try {
-                    const attResp = await startRegistration(opts.options);
+                    const attResp = await startRegistration(options);
                     attResp._passkeyName = passkeyName;
+                    attResp.currentPassword = pwd;
 
                     const verRes = await fetch('/api/webauthn/register-verify', {
                         method: 'POST',
@@ -389,7 +389,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                         loadStatus();
                         return { success: true };
                     } else {
-                        return { success: false, message: verData.message || t('msg_passkey_failed') };
+                        return { success: false, message: verData.error || verData.message || t('msg_passkey_failed') };
                     }
                 } catch (e) {
                     return { success: false, message: t('msg_passkey_canceled') + ': ' + (e.message || '') };
@@ -609,17 +609,17 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             msg1.textContent = '';
             
             const actionFn = async (pwd) => {
-                const optsRes = await fetch('/api/fido2/register-options', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ currentPassword: pwd })
-                });
-                const opts = await optsRes.json();
-                if (!opts.success) return { success: false, message: opts.message || opts.error || t('msg_wrong_credentials') };
+                const optsRes = await fetch('/api/fido2/register-options');
+                if (!optsRes.ok) {
+                    const err = await optsRes.json().catch(() => ({}));
+                    return { success: false, message: err.error || err.message || '获取配置失败' };
+                }
+                const options = await optsRes.json();
 
                 try {
-                    const attResp = await startRegistration(opts.options);
+                    const attResp = await startRegistration(options);
                     attResp._fido2KeyName = keyName;
+                    attResp.currentPassword = pwd;
 
                     const verRes = await fetch('/api/fido2/register-verify', {
                         method: 'POST',
@@ -761,6 +761,10 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordMsg1').textContent = '';
+            if (window.currentUsername) {
+                document.querySelectorAll('.sudo-username-field').forEach(inp => inp.value = window.currentUsername);
+            }
+            setTimeout(() => document.getElementById('newPassword').focus(), 50);
         });
 
         document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);
