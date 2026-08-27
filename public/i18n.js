@@ -113,6 +113,10 @@ const translations = {
         "method_totp_title": "身份验证器",
         "method_totp_desc": "TOTP 动态验证码",
 
+        "status_updating": "正在更新...",
+        "status_verifying": "正在验证...",
+        "status_saving": "正在保存...",
+
         // TOTP setup
         "step_1_scan": "1. 使用身份验证器扫描下方二维码：",
         "label_manual_secret": "手动输入密钥",
@@ -273,6 +277,10 @@ const translations = {
         "method_fido2_desc": "FIDO2 hardware key (YubiKey, etc.)",
         "method_totp_title": "Authenticator",
         "method_totp_desc": "TOTP time-based code",
+
+        "status_updating": "Updating...",
+        "status_verifying": "Verifying...",
+        "status_saving": "Saving...",
 
         // TOTP setup
         "step_1_scan": "1. Scan the QR code below with your Authenticator:",

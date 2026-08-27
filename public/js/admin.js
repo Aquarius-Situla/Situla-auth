@@ -1,5 +1,23 @@
 // Global fetch interceptor to handle elevation expiration
 
+function renderInlineLoader(textKey = 'status_updating') {
+    const text = t(textKey) || '正在更新...';
+    return `<div class="apple-inline-updating"><div class="apple-spinner-sm"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><span>${text}</span></div>`;
+}
+
+function setModalActionsLoading(actionsContainer, isLoading, textKey = 'status_updating') {
+    if (!actionsContainer) return;
+    if (isLoading) {
+        actionsContainer.dataset.originalHtml = actionsContainer.innerHTML;
+        actionsContainer.innerHTML = renderInlineLoader(textKey);
+    } else if (actionsContainer.dataset.originalHtml) {
+        actionsContainer.innerHTML = actionsContainer.dataset.originalHtml;
+        delete actionsContainer.dataset.originalHtml;
+        actionsContainer.querySelectorAll('.modal-btn-secondary').forEach(b => b.addEventListener('click', closeAllModals));
+    }
+}
+
+
 function closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => {
         m.style.display = 'none';
@@ -87,7 +105,7 @@ function enterSudoStep(modalId, actionFn) {
     showStep2();
     
     if (form) {
-        form.onsubmit = async (e) => {
+                form.onsubmit = async (e) => {
             e.preventDefault();
             const pwd = pwdInp ? pwdInp.value : '';
             if (!pwd) {
@@ -98,10 +116,8 @@ function enterSudoStep(modalId, actionFn) {
                 return;
             }
             
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = '...';
-            }
+            const actionsContainer = form.querySelector('.modal-actions');
+            setModalActionsLoading(actionsContainer, true, 'status_verifying');
             
             try {
                 const res = await actionFn(pwd);
@@ -113,6 +129,7 @@ function enterSudoStep(modalId, actionFn) {
                 }
                 
                 if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误' || data.message === '密码错误，请重试'))) {
+                    setModalActionsLoading(actionsContainer, false);
                     if (msg) {
                         msg.textContent = data.message || t('msg_wrong_credentials');
                         msg.className = 'msg msg-err';
@@ -121,34 +138,24 @@ function enterSudoStep(modalId, actionFn) {
                         pwdInp.value = '';
                         pwdInp.focus();
                     }
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = t('sudo_btn_confirm');
-                    }
                     return;
                 }
                 
                 if (data && (data.success === false || data.error)) {
+                    setModalActionsLoading(actionsContainer, false);
                     if (msg) {
                         msg.textContent = data.message || data.error || '操作失败';
                         msg.className = 'msg msg-err';
-                    }
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = t('sudo_btn_confirm');
                     }
                     return;
                 }
                 
                 window.isElevated = true;
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = t('sudo_btn_confirm');
-                }
-                
-                if (modalId === 'oidcModal' && data && data.success && data.client_id) {
+                setModalActionsLoading(actionsContainer, false);
+                if (modalId === 'oidcModal' && data.client_id) {
+                    if (step1) step1.style.display = 'none';
                     if (step2) step2.style.display = 'none';
-                    const step3 = document.getElementById('oidcStep3');
+                    const step3 = modal.querySelector('#oidcStep3');
                     if (step3) step3.style.display = 'block';
                     document.getElementById('newOidcClientId').textContent = data.client_id;
                     document.getElementById('newOidcClientSecret').textContent = data.client_secret;
@@ -157,13 +164,10 @@ function enterSudoStep(modalId, actionFn) {
                     closeAllModals();
                 }
             } catch (err) {
+                setModalActionsLoading(actionsContainer, false);
                 if (msg) {
-                    msg.textContent = err.message || t('msg_network_error');
+                    msg.textContent = '操作异常，请重试';
                     msg.className = 'msg msg-err';
-                }
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = t('sudo_btn_confirm');
                 }
             }
         };
@@ -430,10 +434,29 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             document.getElementById('twoFaMethodSelector').style.display = 'block';
         });
 
-        document.getElementById('cancelMethodSelectorBtn').addEventListener('click', () => {
-            document.getElementById('twoFaMethodSelector').style.display = 'none';
-            loadStatus();
-        });
+        async function onCancelMethodSelector() {
+            const container = document.getElementById('twoFaMethodSelector');
+            const cardsRow = container.querySelector('.method-cards-row');
+            const btnRow = container.querySelector('.btn-row');
+            const titleEl = container.querySelector('.method-selector-title');
+            
+            if (cardsRow) cardsRow.style.display = 'none';
+            if (titleEl) titleEl.style.display = 'none';
+            if (btnRow) {
+                btnRow.innerHTML = renderInlineLoader('status_updating');
+            }
+            
+            await loadStatus();
+            
+            container.style.display = 'none';
+            if (cardsRow) cardsRow.style.display = '';
+            if (titleEl) titleEl.style.display = '';
+            if (btnRow) {
+                btnRow.innerHTML = `<button class="btn-outline" id="cancelMethodSelectorBtn" data-i18n="btn_cancel">${t('btn_cancel')}</button>`;
+                document.getElementById('cancelMethodSelectorBtn')?.addEventListener('click', onCancelMethodSelector);
+            }
+        }
+        document.getElementById('cancelMethodSelectorBtn')?.addEventListener('click', onCancelMethodSelector);
 
         document.getElementById('chooseTotpBtn').addEventListener('click', () => {
             document.getElementById('twoFaMethodSelector').style.display = 'none';
@@ -495,6 +518,21 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             } else {
                 msg.textContent = data.message || t('msg_2fa_wrong');
                 msg.className = 'msg msg-err';
+            }
+        });
+
+        document.getElementById('cancelTotpSetupBtn')?.addEventListener('click', async () => {
+            const row = document.querySelector('#totpSetup .code-row');
+            const originalRow = row ? row.innerHTML : '';
+            if (row) {
+                row.innerHTML = renderInlineLoader('status_updating');
+            }
+            await loadStatus();
+            document.getElementById('totpSetup').style.display = 'none';
+            if (row) {
+                row.innerHTML = originalRow;
+                // Re-bind buttons
+                document.getElementById('verify2faBtn')?.addEventListener('click', () => document.getElementById('verify2faBtn').click());
             }
         });
 
