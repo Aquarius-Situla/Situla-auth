@@ -138,7 +138,12 @@
                 set2faBadge(null);
             }
         }
-        loadStatus();
+        loadStatus().finally(() => {
+            const loader = document.getElementById('pageLoader');
+            const content = document.getElementById('appContent');
+            if (loader) loader.style.display = 'none';
+            if (content) content.style.opacity = '1';
+        });
 
         function updateRcCard(hasTOTP, remaining) {
             document.getElementById('rcCard').style.display = hasTOTP ? '' : 'none';

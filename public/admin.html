@@ -440,6 +440,10 @@
     <script src="i18n.js"></script>
 </head>
 <body data-page-title-key="admin_doc_title">
+    <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div class="apple-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
+    <div id="appContent" style="opacity: 0; transition: opacity 0.4s ease;">
     <div class="apple-container">
         <!-- Header -->
         <div class="logo-container">
@@ -1041,7 +1045,8 @@ fill="currentColor" stroke="none">
                 </div>
             </div>
         </div>
+    </div>
 
-    <script src="/js/admin.js?v=24" defer></script>
+    <script src="/js/admin.js?v=26" defer></script>
 </body>
 </html>
