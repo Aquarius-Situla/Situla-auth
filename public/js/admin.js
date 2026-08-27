@@ -1,24 +1,3 @@
-// ── Form & Autofill Diagnostic Logger for F12 ──
-console.log('%c[Situla Auth Diagnostics Initialized]', 'color:#3b82f6;font-weight:bold;font-size:13px;');
-
-document.addEventListener('focusin', (e) => {
-    if (e.target && e.target.matches('input[type="password"], input[type="text"], input[type="email"]')) {
-        const id = e.target.id || e.target.name;
-        const formId = e.target.closest('form')?.id || 'no-form';
-        console.log(`%c[Input-Focus] #${id} inside <${formId}> (autocomplete="${e.target.autocomplete}")`, 'color:#10b981;');
-    }
-});
-
-document.addEventListener('input', (e) => {
-    if (e.target && e.target.matches('input[type="password"], input[type="text"], input[type="email"]')) {
-        const id = e.target.id || e.target.name;
-        const len = e.target.value ? e.target.value.length : 0;
-        const inputType = e.inputType || 'programmatic / autofill';
-        console.log(`%c[Input-Event] #${id} value length: ${len}, type: ${inputType}`, 'color:#8b5cf6;');
-    }
-});
-
-
 // Global fetch interceptor to handle elevation expiration
 
 function closeAllModals() {
@@ -59,10 +38,6 @@ function enterSudoStep(modalId, actionFn) {
         if (msg) {
             msg.textContent = '';
             msg.className = 'msg';
-        }
-        const userInp = form ? form.querySelector('.sudo-username-field') : null;
-        if (userInp && window.currentUsername) {
-            userInp.value = window.currentUsername;
         }
     }
 
@@ -321,9 +296,6 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 
                 if (data.username) {
                     window.currentUsername = data.username;
-                    document.querySelectorAll('.sudo-username-field').forEach(inp => {
-                        inp.value = data.username;
-                    });
                 }
                 if (data.email) {
                     document.getElementById('newEmail').value = data.email;
@@ -812,7 +784,6 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordMsg1').textContent = '';
             if (window.currentUsername) {
-                document.querySelectorAll('.sudo-username-field').forEach(inp => inp.value = window.currentUsername);
             }
             setTimeout(() => document.getElementById('newPassword').focus(), 60);
         });
