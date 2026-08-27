@@ -819,8 +819,7 @@ document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
         return;
     }
     
-    uris = uris.split('
-').map(u => u.trim()).filter(u => u);
+    uris = uris.split('\n').map(u => u.trim()).filter(u => u);
     
     const actionFn = async (pwd) => {
         const res = await fetch('/api/oidc/clients', {
