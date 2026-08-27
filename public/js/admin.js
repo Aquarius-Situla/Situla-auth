@@ -1010,3 +1010,20 @@ document.getElementById('viewLoginLogsBtn')?.addEventListener('click', async () 
 document.getElementById('closeLoginLogsBtn')?.addEventListener('click', () => {
     document.getElementById('loginLogsModal').style.display = 'none';
 });
+
+
+/* ── Logout ── */
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    try {
+        const res = await fetch('/api/logout', { method: 'POST' });
+        if (res.ok) window.location.href = '/';
+    } catch(e) {}
+});
+
+document.getElementById('logoutAllBtn')?.addEventListener('click', async () => {
+    if (!confirm('确定要在所有设备上退出登录吗？')) return;
+    try {
+        const res = await fetch('/api/logout-all', { method: 'POST' });
+        if (res.ok) window.location.href = '/';
+    } catch(e) {}
+});

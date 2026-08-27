@@ -75,7 +75,7 @@ const translations = {
         "msg_pwd_changed": "✓ 密码已成功更改",
         "msg_change_failed": "修改失败",
 
-        "section_pk_title": "Passkeys（通行密钥）",
+        "section_pk_title": "通行密钥",
         "section_pk_desc": "使用面容、指纹或设备密码安全登录，更快捷，更安全。",
         "badge_none": "未添加",
         "badge_pk_count": "{0} 把",
@@ -92,7 +92,7 @@ const translations = {
         "alert_delete_pk": "确定要删除这把通行密钥吗？",
         "prompt_rename_pk": "请输入新名称：",
 
-        "section_2fa_title": "双重认证（2FA）",
+        "section_2fa_title": "双重认证",
         "section_2fa_desc": "添加第二道防护。可选择身份验证器（TOTP 动态码）或 FIDO2 安全密钥（YubiKey 等）。",
         "section_2fa_desc_totp": "已启用身份验证器（TOTP 动态码）。",
         "section_2fa_desc_fido2": "已启用 FIDO2 安全密钥验证。",
