@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Situla Auth 2.0
  * Copyright (C) 2026 Situla
  *
@@ -20,7 +20,7 @@ const helmet = require('helmet');
 
 const db = require('./database');
 
-// ── Routes ─────────────────────────────────────────────────────────────────
+// 鈹€鈹€ Routes 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const authRoutes        = require('./routes/auth');
 const accountRoutes     = require('./routes/account');
 const passkeyRoutes     = require('./routes/passkey');
@@ -29,7 +29,7 @@ const totpRoutes        = require('./routes/totp');
 const recoveryRoutes    = require('./routes/recovery');
 const oidcClientRoutes  = require('./routes/oidc-clients');
 
-// ── Config ─────────────────────────────────────────────────────────────────
+// 鈹€鈹€ Config 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const COOKIE_NAME   = process.env.COOKIE_NAME   || 'situla_session';
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.example.com';
 const RP_ID         = process.env.RP_ID         || 'auth.example.com';
@@ -39,7 +39,7 @@ const SALT_ROUNDS   = 12;
 const ADMIN_USER    = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || '').replace(/^['"]|['"]$/g, '');
 
-// ── Auto-generate secrets if missing ───────────────────────────────────────
+// 鈹€鈹€ Auto-generate secrets if missing 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const PLACEHOLDER   = 'change_this_to_a_long_random_secret';
 const DEFAULT_LEGACY = 'situla_default_secret_please_change';
 
@@ -49,12 +49,12 @@ let envUpdated      = false;
 
 if (!JWT_SECRET || JWT_SECRET === PLACEHOLDER || JWT_SECRET === DEFAULT_LEGACY) {
     JWT_SECRET = crypto.randomBytes(32).toString('hex');
-    console.log('[startup] JWT_SECRET not set — generated a new random secret.');
+    console.log('[startup] JWT_SECRET not set 鈥?generated a new random secret.');
     envUpdated = true;
 }
 if (!ENCRYPTION_KEY) {
     ENCRYPTION_KEY = crypto.randomBytes(32).toString('hex');
-    console.log('[startup] ENCRYPTION_KEY not set — generated a new random key.');
+    console.log('[startup] ENCRYPTION_KEY not set 鈥?generated a new random key.');
     envUpdated = true;
 }
 if (envUpdated) {
@@ -78,7 +78,7 @@ if (envUpdated) {
     }
 }
 
-// ── Encryption utilities ────────────────────────────────────────────────────
+// 鈹€鈹€ Encryption utilities 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 function encrypt(text) {
     if (!text || text.startsWith('enc:')) return text;
     try {
@@ -112,7 +112,7 @@ function decrypt(text) {
     }
 }
 
-// ── Trusted redirect domains ────────────────────────────────────────────────
+// 鈹€鈹€ Trusted redirect domains 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 function deriveDefaultTrustRoot(rpId) {
     const parts = rpId.split('.');
     if (parts.length <= 2) return rpId;
@@ -131,7 +131,7 @@ function isTrustedRedirect(url) {
     } catch { return false; }
 }
 
-// ── App setup ───────────────────────────────────────────────────────────────
+// 鈹€鈹€ App setup 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const app = express();
 app.set('trust proxy', 1);
 
@@ -185,7 +185,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// ── Auto-redirect logged-in users away from login page ─────────────────────
+// 鈹€鈹€ Auto-redirect logged-in users away from login page 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 app.get(['/', '/index.html'], (req, res, next) => {
     const { tokenVersionCache, revokedTokensCache } = require('./middleware/auth');
     const jwt = require('jsonwebtoken');
@@ -209,7 +209,7 @@ app.get(['/', '/index.html'], (req, res, next) => {
 
 app.use(express.static('public'));
 
-// ── NGINX Forward Auth ──────────────────────────────────────────────────────
+// 鈹€鈹€ NGINX Forward Auth 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 app.get('/verify', (req, res) => {
     const { tokenVersionCache, revokedTokensCache } = require('./middleware/auth');
     const jwt = require('jsonwebtoken');
@@ -233,9 +233,10 @@ app.get('/verify', (req, res) => {
     } catch { res.status(401).send('Unauthorized'); }
 });
 
-// ── Mount API routes ────────────────────────────────────────────────────────
+// 鈹€鈹€ Mount API routes 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 app.use('/api',                authRoutes);
 app.use('/api',                accountRoutes);
+app.use('/api',                logsRoutes);
 app.use('/api/webauthn',       passkeyRoutes);
 app.use('/api/passkeys',       passkeyRoutes);   // aliased for list/delete/rename
 app.use('/api/fido2',          fido2Routes);
@@ -245,7 +246,7 @@ app.use('/api/recovery-codes', recoveryRoutes);
 app.use('/api/oidc/clients',   oidcClientRoutes);
 app.use('/api/auth',           authRoutes);       // /api/auth/elevate/totp
 
-// ── Admin page ─────────────────────────────────────────────────────────────
+// 鈹€鈹€ Admin page 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const { authenticateJWT } = require('./middleware/auth');
 app.get('/admin', authenticateJWT, (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -259,7 +260,7 @@ app.get(['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed
     res.redirect(302, '/favicon.svg');
 });
 
-// ── First-run: seed admin user ─────────────────────────────────────────────
+// 鈹€鈹€ First-run: seed admin user 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, row) => {
     if (err) { console.error(err); return; }
     if (!row) {
@@ -268,7 +269,7 @@ db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, row) => {
     }
 });
 
-// ── Security migrations ────────────────────────────────────────────────────
+// 鈹€鈹€ Security migrations 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 db.serialize(() => {
     db.run(`UPDATE users SET two_fa_method = 'totp' WHERE totp_secret IS NOT NULL AND two_fa_method IS NULL AND id NOT IN (SELECT DISTINCT user_id FROM passkeys WHERE type = 'fido2')`,
         (err) => { if (err) console.error('[Migration]', err.message); else console.log('[Migration] State confusion fix applied.'); });
@@ -285,11 +286,11 @@ db.serialize(() => {
     });
 });
 
-// ── Pre-generate dummy hash for timing-safe login ──────────────────────────
+// 鈹€鈹€ Pre-generate dummy hash for timing-safe login 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 let DUMMY_HASH = '';
 (async () => { DUMMY_HASH = await bcrypt.hash('dummy_password_for_timing_protection', SALT_ROUNDS); app.set('DUMMY_HASH', DUMMY_HASH); })();
 
-// ── OIDC Provider + server start ───────────────────────────────────────────
+// 鈹€鈹€ OIDC Provider + server start 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const port = process.env.PORT || 3000;
 
 (async () => {
@@ -338,3 +339,4 @@ const port = process.env.PORT || 3000;
 
     app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));
 })();
+
