@@ -104,7 +104,13 @@ function promptSudoPassword(iconHtml, sourceModalId, actionFn) {
         const cancelBtn = document.getElementById('cancelSudoBtn');
         cancelBtn.textContent = t('sudo_btn_cancel');
         
+        const sudoUserInp = document.getElementById('sudoUsername');
+        if (sudoUserInp && window.currentUsername) {
+            sudoUserInp.value = window.currentUsername;
+        }
+        
         const pwdInput = document.getElementById('sudoPassword');
+        pwdInput.disabled = false;
         pwdInput.value = '';
         document.getElementById('sudoMsg').textContent = '';
         
@@ -265,22 +271,33 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 
+                if (data.username) {
+                    window.currentUsername = data.username;
+                    const sudoUserInp = document.getElementById('sudoUsername');
+                    if (sudoUserInp) sudoUserInp.value = data.username;
+                }
                 if (data.email) {
                     document.getElementById('newEmail').value = data.email;
+                }
+                if (data.elevated) {
+                    window.isElevated = true;
                 }
                 set2faBadge(data.twoFaMethod, data.fido2Count || 0);
                 renderPasskeys(data.passkeys);
                 if (typeof renderFido2Keys === 'function') {
                     renderFido2Keys(data.fido2Keys || [], data.twoFaMethod);
                 }
-                // Show recovery code card only when 2FA is enabled
                 updateRcCard(!!data.twoFaMethod, data.recoveryCodesRemaining);
+                if (typeof loadOidcClients === 'function') {
+                    loadOidcClients();
+                }
             } catch (err) {
                 console.error("loadStatus failed:", err);
                 renderPasskeys([]);
                 set2faBadge(null);
             }
         }
+        
         loadStatus().finally(() => {
             const loader = document.getElementById('pageLoader');
             const content = document.getElementById('appContent');
@@ -737,12 +754,17 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         /* Change password */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('newPassword').disabled = false;
+            document.getElementById('confirmPassword').disabled = false;
             document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordMsg1').textContent = '';
         });
 
         const cancelPassword = () => {
             document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('newPassword').disabled = true;
+            document.getElementById('confirmPassword').disabled = true;
         };
         document.getElementById('cancelPasswordBtn1')?.addEventListener('click', cancelPassword);
 
@@ -833,29 +855,69 @@ document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => 
     document.getElementById('oidcModal').style.display = 'none';
 });
 
-// Call it on load
-setTimeout(() => { if (document.getElementById('oidcClientList')) loadOidcClients(); }, 500);
-
-// We need to inject window.currentUserStatus inside loadStatus()
-const originalLoadStatus = loadStatus;
-loadStatus = async function() {
-    await originalLoadStatus();
-    // Fetch it again to store in window (since original doesn't expose it)
+async function loadOidcClients() {
     try {
-        const res = await fetch('/api/status');
-        window.currentUserStatus = await res.json();
-    } catch(e) {}
-};
+        const res = await fetch('/api/oidc/clients');
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = document.getElementById('oidcClientList');
+        if (!list) return;
+        
+        list.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            list.innerHTML = '<div style="color: #86868b; font-size: 14px; padding: 10px 0;">暂无接入的应用</div>';
+            return;
+        }
+        
+        data.forEach(client => {
+            const item = document.createElement('div');
+            item.className = 'passkey-item';
+            
+            const info = document.createElement('div');
+            info.className = 'passkey-info';
+            
+            const name = document.createElement('span');
+            name.className = 'passkey-name';
+            name.textContent = client.client_name;
+            
+            const meta = document.createElement('span');
+            meta.className = 'passkey-date';
+            meta.textContent = client.client_id;
+            
+            info.appendChild(name);
+            info.appendChild(meta);
+            
+            const actions = document.createElement('div');
+            actions.className = 'passkey-actions';
 
-
-
-
-
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'cancelElevationBtn1' || e.target.id === 'cancelElevationBtn2') {
-        cancelElevation();
+            const delBtn = document.createElement('button');
+            delBtn.className = 'pk-btn pk-delete';
+            delBtn.setAttribute('title', '删除');
+            delBtn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>`;
+            delBtn.onclick = async () => {
+                if(confirm('确定删除该第三方应用？删除后它将无法通过本系统登录。')) {
+                    const actionFn = async () => {
+                        const r = await fetch('/api/oidc/clients/' + client.id, { method: 'DELETE' });
+                        return r;
+                    };
+                    await withSudo(actionFn, 'oidcModal');
+                    loadOidcClients();
+                }
+            };
+            
+            actions.appendChild(delBtn);
+            item.appendChild(info);
+            item.appendChild(actions);
+            list.appendChild(item);
+        });
+    } catch(e) {
+        console.error('Error loading OIDC clients:', e);
     }
-});
+}
 
 // --- Recovery Codes Logic ---
 document.getElementById('genRcBtn')?.addEventListener('click', async () => {

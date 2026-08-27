@@ -39,6 +39,7 @@ router.get('/status', authenticateJWT, (req, res) => {
                 }));
                 const twoFaMethod = user ? user.two_fa_method : null;
                 res.json({
+                    username: req.user.user,
                     email: user ? (user.email || '') : '',
                     hasTOTP: !!(user && user.totp_secret),
                     twoFaMethod,

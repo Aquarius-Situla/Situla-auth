@@ -1065,8 +1065,8 @@ fill="currentColor" stroke="none">
                 <div id="passwordStep1">
                     <h3 data-i18n="section_password_title">修改密码</h3>
                     <p class="modal-desc" data-i18n="section_password_desc">支持任意特殊字符，包括 & # @ * 等。</p>
-                    <input type="password" name="newPassword" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
-                    <input type="password" name="newPassword" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
+                    <input type="password" name="newPassword" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password" disabled>
+                    <input type="password" name="newPassword" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password" disabled>
                     <div class="msg" id="passwordMsg1" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelPasswordBtn1" data-i18n="btn_cancel">取消</button>
@@ -1132,14 +1132,14 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script src="/js/admin.js?v=49" defer></script>
+    <script src="/js/admin.js?v=50" defer></script>
 
         <!-- Sudo Modal (Global Password Confirmation) -->
         <div class="modal-overlay" id="sudoModal" style="display: none;">
             <div class="modal-card">
                 <div class="modal-icon" id="sudoModalIcon"></div>
                 <form id="sudoForm" style="margin: 0; width: 100%;">
-                    <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
+                    <input type="text" autocomplete="username" name="username" id="sudoUsername" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 id="sudoModalTitle">确认你的密码</h3>
                     <p class="modal-desc" id="sudoModalDesc">出于安全考虑，请输入密码。</p>
                     <input type="password" name="password" class="modal-input" id="sudoPassword" autocomplete="current-password" placeholder="密码">
