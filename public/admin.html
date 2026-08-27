@@ -902,10 +902,10 @@ fill="currentColor" stroke="none">
                 </div>
                 <div id="passkeyStep2" style="display: none;">
                     <form id="passkeyForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3>确认你的密码</h3>
                     <p class="modal-desc">出于安全考虑，请输入密码。</p>
-                    <input type="password" class="modal-input" id="passkeyConfirmPwd" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="passkeyConfirmPwd" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="passkeyMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn2">取消</button>
@@ -980,10 +980,10 @@ m625 -501 c40 -28 66 -63 103 -138 231 -467 238 -1151 16 -1642 -121 -269
                 </div>
                 <div id="fido2Step2" style="display: none;">
                     <form id="fido2Form">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3>确认你的密码</h3>
                     <p class="modal-desc">出于安全考虑，请输入密码。</p>
-                    <input type="password" class="modal-input" id="fido2ConfirmPwd" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="fido2ConfirmPwd" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="fido2Msg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelFido2Btn2">取消</button>
@@ -1033,10 +1033,10 @@ fill="currentColor" stroke="none">
                 <!-- Step 2 -->
                 <div id="usernameStep2" style="display: none;">
                     <form id="usernameForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 data-i18n="section_username_confirm_pwd">确认你的密码</h3>
                     <p class="modal-desc" data-i18n="section_username_security">出于安全考虑，请输入密码。</p>
-                    <input type="password" class="modal-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="usernameConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="usernameMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelUsernameBtn2" data-i18n="btn_cancel">取消</button>
@@ -1056,10 +1056,10 @@ fill="currentColor" stroke="none">
                 </div>
                 <div>
                     <form id="rcForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 data-i18n="section_rc_title">确认生成恢复码</h3>
                     <p class="modal-desc">出于安全考虑，请验证您的密码以生成新的恢复码。这会使以前的恢复码失效。</p>
-                    <input type="password" class="modal-input" id="rcConfirmPwd" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="rcConfirmPwd" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="rcMsg" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelRcBtn">取消</button>
@@ -1106,10 +1106,10 @@ fill="currentColor" stroke="none">
                 <!-- Step 2 -->
                 <div id="emailStep2" style="display: none;">
                     <form id="emailForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 data-i18n="section_email_confirm_pwd">确认你的密码</h3>
                     <p class="modal-desc" data-i18n="section_email_security">出于安全考虑，请输入密码。</p>
-                    <input type="password" class="modal-input" id="emailConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="emailConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="emailMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelEmailBtn2" data-i18n="btn_cancel">取消</button>
@@ -1136,8 +1136,8 @@ fill="currentColor" stroke="none">
                 <div id="passwordStep1">
                     <h3 data-i18n="section_password_title">修改密码</h3>
                     <p class="modal-desc" data-i18n="section_password_desc">支持任意特殊字符，包括 & # @ * 等。</p>
-                    <input type="password" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
-                    <input type="password" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
+                    <input type="password" name="newPassword" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password">
+                    <input type="password" name="newPassword" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password">
                     <div class="msg" id="passwordMsg1" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelPasswordBtn1" data-i18n="btn_cancel">取消</button>
@@ -1148,10 +1148,10 @@ fill="currentColor" stroke="none">
                 <!-- Step 2: Current Password Verification -->
                 <div id="passwordStep2" style="display: none;">
                     <form id="passwordForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 data-i18n="section_username_confirm_pwd">确认你的密码</h3>
                     <p class="modal-desc" data-i18n="section_username_security">出于安全考虑，请输入（当前）密码。</p>
-                    <input type="password" class="modal-input" id="currentPassword" data-i18n-placeholder="placeholder_current_pwd_only" placeholder="当前密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="currentPassword" data-i18n-placeholder="placeholder_current_pwd_only" placeholder="当前密码" autocomplete="current-password">
                     <div class="msg" id="passwordMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelPasswordBtn2" data-i18n="btn_cancel">取消</button>
@@ -1181,10 +1181,10 @@ fill="currentColor" stroke="none">
                 <!-- Step 2: Password Verification -->
                 <div id="oidcStep2" style="display: none;">
                     <form id="oidcForm">
-                        <input type="text" autocomplete="username" style="display:none;" value="">
+                        <input type="text" autocomplete="username" name="username" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
                     <h3 data-i18n="section_username_confirm_pwd">确认你的密码</h3>
                     <p class="modal-desc" data-i18n="section_username_security">出于安全考虑，请输入密码。</p>
-                    <input type="password" class="modal-input" id="oidcConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
+                    <input type="password" name="password" class="modal-input" id="oidcConfirmPwd" data-i18n-placeholder="placeholder_current_pwd_short" placeholder="密码" autocomplete="current-password">
                     <div class="msg" id="oidcMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn2" data-i18n="btn_cancel">取消</button>
