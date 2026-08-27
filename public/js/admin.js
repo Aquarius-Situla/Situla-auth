@@ -1,20 +1,78 @@
 
 // Global fetch interceptor to handle elevation expiration
-function disableAllCurrentPasswords() {
-    document.querySelectorAll('.modal-overlay form').forEach(f => {
-        f.querySelectorAll('input').forEach(i => i.disabled = true);
+
+let sudoResolve = null;
+
+document.getElementById('sudoForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pwd = document.getElementById('sudoPassword').value;
+    if (!pwd) {
+        const msg = document.getElementById('sudoMsg');
+        msg.textContent = t('msg_enter_current_pwd');
+        msg.className = 'msg msg-err';
+        return;
+    }
+    if (sudoResolve) {
+        sudoResolve(pwd);
+        sudoResolve = null;
+    }
+    document.getElementById('sudoModal').style.display = 'none';
+});
+
+document.getElementById('cancelSudoBtn').addEventListener('click', () => {
+    if (sudoResolve) {
+        sudoResolve(null);
+        sudoResolve = null;
+    }
+    document.getElementById('sudoModal').style.display = 'none';
+});
+
+function promptSudoPassword(iconHtml, title, desc, btnText) {
+    return new Promise((resolve) => {
+        sudoResolve = resolve;
+        document.getElementById('sudoModalIcon').innerHTML = iconHtml;
+        document.getElementById('sudoModalTitle').textContent = title;
+        document.getElementById('sudoModalDesc').textContent = desc;
+        document.getElementById('confirmSudoBtn').textContent = btnText;
+        document.getElementById('sudoPassword').value = '';
+        document.getElementById('sudoMsg').textContent = '';
+        document.getElementById('sudoModal').style.display = 'flex';
+        setTimeout(() => { if (window.innerWidth > 600) document.getElementById('sudoPassword').focus(); }, 100);
     });
 }
 
-function enableFormInputs(containerId, pwdInputId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    const formEl = container.tagName === 'FORM' ? container : container.querySelector('form');
-    if (formEl) {
-        formEl.querySelectorAll('input').forEach(i => i.disabled = false);
+async function withSudo(actionFn, modalId, title, desc, btnText) {
+    let pwd = window.isElevated ? '' : null;
+    const iconHtml = modalId.includes('<svg') ? modalId : document.querySelector(# .modal-icon).innerHTML;
+    let pwd = window.isElevated ? '' : null;
+    const iconHtml = document.querySelector(`#${modalId} .modal-icon`).innerHTML;
+    
+    if (pwd === null) {
+        pwd = await promptSudoPassword(iconHtml, title, desc, btnText);
+        if (pwd === null) return null;
     }
-    const pwd = document.getElementById(pwdInputId);
-    if (pwd) pwd.disabled = false;
+    
+    let res = await actionFn(pwd);
+    let cloned = res.clone();
+    let data = {};
+    try { data = await cloned.json(); } catch(e) {}
+    
+    if (data.requireElevation) {
+        window.isElevated = false;
+        pwd = await promptSudoPassword(iconHtml, title, desc, btnText);
+        if (pwd === null) return null;
+        res = await actionFn(pwd);
+    }
+    
+    // Auto-elevate on success
+    try {
+        let finalData = await res.clone().json();
+        if (finalData.success && pwd !== '') {
+            window.isElevated = true;
+        }
+    } catch(e) {}
+    
+    return res;
 }
 
 const originalFetch = window.fetch;
@@ -904,66 +962,39 @@ const cancelOidc = () => {
 document.getElementById('cancelOidcBtn1')?.addEventListener('click', cancelOidc);
 document.getElementById('cancelOidcBtn2')?.addEventListener('click', cancelOidc);
 
-document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
-    const name = document.getElementById('oidcAppName').value.trim();
-    const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
+document.getElementById('continueOidcBtn')?.addEventListener('click', async () => {
+    const name = document.getElementById('newOidcClientName').value.trim();
+    let uris = document.getElementById('newOidcRedirectUris').value.trim();
     const msg1 = document.getElementById('oidcMsg1');
     msg1.textContent = '';
     
-    if (!name || uris.length === 0) {
-        msg1.textContent = '请填写完整的应用名称和至少一个重定向URI';
+    if (!name || !uris) {
+        msg1.textContent = '请填写所有必填字段';
         msg1.className = 'msg msg-err';
         return;
     }
     
-    // Move to step 2 (Password)
-    disableAllCurrentPasswords();
-    if (window.isElevated) {
-                document.getElementById('oidcConfirmPwd').value = '';
-                document.getElementById('confirmAddOidcBtn').click();
-            } else {
-                document.getElementById('oidcStep1').style.display = 'none';
-                document.getElementById('oidcStep2').style.display = 'block';
-                enableFormInputs('oidcStep2', 'oidcConfirmPwd');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('oidcConfirmPwd').focus(); }, 100);
-            }
-});
-
-document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
-    const name = document.getElementById('oidcAppName').value.trim();
-    const uris = document.getElementById('oidcRedirectUris').value.split('\n').map(u => u.trim()).filter(u => u);
-    const currentPassword = document.getElementById('oidcConfirmPwd').value;
-    const msg2 = document.getElementById('oidcMsg2');
-    msg2.textContent = '';
-
-    if (!currentPassword && !window.isElevated) {
-        msg2.textContent = t('msg_enter_current_pwd');
-        msg2.className = 'msg msg-err';
-        return;
-    }
-
-    try {
-        const res = await fetch('/api/oidc/clients', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ client_name: name, redirect_uris: uris, currentPassword })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            // Move to step 3 (Show Secret)
-            document.getElementById('oidcStep2').style.display = 'none';
-            document.getElementById('oidcStep3').style.display = 'block';
-            document.getElementById('newOidcClientId').textContent = data.client_id;
-            document.getElementById('newOidcClientSecret').textContent = data.client_secret;
-            loadOidcClients();
-        } else {
-            msg2.textContent = data.message || '添加失败';
-            msg2.className = 'msg msg-err';
-        }
-    } catch (err) {
-        msg2.textContent = '网络错误';
-        msg2.className = 'msg msg-err';
+    uris = uris.split('\n').map(u => u.trim()).filter(u => u);
+    
+    const actionFn = (pwd) => fetch('/api/oidc/clients', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ client_name: name, redirect_uris: uris, currentPassword: pwd })
+    });
+    
+    const res = await withSudo(actionFn, 'oidcModal', '确认添加 OIDC', '出于安全考虑，请输入密码。', '创建');
+    if (!res) return;
+    
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('oidcStep1').style.display = 'none';
+        document.getElementById('oidcStep3').style.display = 'block';
+        document.getElementById('newOidcClientId').textContent = data.client_id;
+        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+        loadOidcClients();
+    } else {
+        msg1.textContent = data.message || '添加失败';
+        msg1.className = 'msg msg-err';
     }
 });
 
@@ -996,68 +1027,37 @@ document.addEventListener('click', (e) => {
 });
 
 // --- Recovery Codes Logic ---
-document.getElementById('genRcBtn')?.addEventListener('click', () => {
-    disableAllCurrentPasswords();
-    disableAllCurrentPasswords();
-    if (window.isElevated) {
-        document.getElementById('rcConfirmPwd').value = '';
-        document.getElementById('confirmGenRcBtn').click();
+document.getElementById('genRcBtn')?.addEventListener('click', async () => {
+    // Generate codes directly (withSudo will handle password if needed)
+    const actionFn = (pwd) => fetch('/api/recovery-codes/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ currentPassword: pwd })
+    });
+    
+    // We need the icon from the old rcModal. Wait, we deleted rcModal!
+    // But we can just use the SVG string directly here, or get it from another modal?
+    // Oh wait, if we deleted rcModal, where do we get the icon? 
+    // I can just pass an SVG string, or query it from an invisible div.
+    // Let me just hardcode the RC SVG string here!
+    const rcIconHtml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%">
+                          <path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z" />
+                      </svg>`;
+    
+    // In our new withSudo logic, we can pass iconHtml directly instead of modalId!
+    // Wait, withSudo signature: withSudo(actionFn, modalId, title, desc, btnText)
+    // If modalId is an SVG string (contains '<svg'), we can just use it!
+    const res = await withSudo(actionFn, rcIconHtml, '确认生成恢复码', '出于安全考虑，请验证您的密码以生成新的恢复码。这会使以前的恢复码失效。', '生成');
+    if (!res) return;
+    
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('rcPanel').style.display = 'block';
+        document.getElementById('rcList').innerHTML = data.codes.join('<br>');
+        document.getElementById('rcBadge').textContent = '已生成(8)';
+        document.getElementById('rcBadge').className = 'badge badge-enabled';
     } else {
-        document.getElementById('rcModal').style.display = 'flex';
-        enableFormInputs('rcModal', 'rcConfirmPwd');
-        document.getElementById('rcConfirmPwd').value = '';
-        document.getElementById('rcMsg').textContent = '';
-        setTimeout(() => { if (window.innerWidth > 600) document.getElementById('rcConfirmPwd').focus(); }, 100);
-    }
-});
-
-document.getElementById('cancelRcBtn')?.addEventListener('click', () => {
-    document.getElementById('rcModal').style.display = 'none';
-});
-
-document.getElementById('confirmGenRcBtn')?.addEventListener('click', async () => {
-    const pwd = document.getElementById('rcConfirmPwd').value;
-    const msg = document.getElementById('rcMsg');
-    msg.textContent = '';
-    
-    if (!pwd) {
-        msg.textContent = t('msg_enter_current_pwd');
-        msg.className = 'msg msg-err';
-        return;
-    }
-    
-    try {
-        const verifyRes = await fetch('/api/verify-password', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ currentPassword: pwd })
-        });
-        const verifyData = await verifyRes.json();
-        if (!verifyData.success) {
-            msg.textContent = verifyData.message || 'Error';
-            msg.className = 'msg msg-err';
-            return;
-        }
-        
-        // Generate codes
-        const res = await fetch('/api/recovery-codes/generate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'}
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('rcModal').style.display = 'none';
-            document.getElementById('rcPanel').style.display = 'block';
-            document.getElementById('rcList').innerHTML = data.codes.join('<br>');
-            document.getElementById('rcBadge').textContent = '已生成 (8)';
-            document.getElementById('rcBadge').className = 'badge badge-enabled';
-        } else {
-            msg.textContent = data.message || 'Error generating codes';
-            msg.className = 'msg msg-err';
-        }
-    } catch (e) {
-        msg.textContent = 'Network error';
-        msg.className = 'msg msg-err';
+        alert(data.message || 'Error generating codes');
     }
 });
 
@@ -1135,24 +1135,4 @@ document.getElementById('logoutAllBtn')?.addEventListener('click', async () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    disableAllCurrentPasswords();
-    const forms = [
-        {form: 'usernameForm', btn: 'confirmChangeUsernameBtn'},
-        {form: 'emailForm', btn: 'confirmChangeEmailBtn'},
-        {form: 'passwordForm', btn: 'changePasswordBtn'},
-        {form: 'passkeyForm', btn: 'confirmAddPasskeyBtn'},
-        {form: 'fido2Form', btn: 'confirmAddFido2KeyBtn'},
-        {form: 'oidcForm', btn: 'confirmAddOidcClientBtn'},
-        {form: 'rcForm', btn: 'confirmGenRcBtn'}
-    ];
-    forms.forEach(f => {
-        const formEl = document.getElementById(f.form);
-        if (formEl) {
-            formEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                document.getElementById(f.btn).click();
-            });
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded', () => {});
