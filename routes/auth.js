@@ -47,7 +47,7 @@ router.post('/login', (req, res) => {
                         return res.status(401).json({ success: false, message: 'Invalid session' });
 
                     if (authenticator.verify({ token: totp, secret: decrypt(req.app, user.totp_secret) })) {
-                        setAuthCookie(res, user, 'totp');
+                        setAuthCookie(req, res, user, 'totp');
                         return res.json({ success: true });
                     }
 
@@ -67,7 +67,7 @@ router.post('/login', (req, res) => {
                         }
                         if (!validRc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
                         db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [validRc.id]);
-                        setAuthCookie(res, user, 'recovery');
+                        setAuthCookie(req, res, user, 'recovery');
                         res.json({ success: true, usedRecoveryCode: true });
                     });
                 });
@@ -93,7 +93,7 @@ router.post('/login', (req, res) => {
                 const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
                 return res.json({ success: false, requireTotp: true, tempToken, twoFaMethod });
             }
-            setAuthCookie(res, user, 'password');
+            setAuthCookie(req, res, user, 'password');
             res.json({ success: true });
         });
     });
@@ -138,7 +138,7 @@ router.post('/webauthn/login-verify', (req, res) => {
                     });
                     if (verification.verified) {
                         db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, passkey.id]);
-                        setAuthCookie(res, user, 'passkey');
+                        setAuthCookie(req, res, user, 'passkey');
                         return res.json({ verified: true });
                     }
                 } catch (error) {

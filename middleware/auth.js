@@ -103,7 +103,42 @@ function requireStepUpAuth(req, res, next) {
  * @param {{ id: number, username: string, email?: string }} user
  * @param {string} authMethod  e.g. 'password', 'passkey', 'totp', 'fido2'
  */
-function setAuthCookie(res, user, authMethod = 'unknown') {
+async function logLogin(req, userId, authMethod) {
+    if (!req) return;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+    const ua = req.headers['user-agent'] || 'Unknown Device';
+    
+    let device = 'Unknown Device';
+    if (ua.includes('Windows')) device = 'Windows';
+    else if (ua.includes('Macintosh')) device = 'MacBook / iMac';
+    else if (ua.includes('iPhone')) device = 'iPhone';
+    else if (ua.includes('iPad')) device = 'iPad';
+    else if (ua.includes('Android')) device = 'Android Device';
+    else if (ua.includes('Linux')) device = 'Linux';
+    
+    let location = 'Unknown Location';
+    try {
+        let cleanIp = ip.split(',')[0].trim();
+        if (cleanIp !== '::1' && cleanIp !== '127.0.0.1' && !cleanIp.startsWith('192.168.') && !cleanIp.startsWith('10.') && !cleanIp.startsWith('172.16.')) {
+            const res = await fetch(`http://ip-api.com/json/${cleanIp}?lang=zh-CN`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'success') {
+                    location = `${data.country} ${data.city}`;
+                }
+            }
+        } else {
+            location = 'Local Network';
+        }
+    } catch (e) { }
+    
+    db.run('INSERT INTO login_logs (user_id, ip, location, device) VALUES (?, ?, ?, ?)',
+           [userId, ip.substring(0, 45), location, device], (err) => {
+               if (err) console.error('Error inserting login log:', err);
+           });
+}
+
+function setAuthCookie(req, res, user, authMethod = 'unknown') {
     const JWT_SECRET = res.app.get('JWT_SECRET');
     const COOKIE_DOMAIN = res.app.get('COOKIE_DOMAIN');
     const tokenVersion = tokenVersionCache.get(user.id) || 0;
@@ -119,6 +154,7 @@ function setAuthCookie(res, user, authMethod = 'unknown') {
         httpOnly: true, secure: true, domain: COOKIE_DOMAIN,
         maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'Lax'
     });
+    logLogin(req, user.id, authMethod);
 }
 
 module.exports = {

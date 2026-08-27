@@ -30,7 +30,7 @@
     <link rel="apple-touch-icon" href="/favicon.svg">
     <title>账户安全管理</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=28">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
@@ -653,6 +653,16 @@
             </div>
         </div>
 
+        <!-- Login Logs card -->
+        <div class="settings-group" id="loginLogsCard">
+            <div class="section">
+                <h3>登录信息</h3>
+                <p class="desc">查看近期的登录日志，包含时间、IP、地理位置和设备信息。</p>
+                <div class="action-btn-container" style="margin-top: 15px;">
+                    <button class="btn-outline" id="viewLoginLogsBtn">查看</button>
+                </div>
+            </div>
+        </div>
         
         <!-- OIDC Clients card -->
         <div class="settings-group" id="oidcCard">
@@ -674,7 +684,25 @@
         </div>
     </div>
 
-    
+    <!-- Login Logs Modal -->
+    <div class="modal-overlay" id="loginLogsModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <img src="/location.svg" style="width: 48px; height: 48px;">
+            </div>
+            
+            <h3 style="margin-bottom: 8px;">近期登录日志</h3>
+            <p class="modal-desc" style="margin-bottom: 16px;">最多显示最近的 20 条登录记录。</p>
+            
+            <div id="loginLogsList" class="key-list" style="max-height: 300px; overflow-y: auto; text-align: left; border: 1px solid #d2d2d7; border-radius: 8px; padding: 10px;">
+                <!-- Logs rendered via JS -->
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 16px;">
+                <button class="modal-btn modal-btn-secondary" id="closeLoginLogsBtn" style="width: 100%;">关闭</button>
+            </div>
+        </div>
+    </div>
 
     <!-- OIDC Secret Display Modal -->
 
@@ -1047,6 +1075,6 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script src="/js/admin.js?v=26" defer></script>
+    <script src="/js/admin.js?v=28" defer></script>
 </body>
 </html>

@@ -87,6 +87,17 @@ db.serialize(() => {
     db.run(`CREATE INDEX IF NOT EXISTS oidc_store_user_code ON oidc_store(user_code)`, () => {});
     db.run(`CREATE INDEX IF NOT EXISTS oidc_store_grant_id ON oidc_store(grant_id)`, () => {});
 
+    // v2.3 migrations: Login logs
+    db.run(`CREATE TABLE IF NOT EXISTS login_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        ip TEXT,
+        location TEXT,
+        device TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )`, () => {});
+
 });
 
 module.exports = db;

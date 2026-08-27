@@ -104,4 +104,11 @@ router.post('/change-email', authenticateJWT, (req, res) => {
     });
 });
 
+router.get('/login-logs', authenticateJWT, (req, res) => {
+    db.all('SELECT ip, location, device, created_at FROM login_logs WHERE user_id = ? ORDER BY id DESC LIMIT 20', [req.user.id], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(rows);
+    });
+});
+
 module.exports = router;

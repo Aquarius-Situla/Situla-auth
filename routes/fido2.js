@@ -209,7 +209,7 @@ router.post('/verify', (req, res) => {
                         db.run('UPDATE passkeys SET counter = ? WHERE id = ?', [verification.authenticationInfo.newCounter, key.id]);
                         db.get('SELECT * FROM users WHERE id = ?', [userId], (err2, user) => {
                             if (!user) return res.status(400).json({ error: 'User not found' });
-                            setAuthCookie(res, user, 'fido2');
+                            setAuthCookie(req, res, user, 'fido2');
                             res.json({ verified: true });
                         });
                     } else {

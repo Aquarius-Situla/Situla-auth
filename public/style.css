@@ -643,3 +643,28 @@ textarea.modal-input {
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+.log-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5ea;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.log-item:last-child {
+    border-bottom: none;
+}
+.log-time {
+    font-size: 13px;
+    color: #86868b;
+}
+.log-details {
+    font-size: 15px;
+    color: #1d1d1f;
+    font-weight: 500;
+}
+.log-ip {
+    font-family: monospace;
+    font-size: 13px;
+    color: #86868b;
+}

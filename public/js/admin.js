@@ -964,3 +964,49 @@ document.getElementById('copyRcBtn')?.addEventListener('click', () => {
         setTimeout(() => btn.textContent = oldText, 2000);
     });
 });
+
+/* ── Login Logs ── */
+document.getElementById('viewLoginLogsBtn')?.addEventListener('click', async () => {
+    document.getElementById('loginLogsModal').style.display = 'flex';
+    const listEl = document.getElementById('loginLogsList');
+    listEl.innerHTML = '<div style="text-align: center; color: #86868b; padding: 20px;">加载中...</div>';
+    
+    try {
+        const res = await fetch('/api/login-logs');
+        if (!res.ok) throw new Error('Fetch failed');
+        const logs = await res.json();
+        
+        if (logs.length === 0) {
+            listEl.innerHTML = '<div style="text-align: center; color: #86868b; padding: 20px;">暂无日志</div>';
+            return;
+        }
+        
+        listEl.innerHTML = '';
+        logs.forEach(log => {
+            const isoString = (log.created_at || '').replace(' ', 'T') + 'Z';
+            const date = new Date(isoString);
+            let localTime = log.created_at;
+            if (!isNaN(date.getTime())) {
+                localTime = date.toLocaleString('zh-CN', { 
+                    year: 'numeric', month: '2-digit', day: '2-digit', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerHTML = `
+                <div class="log-details">${escapeHTML(log.location)} · ${escapeHTML(log.device)}</div>
+                <div class="log-ip">${escapeHTML(log.ip)}</div>
+                <div class="log-time">${escapeHTML(localTime)}</div>
+            `;
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+        listEl.innerHTML = '<div style="text-align: center; color: #ff3b30; padding: 20px;">加载失败，请重试</div>';
+    }
+});
+
+document.getElementById('closeLoginLogsBtn')?.addEventListener('click', () => {
+    document.getElementById('loginLogsModal').style.display = 'none';
+});
