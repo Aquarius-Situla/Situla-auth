@@ -23,6 +23,7 @@ const db = require('./database');
 // 鈹€鈹€ Routes 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 const authRoutes        = require('./routes/auth');
 const accountRoutes     = require('./routes/account');
+const logsRoutes        = require('./routes/logs');
 const passkeyRoutes     = require('./routes/passkey');
 const fido2Routes       = require('./routes/fido2');
 const totpRoutes        = require('./routes/totp');
@@ -339,4 +340,5 @@ const port = process.env.PORT || 3000;
 
     app.listen(port, () => console.log(`Situla Auth 2.0 listening on port ${port}`));
 })();
+
 
