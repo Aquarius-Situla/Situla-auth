@@ -15,5 +15,8 @@ RUN mkdir -p /app/data && \
 # 确保 host 上 ./data 目录权限与容器用户匹配 (UID 1000)
 USER node
 
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:3000/api/health', (r) => { if (r.statusCode !== 200) process.exit(1); })" || exit 1
+
 EXPOSE 3000
 CMD ["node", "server.js"]

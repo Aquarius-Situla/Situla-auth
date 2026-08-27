@@ -208,6 +208,26 @@ app.get(['/', '/index.html'], (req, res, next) => {
     next();
 });
 
+// ── Health Check Endpoint ──
+app.get('/api/health', (req, res) => {
+    db.get('SELECT 1 as alive', [], (err, row) => {
+        if (err || !row || row.alive !== 1) {
+            return res.status(503).json({
+                status: 'unhealthy',
+                error: err ? err.message : 'Database query failed',
+                timestamp: new Date().toISOString()
+            });
+        }
+        res.status(200).json({
+            status: 'healthy',
+            uptime: Math.floor(process.uptime()),
+            db: 'connected',
+            version: '2.0.0',
+            timestamp: new Date().toISOString()
+        });
+    });
+});
+
 app.use(express.static('public'));
 
 // 鈹€鈹€ NGINX Forward Auth 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
