@@ -3,6 +3,29 @@
 
 let sudoActionContext = null;
 
+function closeAllModals() {
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.style.display = 'none';
+        const step1 = m.querySelector('[id$="Step1"]');
+        if (step1) step1.style.display = 'block';
+    });
+    const defaultContainer = document.querySelector('#sudoModal .modal-card');
+    const form = document.getElementById('sudoForm');
+    if (defaultContainer && form && form.parentElement !== defaultContainer) {
+        defaultContainer.appendChild(form);
+    }
+    if (form) form.style.display = 'none';
+    
+    const pwdInput = document.getElementById('sudoPassword');
+    if (pwdInput) pwdInput.value = '';
+    const newPwd = document.getElementById('newPassword');
+    if (newPwd) { newPwd.value = ''; newPwd.disabled = true; }
+    const confirmPwd = document.getElementById('confirmPassword');
+    if (confirmPwd) { confirmPwd.value = ''; confirmPwd.disabled = true; }
+    
+    sudoActionContext = null;
+}
+
 document.getElementById('sudoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const pwdInput = document.getElementById('sudoPassword');
@@ -33,8 +56,7 @@ document.getElementById('sudoForm').addEventListener('submit', async (e) => {
             data = res;
         }
         
-        // If the action failed specifically due to invalid password / unauthorized
-        if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials'))) {
+        if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误'))) {
             msg.textContent = data.message || t('msg_wrong_credentials');
             msg.className = 'msg msg-err';
             pwdInput.value = '';
@@ -44,7 +66,6 @@ document.getElementById('sudoForm').addEventListener('submit', async (e) => {
             return;
         }
         
-        // If there was any other error returned by actionFn
         if (data && data.success === false) {
             msg.textContent = data.message || data.error || '操作失败';
             msg.className = 'msg msg-err';
@@ -53,15 +74,9 @@ document.getElementById('sudoForm').addEventListener('submit', async (e) => {
             return;
         }
 
-        // Success:
         window.isElevated = true;
+        closeAllModals();
         
-        document.getElementById('sudoModal').style.display = 'none';
-        pwdInput.value = '';
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = t('sudo_btn_confirm');
-        
-        sudoActionContext = null;
         if (resolve) resolve(res || data);
     } catch (err) {
         msg.textContent = err.message || t('msg_network_error');
@@ -72,28 +87,17 @@ document.getElementById('sudoForm').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('cancelSudoBtn').addEventListener('click', () => {
-    if (sudoActionContext) {
-        const { sourceModalId, resolve } = sudoActionContext;
-        document.getElementById('sudoModal').style.display = 'none';
-        document.getElementById('sudoPassword').value = '';
-        document.getElementById('sudoMsg').textContent = '';
-        if (sourceModalId && !sourceModalId.includes('<svg') && document.getElementById(sourceModalId)) {
-            document.getElementById(sourceModalId).style.display = 'flex';
-        }
-        if (resolve) resolve(null);
-        sudoActionContext = null;
-    } else {
-        document.getElementById('sudoModal').style.display = 'none';
+    if (sudoActionContext && sudoActionContext.resolve) {
+        sudoActionContext.resolve(null);
     }
+    closeAllModals();
 });
 
 function promptSudoPassword(iconHtml, sourceModalId, actionFn) {
     return new Promise((resolve) => {
-        if (sourceModalId && !sourceModalId.includes('<svg') && document.getElementById(sourceModalId)) {
-            document.getElementById(sourceModalId).style.display = 'none';
-        }
+        sudoActionContext = { actionFn, sourceModalId, resolve };
         
-        document.getElementById('sudoModalIcon').innerHTML = iconHtml;
+        const form = document.getElementById('sudoForm');
         document.getElementById('sudoModalTitle').textContent = t('sudo_title');
         document.getElementById('sudoModalDesc').textContent = t('sudo_desc');
         
@@ -114,10 +118,28 @@ function promptSudoPassword(iconHtml, sourceModalId, actionFn) {
         pwdInput.value = '';
         document.getElementById('sudoMsg').textContent = '';
         
-        sudoActionContext = { actionFn, sourceModalId, resolve };
+        if (sourceModalId && !sourceModalId.includes('<svg') && document.getElementById(sourceModalId)) {
+            const modalEl = document.getElementById(sourceModalId);
+            const card = modalEl.querySelector('.modal-card');
+            const step1 = card ? card.querySelector('[id$="Step1"]') : null;
+            if (step1) step1.style.display = 'none';
+            if (card) {
+                card.appendChild(form);
+            }
+            form.style.display = 'block';
+            modalEl.style.display = 'flex';
+        } else {
+            const defaultCard = document.querySelector('#sudoModal .modal-card');
+            if (defaultCard) {
+                defaultCard.appendChild(form);
+                const sudoIcon = document.getElementById('sudoModalIcon');
+                if (sudoIcon && iconHtml) sudoIcon.innerHTML = iconHtml;
+            }
+            form.style.display = 'block';
+            document.getElementById('sudoModal').style.display = 'flex';
+        }
         
-        document.getElementById('sudoModal').style.display = 'flex';
-        setTimeout(() => { if (window.innerWidth > 600) pwdInput.focus(); }, 100);
+        setTimeout(() => { if (window.innerWidth > 600) pwdInput.focus(); }, 50);
     });
 }
 
@@ -353,15 +375,14 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         // Step 1: Show the inline naming panel (avoids focus-stealing prompt())
         /* Passkey Registration Modal */
         document.getElementById('regPasskeyBtn').addEventListener('click', () => {
+            closeAllModals();
             document.getElementById('passkeyModal').style.display = 'flex';
+            document.getElementById('passkeyStep1').style.display = 'block';
             document.getElementById('passkeyNameInput').value = '';
             document.getElementById('passkeyMsg1').textContent = '';
         });
 
-        const cancelPasskey = () => {
-            document.getElementById('passkeyModal').style.display = 'none';
-        };
-        document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', cancelPasskey);
+        document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continuePasskeyBtn')?.addEventListener('click', async () => {
             const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
@@ -595,15 +616,14 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         /* FIDO2 Registration Modal */
         document.getElementById('addFido2KeyBtn').addEventListener('click', () => {
+            closeAllModals();
             document.getElementById('fido2Modal').style.display = 'flex';
+            document.getElementById('fido2Step1').style.display = 'block';
             document.getElementById('fido2KeyNameInput').value = '';
             document.getElementById('fido2Msg1').textContent = '';
         });
 
-        const cancelFido2 = () => {
-            document.getElementById('fido2Modal').style.display = 'none';
-        };
-        document.getElementById('cancelFido2Btn1')?.addEventListener('click', cancelFido2);
+        document.getElementById('cancelFido2Btn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continueFido2Btn')?.addEventListener('click', async () => {
             const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
@@ -680,15 +700,14 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         /* Change username */
         document.getElementById('showUsernameFormBtn').addEventListener('click', () => {
+            closeAllModals();
             document.getElementById('usernameModal').style.display = 'flex';
+            document.getElementById('usernameStep1').style.display = 'block';
             document.getElementById('newUsername').value = '';
             document.getElementById('usernameMsg1').textContent = '';
         });
 
-        const cancelUsername = () => {
-            document.getElementById('usernameModal').style.display = 'none';
-        };
-        document.getElementById('cancelUsernameBtn1')?.addEventListener('click', cancelUsername);
+        document.getElementById('cancelUsernameBtn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continueUsernameBtn')?.addEventListener('click', async () => {
             const newUsername = document.getElementById('newUsername').value.trim();
@@ -717,14 +736,13 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         
         /* Change email */
         document.getElementById('showEmailFormBtn').addEventListener('click', () => {
+            closeAllModals();
             document.getElementById('emailModal').style.display = 'flex';
+            document.getElementById('emailStep1').style.display = 'block';
             document.getElementById('emailMsg1').textContent = '';
         });
 
-        const cancelEmail = () => {
-            document.getElementById('emailModal').style.display = 'none';
-        };
-        document.getElementById('cancelEmailBtn1')?.addEventListener('click', cancelEmail);
+        document.getElementById('cancelEmailBtn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continueEmailBtn')?.addEventListener('click', async () => {
             const newEmail = document.getElementById('newEmail').value.trim();
@@ -753,7 +771,9 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         
         /* Change password */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
+            closeAllModals();
             document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordStep1').style.display = 'block';
             document.getElementById('newPassword').disabled = false;
             document.getElementById('confirmPassword').disabled = false;
             document.getElementById('newPassword').value = '';
@@ -761,12 +781,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             document.getElementById('passwordMsg1').textContent = '';
         });
 
-        const cancelPassword = () => {
-            document.getElementById('passwordModal').style.display = 'none';
-            document.getElementById('newPassword').disabled = true;
-            document.getElementById('confirmPassword').disabled = true;
-        };
-        document.getElementById('cancelPasswordBtn1')?.addEventListener('click', cancelPassword);
+        document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);
 
         document.getElementById('continuePasswordBtn')?.addEventListener('click', async () => {
             const newPassword = document.getElementById('newPassword').value;
@@ -800,22 +815,16 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         });
         
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
+    closeAllModals();
     document.getElementById('oidcModal').style.display = 'flex';
     document.getElementById('oidcStep1').style.display = 'block';
-    document.getElementById('oidcStep2').style.display = 'none';
     document.getElementById('oidcStep3').style.display = 'none';
     document.getElementById('oidcAppName').value = '';
     document.getElementById('oidcRedirectUris').value = '';
-    document.getElementById('oidcConfirmPwd').value = '';
     document.getElementById('oidcMsg1').textContent = '';
-    document.getElementById('oidcMsg2').textContent = '';
 });
 
-const cancelOidc = () => {
-    document.getElementById('oidcModal').style.display = 'none';
-};
-document.getElementById('cancelOidcBtn1')?.addEventListener('click', cancelOidc);
-document.getElementById('cancelOidcBtn2')?.addEventListener('click', cancelOidc);
+document.getElementById('cancelOidcBtn1')?.addEventListener('click', closeAllModals);
 
 document.getElementById('continueOidcBtn')?.addEventListener('click', async () => {
     const name = document.getElementById('oidcAppName').value.trim();

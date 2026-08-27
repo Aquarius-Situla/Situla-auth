@@ -1132,21 +1132,21 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script src="/js/admin.js?v=50" defer></script>
+    <script src="/js/admin.js?v=51" defer></script>
 
         <!-- Sudo Modal (Global Password Confirmation) -->
         <div class="modal-overlay" id="sudoModal" style="display: none;">
             <div class="modal-card">
                 <div class="modal-icon" id="sudoModalIcon"></div>
-                <form id="sudoForm" style="margin: 0; width: 100%;">
+                <form id="sudoForm" style="margin: 0; width: 100%; display: none;">
                     <input type="text" autocomplete="username" name="username" id="sudoUsername" style="position:absolute; left:-9999px; top:-9999px;" tabindex="-1" value="">
-                    <h3 id="sudoModalTitle">确认你的密码</h3>
-                    <p class="modal-desc" id="sudoModalDesc">出于安全考虑，请输入密码。</p>
+                    <h3 id="sudoModalTitle" data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" id="sudoModalDesc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                     <input type="password" name="password" class="modal-input" id="sudoPassword" autocomplete="current-password" placeholder="密码">
                     <div class="msg" id="sudoMsg" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
                         <button type="button" class="modal-btn modal-btn-secondary" id="cancelSudoBtn" data-i18n="btn_cancel">取消</button>
-                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmSudoBtn">确认</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmSudoBtn" data-i18n="sudo_btn_confirm">确认</button>
                     </div>
                 </form>
             </div>
