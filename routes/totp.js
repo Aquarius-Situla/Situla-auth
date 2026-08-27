@@ -9,7 +9,7 @@ const router = express.Router();
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
 const db = require('../database');
-const { authenticateJWT, verifyPassword } = require('../middleware/auth');
+const { authenticateJWT, verifyElevationOrPassword } = require('../middleware/auth');
 
 /* ── GET /api/totp/generate ── */
 router.get('/generate', authenticateJWT, (req, res) => {
@@ -23,7 +23,9 @@ router.get('/generate', authenticateJWT, (req, res) => {
 });
 
 /* ── POST /api/totp/verify ── (finalise TOTP setup) */
-router.post('/verify', authenticateJWT, (req, res) => {
+router.post('/verify', authenticateJWT, async (req, res) => {
+    if (!(await verifyElevationOrPassword(req, res))) return;
+
     const decrypt = req.app.locals.decrypt;
     db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
         if (!user || !user.totp_pending_secret)
@@ -45,8 +47,7 @@ router.post('/disable', authenticateJWT, async (req, res) => {
     const decrypt = req.app.locals.decrypt;
     db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (!await verifyPassword(currentPassword || '', user.password, user.id))
-            return res.status(401).json({ success: false, message: '当前密码错误' });
+        if (!(await verifyElevationOrPassword(req, res, currentPassword))) return;
         if (user.totp_secret) {
             if (!totpToken || !authenticator.verify({ token: totpToken, secret: decrypt(user.totp_secret) }))
                 return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });

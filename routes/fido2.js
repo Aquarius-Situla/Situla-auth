@@ -9,7 +9,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 const db = require('../database');
-const { authenticateJWT, setAuthCookie } = require('../middleware/auth');
+const { authenticateJWT, setAuthCookie, verifyElevationOrPassword } = require('../middleware/auth');
 
 const FIDO2_MIN_KEYS = 2;
 const FIDO2_MAX_KEYS = 6;
@@ -47,6 +47,8 @@ router.get('/register-options', authenticateJWT, async (req, res) => {
 
 /* ── POST /api/fido2/register-verify ── */
 router.post('/register-verify', authenticateJWT, async (req, res) => {
+    if (!(await verifyElevationOrPassword(req, res))) return;
+
     const RP_ID = req.app.get('RP_ID');
     const ORIGIN = req.app.get('ORIGIN');
     try {

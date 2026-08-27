@@ -9,11 +9,24 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 
 const db = require('../database');
-const { authenticateJWT, verifyPassword, SALT_ROUNDS } = require('../middleware/auth');
+const { authenticateJWT, verifyElevationOrPassword, SALT_ROUNDS } = require('../middleware/auth');
+
+
+const jwt = require('jsonwebtoken');
 
 /* ── GET /api/status ── */
 router.get('/status', authenticateJWT, (req, res) => {
+    let elevated = false;
+    const elevationToken = req.cookies['situla_elevation'];
+    if (elevationToken) {
+        try {
+            const decoded = jwt.verify(elevationToken, req.app.get('JWT_SECRET'));
+            if (decoded.id === req.user.id && decoded.elevated) elevated = true;
+        } catch (e) {}
+    }
+
     db.get('SELECT totp_secret, email, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
+
         if (err) console.error('Status users error:', err);
         db.all('SELECT id, name, created_at, type, transports FROM passkeys WHERE user_id = ? ORDER BY id ASC', [req.user.id], (err2, keys) => {
             if (err2) console.error('Status passkeys error:', err2);
@@ -33,7 +46,8 @@ router.get('/status', authenticateJWT, (req, res) => {
                     passkeys,
                     fido2Keys,
                     fido2Count: fido2Keys.length,
-                    recoveryCodesRemaining: rc ? rc.total : 0
+                    recoveryCodesRemaining: rc ? rc.total : 0,
+                    elevated
                 });
             });
         });
@@ -49,8 +63,7 @@ router.post('/change-username', authenticateJWT, (req, res) => {
 
     db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (!await verifyPassword(currentPassword || '', user.password, user.id))
-            return res.status(401).json({ success: false, message: '当前密码错误' });
+        if (!(await verifyElevationOrPassword(req, res, currentPassword))) return;
 
         db.run('UPDATE users SET username = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
             if (e) return res.status(500).json({ success: false, message: '用户名已被占用' });
@@ -69,8 +82,7 @@ router.post('/change-password', authenticateJWT, (req, res) => {
 
     db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (!await verifyPassword(currentPassword || '', user.password, user.id))
-            return res.status(401).json({ success: false, message: '当前密码错误' });
+        if (!(await verifyElevationOrPassword(req, res, currentPassword))) return;
 
         const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
         db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, req.user.id], (e) => {
@@ -93,8 +105,7 @@ router.post('/change-email', authenticateJWT, (req, res) => {
 
     db.get('SELECT * FROM users WHERE id = ?', [req.user.id], async (err, user) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-        if (!await verifyPassword(currentPassword || '', user.password, user.id))
-            return res.status(401).json({ success: false, message: '当前密码错误' });
+        if (!(await verifyElevationOrPassword(req, res, currentPassword))) return;
 
         db.run('UPDATE users SET email = ? WHERE id = ?', [trimmed, req.user.id], function(e) {
             if (e) return res.status(500).json({ success: false, message: '数据库错误' });

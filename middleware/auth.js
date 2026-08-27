@@ -159,7 +159,65 @@ function setAuthCookie(req, res, user, authMethod = 'unknown') {
     logLogin(req, user.id, authMethod);
 }
 
+
+
+/**
+ * Verify if the user is elevated (sudo mode) or check their password.
+ * If password is correct, sets the elevation cookie (15m).
+ * Returns true if allowed, false if not.
+ * If requireElevation response is sent, returns false and the caller should return.
+ */
+async function verifyElevationOrPassword(req, res, password) {
+    const ELEVATION_COOKIE = 'situla_elevation';
+    const JWT_SECRET = req.app.get('JWT_SECRET');
+    const COOKIE_DOMAIN = req.app.get('COOKIE_DOMAIN');
+
+    if (password) {
+        // Check password
+        const userId = req.user.id;
+        const user = await new Promise((resolve) => {
+            db.get('SELECT password FROM users WHERE id = ?', [userId], (err, row) => resolve(row));
+        });
+        if (!user) return false;
+        const passwordOk = await verifyPassword(password, user.password, userId);
+        if (passwordOk) {
+            // Set elevation cookie
+            const elevationToken = jwt.sign({ id: userId, elevated: true }, JWT_SECRET, { expiresIn: '15m' });
+            res.cookie(ELEVATION_COOKIE, elevationToken, {
+                httpOnly: true, secure: true, domain: COOKIE_DOMAIN,
+                maxAge: 15 * 60 * 1000, sameSite: 'Lax'
+            });
+            return true;
+        }
+        return false;
+    } else {
+        // No password provided, check elevation cookie
+        const elevationToken = req.cookies[ELEVATION_COOKIE];
+        if (!elevationToken) {
+            res.status(401).json({ success: false, error: 'Password required', requireElevation: true });
+            return false;
+        }
+        try {
+            const decoded = jwt.verify(elevationToken, JWT_SECRET, { algorithms: ['HS256'] });
+            if (decoded.id === req.user.id && decoded.elevated) {
+                // Refresh elevation cookie to reset the 15m timer
+                const newElevationToken = jwt.sign({ id: req.user.id, elevated: true }, JWT_SECRET, { expiresIn: '15m' });
+                res.cookie(ELEVATION_COOKIE, newElevationToken, {
+                    httpOnly: true, secure: true, domain: COOKIE_DOMAIN,
+                    maxAge: 15 * 60 * 1000, sameSite: 'Lax'
+                });
+                return true;
+            }
+        } catch {
+            // Token expired or invalid
+        }
+        res.status(401).json({ success: false, error: 'Session expired', requireElevation: true });
+        return false;
+    }
+}
+
 module.exports = {
+    verifyElevationOrPassword,
     authenticateJWT,
     requireStepUpAuth,
     setAuthCookie,

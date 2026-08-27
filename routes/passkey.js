@@ -9,7 +9,7 @@ const router = express.Router();
 const { generateRegistrationOptions, verifyRegistrationResponse } = require('@simplewebauthn/server');
 
 const db = require('../database');
-const { authenticateJWT } = require('../middleware/auth');
+const { authenticateJWT, verifyElevationOrPassword } = require('../middleware/auth');
 
 function setChallenge(app, userId, challenge) {
     const CHALLENGE_TTL_MS = 5 * 60 * 1000;
@@ -40,6 +40,8 @@ router.get('/register-options', authenticateJWT, async (req, res) => {
 
 /* ── POST /api/webauthn/register-verify ── */
 router.post('/register-verify', authenticateJWT, async (req, res) => {
+    if (!(await verifyElevationOrPassword(req, res))) return;
+
     const RP_ID = req.app.get('RP_ID');
     const ORIGIN = req.app.get('ORIGIN');
     try {

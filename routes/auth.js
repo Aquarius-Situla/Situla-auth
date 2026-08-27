@@ -177,6 +177,7 @@ router.post('/logout', (req, res) => {
         } catch (e) { /* ignore */ }
     }
     res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
+        res.clearCookie('situla_elevation', { domain: COOKIE_DOMAIN });
     res.json({ success: true });
 });
 
@@ -188,6 +189,7 @@ router.post('/logout-all', authenticateJWT, (req, res) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         tokenVersionCache.set(userId, newVersion);
         res.clearCookie(COOKIE_NAME, { domain: COOKIE_DOMAIN });
+        res.clearCookie('situla_elevation', { domain: COOKIE_DOMAIN });
         res.json({ success: true });
     });
 });

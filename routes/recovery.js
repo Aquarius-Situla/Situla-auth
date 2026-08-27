@@ -9,10 +9,12 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const db = require('../database');
-const { authenticateJWT, SALT_ROUNDS } = require('../middleware/auth');
+const { authenticateJWT, SALT_ROUNDS, verifyElevationOrPassword } = require('../middleware/auth');
 
 /* ── POST /api/recovery-codes/generate ── */
-router.post('/generate', authenticateJWT, (req, res) => {
+router.post('/generate', authenticateJWT, async (req, res) => {
+    if (!(await verifyElevationOrPassword(req, res, req.body.currentPassword))) return;
+
     const COUNT = 8;
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const codes = [];

@@ -152,7 +152,13 @@ const translations = {
 
         "btn_logout": "退出登录",
         "btn_logout_all": "在所有设备上退出",
-        "msg_logout_all_confirm": "确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。"
+        "msg_logout_all_confirm": "确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。",
+
+        // Sudo modal
+        "sudo_title": "确认你的密码",
+        "sudo_desc": "出于安全考虑，请输入当前密码以继续操作。",
+        "sudo_btn_confirm": "确认",
+        "sudo_btn_cancel": "取消"
     },
     "en": {
         // index.html
@@ -307,7 +313,13 @@ const translations = {
 
         "btn_logout": "Sign Out",
         "btn_logout_all": "Sign out from all devices",
-        "msg_logout_all_confirm": "Are you sure you want to sign out from all devices? This will immediately invalidate all active sessions."
+        "msg_logout_all_confirm": "Are you sure you want to sign out from all devices? This will immediately invalidate all active sessions.",
+
+        // Sudo modal
+        "sudo_title": "Confirm Your Password",
+        "sudo_desc": "For security reasons, please enter your current password to continue.",
+        "sudo_btn_confirm": "Confirm",
+        "sudo_btn_cancel": "Cancel"
     }
 };
 
