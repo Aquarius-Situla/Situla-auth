@@ -14,7 +14,12 @@ const { authenticateJWT, requireStepUpAuth, verifyElevationOrPassword } = requir
 router.get('/', authenticateJWT, (req, res) => {
     db.all('SELECT id, client_id, client_name, redirect_uris, created_at FROM oidc_clients ORDER BY id DESC', [], (err, rows) => {
         if (err) return res.status(500).json({ success: false, message: 'DB Error' });
-        res.json(rows.map(r => ({ ...r, redirect_uris: JSON.parse(r.redirect_uris) })));
+        const list = (rows || []).map(r => {
+            let uris = [];
+            try { uris = JSON.parse(r.redirect_uris || '[]'); } catch(e) {}
+            return { ...r, redirect_uris: uris };
+        });
+        res.json(list);
     });
 });
 

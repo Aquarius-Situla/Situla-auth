@@ -1,172 +1,147 @@
 
 // Global fetch interceptor to handle elevation expiration
 
-let sudoActionContext = null;
-
 function closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => {
         m.style.display = 'none';
         const step1 = m.querySelector('[id$="Step1"]');
+        const step2 = m.querySelector('[id$="Step2"]');
+        const step3 = m.querySelector('[id$="Step3"]');
         if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+        if (step3) step3.style.display = 'none';
     });
-    const defaultContainer = document.querySelector('#sudoModal .modal-card');
-    const form = document.getElementById('sudoForm');
-    if (defaultContainer && form && form.parentElement !== defaultContainer) {
-        defaultContainer.appendChild(form);
-    }
-    if (form) form.style.display = 'none';
-    
-    const pwdInput = document.getElementById('sudoPassword');
-    if (pwdInput) pwdInput.value = '';
-    const newPwd = document.getElementById('newPassword');
-    if (newPwd) { newPwd.value = ''; newPwd.disabled = true; }
-    const confirmPwd = document.getElementById('confirmPassword');
-    if (confirmPwd) { confirmPwd.value = ''; confirmPwd.disabled = true; }
-    
-    sudoActionContext = null;
+    document.querySelectorAll('input[type="password"]').forEach(inp => {
+        inp.value = '';
+        inp.disabled = true;
+    });
 }
 
-document.getElementById('sudoForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const pwdInput = document.getElementById('sudoPassword');
-    const pwd = pwdInput.value;
-    const msg = document.getElementById('sudoMsg');
-    msg.textContent = '';
-    
-    if (!pwd) {
-        msg.textContent = t('msg_enter_current_pwd');
-        msg.className = 'msg msg-err';
+function enterSudoStep(modalId, actionFn) {
+    if (window.isElevated) {
+        actionFn('').then(res => {
+            if (res && (res.success || res.verified)) {
+                closeAllModals();
+            }
+        });
         return;
     }
     
-    if (!sudoActionContext) return;
+    document.querySelectorAll('input[type="password"]').forEach(inp => inp.disabled = true);
     
-    const confirmBtn = document.getElementById('confirmSudoBtn');
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = '...';
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
     
-    try {
-        const { actionFn, sourceModalId, resolve } = sudoActionContext;
-        const res = await actionFn(pwd);
-        
-        let data = {};
-        if (res && typeof res.clone === 'function') {
-            try { data = await res.clone().json(); } catch(err) {}
-        } else if (res && typeof res === 'object') {
-            data = res;
-        }
-        
-        if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误'))) {
-            msg.textContent = data.message || t('msg_wrong_credentials');
-            msg.className = 'msg msg-err';
-            pwdInput.value = '';
-            pwdInput.focus();
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = t('sudo_btn_confirm');
-            return;
-        }
-        
-        if (data && data.success === false) {
-            msg.textContent = data.message || data.error || '操作失败';
-            msg.className = 'msg msg-err';
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = t('sudo_btn_confirm');
-            return;
-        }
-
-        window.isElevated = true;
-        closeAllModals();
-        
-        if (resolve) resolve(res || data);
-    } catch (err) {
-        msg.textContent = err.message || t('msg_network_error');
-        msg.className = 'msg msg-err';
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = t('sudo_btn_confirm');
+    const prefix = modalId.replace('Modal', '');
+    const step1 = modal.querySelector('#' + prefix + 'Step1') || modal.querySelector('[id$="Step1"]');
+    const step2 = modal.querySelector('#' + prefix + 'Step2') || modal.querySelector('[id$="Step2"]') || modal.querySelector('#sudoStep1');
+    const form = step2 ? step2.querySelector('form') : modal.querySelector('form');
+    const pwdInp = form ? form.querySelector('input[type="password"]') : null;
+    const msg = form ? form.querySelector('.msg') : null;
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+    
+    if (step1) step1.style.display = 'none';
+    if (step2) step2.style.display = 'block';
+    
+    modal.style.display = 'flex';
+    
+    if (pwdInp) {
+        pwdInp.disabled = false;
+        pwdInp.value = '';
+        setTimeout(() => pwdInp.focus(), 60);
     }
-});
-
-document.getElementById('cancelSudoBtn').addEventListener('click', () => {
-    if (sudoActionContext && sudoActionContext.resolve) {
-        sudoActionContext.resolve(null);
+    if (msg) {
+        msg.textContent = '';
+        msg.className = 'msg';
     }
-    closeAllModals();
-});
-
-function promptSudoPassword(iconHtml, sourceModalId, actionFn) {
-    return new Promise((resolve) => {
-        sudoActionContext = { actionFn, sourceModalId, resolve };
-        
-        const form = document.getElementById('sudoForm');
-        document.getElementById('sudoModalTitle').textContent = t('sudo_title');
-        document.getElementById('sudoModalDesc').textContent = t('sudo_desc');
-        
-        const confirmBtn = document.getElementById('confirmSudoBtn');
-        confirmBtn.textContent = t('sudo_btn_confirm');
-        confirmBtn.disabled = false;
-        
-        const cancelBtn = document.getElementById('cancelSudoBtn');
-        cancelBtn.textContent = t('sudo_btn_cancel');
-        
-        const sudoUserInp = document.getElementById('sudoUsername');
-        if (sudoUserInp && window.currentUsername) {
-            sudoUserInp.value = window.currentUsername;
-        }
-        
-        const pwdInput = document.getElementById('sudoPassword');
-        pwdInput.disabled = false;
-        pwdInput.value = '';
-        document.getElementById('sudoMsg').textContent = '';
-        
-        if (sourceModalId && !sourceModalId.includes('<svg') && document.getElementById(sourceModalId)) {
-            const modalEl = document.getElementById(sourceModalId);
-            const card = modalEl.querySelector('.modal-card');
-            const step1 = card ? card.querySelector('[id$="Step1"]') : null;
-            if (step1) step1.style.display = 'none';
-            if (card) {
-                card.appendChild(form);
+    
+    const userInp = form ? form.querySelector('.sudo-username-field') : null;
+    if (userInp && window.currentUsername) {
+        userInp.value = window.currentUsername;
+    }
+    
+    if (form) {
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const pwd = pwdInp ? pwdInp.value : '';
+            if (!pwd) {
+                if (msg) {
+                    msg.textContent = t('msg_enter_current_pwd');
+                    msg.className = 'msg msg-err';
+                }
+                return;
             }
-            form.style.display = 'block';
-            modalEl.style.display = 'flex';
-        } else {
-            const defaultCard = document.querySelector('#sudoModal .modal-card');
-            if (defaultCard) {
-                defaultCard.appendChild(form);
-                const sudoIcon = document.getElementById('sudoModalIcon');
-                if (sudoIcon && iconHtml) sudoIcon.innerHTML = iconHtml;
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '...';
             }
-            form.style.display = 'block';
-            document.getElementById('sudoModal').style.display = 'flex';
-        }
-        
-        setTimeout(() => { if (window.innerWidth > 600) pwdInput.focus(); }, 50);
-    });
-}
-
-async function withSudo(actionFn, sourceModalId) {
-    let iconHtml = '';
-    if (sourceModalId) {
-        if (sourceModalId.includes('<svg')) {
-            iconHtml = sourceModalId;
-        } else {
-            const iconEl = document.querySelector(`#${sourceModalId} .modal-icon`);
-            if (iconEl) iconHtml = iconEl.innerHTML;
-        }
-    }
-    
-    if (window.isElevated) {
-        try {
-            const res = await actionFn('');
-            let data = {};
-            try { data = await res.clone().json(); } catch(e) {}
-            if (!data.requireElevation && (res.status !== 401 || !res.status)) {
-                return res;
+            
+            try {
+                const res = await actionFn(pwd);
+                let data = {};
+                if (res && typeof res.clone === 'function') {
+                    try { data = await res.clone().json(); } catch(err) {}
+                } else if (res && typeof res === 'object') {
+                    data = res;
+                }
+                
+                if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误'))) {
+                    if (msg) {
+                        msg.textContent = data.message || t('msg_wrong_credentials');
+                        msg.className = 'msg msg-err';
+                    }
+                    if (pwdInp) {
+                        pwdInp.value = '';
+                        pwdInp.focus();
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = t('sudo_btn_confirm');
+                    }
+                    return;
+                }
+                
+                if (data && data.success === false) {
+                    if (msg) {
+                        msg.textContent = data.message || data.error || '操作失败';
+                        msg.className = 'msg msg-err';
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = t('sudo_btn_confirm');
+                    }
+                    return;
+                }
+                
+                window.isElevated = true;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = t('sudo_btn_confirm');
+                }
+                
+                if (modalId === 'oidcModal' && data && data.success && data.client_id) {
+                    if (step2) step2.style.display = 'none';
+                    const step3 = document.getElementById('oidcStep3');
+                    if (step3) step3.style.display = 'block';
+                    document.getElementById('newOidcClientId').textContent = data.client_id;
+                    document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+                    loadOidcClients();
+                } else {
+                    closeAllModals();
+                }
+            } catch (err) {
+                if (msg) {
+                    msg.textContent = err.message || t('msg_network_error');
+                    msg.className = 'msg msg-err';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = t('sudo_btn_confirm');
+                }
             }
-        } catch(e) {}
-        window.isElevated = false;
+        };
     }
-    
-    return await promptSudoPassword(iconHtml, sourceModalId, actionFn);
 }
 
 const { startRegistration } = SimpleWebAuthnBrowser;
@@ -295,8 +270,9 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 
                 if (data.username) {
                     window.currentUsername = data.username;
-                    const sudoUserInp = document.getElementById('sudoUsername');
-                    if (sudoUserInp) sudoUserInp.value = data.username;
+                    document.querySelectorAll('.sudo-username-field').forEach(inp => {
+                        inp.value = data.username;
+                    });
                 }
                 if (data.email) {
                     document.getElementById('newEmail').value = data.email;
@@ -384,7 +360,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', closeAllModals);
 
-        document.getElementById('continuePasskeyBtn')?.addEventListener('click', async () => {
+        document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
             const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
             const msg1 = document.getElementById('passkeyMsg1');
             msg1.textContent = '';
@@ -420,8 +396,10 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 }
             };
             
-            await withSudo(actionFn, 'passkeyModal');
+            enterSudoStep('passkeyModal', actionFn);
         });
+        
+        document.getElementById('cancelPasskeyBtn2')?.addEventListener('click', closeAllModals);
         
         /* ── 2FA General Setup ── */
         document.getElementById('setup2faBtn').addEventListener('click', () => {
@@ -625,7 +603,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         document.getElementById('cancelFido2Btn1')?.addEventListener('click', closeAllModals);
 
-        document.getElementById('continueFido2Btn')?.addEventListener('click', async () => {
+        document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
             const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
             const msg1 = document.getElementById('fido2Msg1');
             msg1.textContent = '';
@@ -661,8 +639,10 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 }
             };
             
-            await withSudo(actionFn, 'fido2Modal');
+            enterSudoStep('fido2Modal', actionFn);
         });
+        
+        document.getElementById('cancelFido2Btn2')?.addEventListener('click', closeAllModals);
         
         document.getElementById('enableFido2Btn').addEventListener('click', async () => {
             const msg = document.getElementById('fido2Msg');
@@ -709,7 +689,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         document.getElementById('cancelUsernameBtn1')?.addEventListener('click', closeAllModals);
 
-        document.getElementById('continueUsernameBtn')?.addEventListener('click', async () => {
+        document.getElementById('continueUsernameBtn')?.addEventListener('click', () => {
             const newUsername = document.getElementById('newUsername').value.trim();
             const msg1 = document.getElementById('usernameMsg1');
             msg1.textContent = '';
@@ -721,18 +701,19 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ newUsername, currentPassword: pwd })
                 });
-                return res;
-            };
-            
-            const res = await withSudo(actionFn, 'usernameModal');
-            if (res) {
-                const data = await (res.json ? res.clone().json() : Promise.resolve(res));
+                const data = await res.json();
                 if (data.success) {
                     alert(t('msg_username_changed', newUsername));
                     location.reload();
+                    return { success: true };
                 }
-            }
+                return { success: false, message: data.message || 'Error' };
+            };
+            
+            enterSudoStep('usernameModal', actionFn);
         });
+        
+        document.getElementById('cancelUsernameBtn2')?.addEventListener('click', closeAllModals);
         
         /* Change email */
         document.getElementById('showEmailFormBtn').addEventListener('click', () => {
@@ -744,7 +725,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         document.getElementById('cancelEmailBtn1')?.addEventListener('click', closeAllModals);
 
-        document.getElementById('continueEmailBtn')?.addEventListener('click', async () => {
+        document.getElementById('continueEmailBtn')?.addEventListener('click', () => {
             const newEmail = document.getElementById('newEmail').value.trim();
             const msg1 = document.getElementById('emailMsg1');
             msg1.textContent = '';
@@ -756,18 +737,19 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ newEmail, currentPassword: pwd })
                 });
-                return res;
-            };
-            
-            const res = await withSudo(actionFn, 'emailModal');
-            if (res) {
-                const data = await (res.json ? res.clone().json() : Promise.resolve(res));
+                const data = await res.json();
                 if (data.success) {
                     loadStatus();
                     alert(t('msg_email_changed'));
+                    return { success: true };
                 }
-            }
+                return { success: false, message: data.message || 'Error' };
+            };
+            
+            enterSudoStep('emailModal', actionFn);
         });
+        
+        document.getElementById('cancelEmailBtn2')?.addEventListener('click', closeAllModals);
         
         /* Change password */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
@@ -783,7 +765,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
 
         document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);
 
-        document.getElementById('continuePasswordBtn')?.addEventListener('click', async () => {
+        document.getElementById('continuePasswordBtn')?.addEventListener('click', () => {
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const msg1 = document.getElementById('passwordMsg1');
@@ -800,19 +782,18 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ newPassword, currentPassword: pwd })
                 });
-                return res;
+                const data = await res.json();
+                if (data.success) {
+                    alert(t('msg_pwd_changed'));
+                    return { success: true };
+                }
+                return { success: false, message: data.message || 'Error' };
             };
             
-            const res = await withSudo(actionFn, 'passwordModal');
-            if (res) {
-                const data = await (res.json ? res.clone().json() : Promise.resolve(res));
-                if (data.success) {
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                    alert(t('msg_pwd_changed'));
-                }
-            }
+            enterSudoStep('passwordModal', actionFn);
         });
+        
+        document.getElementById('cancelPasswordBtn2')?.addEventListener('click', closeAllModals);
         
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
     closeAllModals();
@@ -826,7 +807,7 @@ document.getElementById('addOidcBtn')?.addEventListener('click', () => {
 
 document.getElementById('cancelOidcBtn1')?.addEventListener('click', closeAllModals);
 
-document.getElementById('continueOidcBtn')?.addEventListener('click', async () => {
+document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
     const name = document.getElementById('oidcAppName').value.trim();
     let uris = document.getElementById('oidcRedirectUris').value.trim();
     const msg1 = document.getElementById('oidcMsg1');
@@ -838,27 +819,22 @@ document.getElementById('continueOidcBtn')?.addEventListener('click', async () =
         return;
     }
     
-    uris = uris.split('\n').map(u => u.trim()).filter(u => u);
+    uris = uris.split('
+').map(u => u.trim()).filter(u => u);
     
-    const actionFn = (pwd) => fetch('/api/oidc/clients', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ client_name: name, redirect_uris: uris, currentPassword: pwd })
-    });
+    const actionFn = async (pwd) => {
+        const res = await fetch('/api/oidc/clients', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ client_name: name, redirect_uris: uris, currentPassword: pwd })
+        });
+        return res;
+    };
     
-    const res = await withSudo(actionFn, 'oidcModal');
-    if (!res) return;
-    
-    const data = await (res.json ? res.clone().json() : Promise.resolve(res));
-    if (data.success) {
-        document.getElementById('oidcModal').style.display = 'flex';
-        document.getElementById('oidcStep1').style.display = 'none';
-        document.getElementById('oidcStep3').style.display = 'block';
-        document.getElementById('newOidcClientId').textContent = data.client_id;
-        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
-        loadOidcClients();
-    }
+    enterSudoStep('oidcModal', actionFn);
 });
+
+document.getElementById('cancelOidcBtn2')?.addEventListener('click', closeAllModals);
 
 document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => {
     document.getElementById('oidcModal').style.display = 'none';
@@ -929,30 +905,28 @@ async function loadOidcClients() {
 }
 
 // --- Recovery Codes Logic ---
-document.getElementById('genRcBtn')?.addEventListener('click', async () => {
-    const rcIconHtml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%">
-      <path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z" />
-    </svg>`;
+document.getElementById('genRcBtn')?.addEventListener('click', () => {
+    const actionFn = async (pwd) => {
+        const res = await fetch('/api/recovery-codes/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ currentPassword: pwd })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('rcPanel').style.display = 'block';
+            document.getElementById('rcList').innerHTML = data.codes.join('<br>');
+            document.getElementById('rcBadge').textContent = '已生成(8)';
+            document.getElementById('rcBadge').className = 'badge badge-enabled';
+            return { success: true };
+        }
+        return { success: false, message: data.message || 'Error generating codes' };
+    };
     
-    const actionFn = (pwd) => fetch('/api/recovery-codes/generate', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ currentPassword: pwd })
-    });
-    
-    const res = await withSudo(actionFn, rcIconHtml);
-    if (!res) return;
-    
-    const data = await (res.json ? res.clone().json() : Promise.resolve(res));
-    if (data.success) {
-        document.getElementById('rcPanel').style.display = 'block';
-        document.getElementById('rcList').innerHTML = data.codes.join('<br>');
-        document.getElementById('rcBadge').textContent = '已生成(8)';
-        document.getElementById('rcBadge').className = 'badge badge-enabled';
-    } else {
-        alert(data.message || 'Error generating codes');
-    }
+    enterSudoStep('sudoModal', actionFn);
 });
+
+document.getElementById('cancelSudoBtn')?.addEventListener('click', closeAllModals);
 
 document.getElementById('copyRcBtn')?.addEventListener('click', () => {
     const list = document.getElementById('rcList').innerText.replace(/\n/g, ' ');
