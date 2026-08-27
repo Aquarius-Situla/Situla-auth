@@ -98,6 +98,16 @@ db.serialize(() => {
         FOREIGN KEY(user_id) REFERENCES users(id)
     )`, () => {});
 
+    // v2.4 migrations: Dynamic OIDC clients
+    db.run(`CREATE TABLE IF NOT EXISTS oidc_clients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_id TEXT UNIQUE,
+        client_secret_enc TEXT,
+        client_name TEXT,
+        redirect_uris TEXT,
+        created_at TEXT
+    )`, () => {});
+
 });
 
 module.exports = db;

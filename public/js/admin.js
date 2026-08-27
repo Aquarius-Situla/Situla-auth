@@ -17,15 +17,6 @@ function closeAllModals() {
 }
 
 function enterSudoStep(modalId, actionFn) {
-    if (window.isElevated) {
-        actionFn('').then(res => {
-            if (res && (res.success || res.verified)) {
-                closeAllModals();
-            }
-        });
-        return;
-    }
-    
     const modal = document.getElementById(modalId);
     if (!modal) return;
     
@@ -36,25 +27,69 @@ function enterSudoStep(modalId, actionFn) {
     const pwdInp = form ? form.querySelector('input[type="password"]') : null;
     const msg = form ? form.querySelector('.msg') : null;
     const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
-    
-    if (step1) step1.style.display = 'none';
-    if (step2) step2.style.display = 'block';
-    
-    modal.style.display = 'flex';
-    
-    if (pwdInp) {
-        pwdInp.value = '';
-        setTimeout(() => pwdInp.focus(), 60);
+
+    function showStep2() {
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = 'block';
+        modal.style.display = 'flex';
+        if (pwdInp) {
+            pwdInp.value = '';
+            setTimeout(() => pwdInp.focus(), 60);
+        }
+        if (msg) {
+            msg.textContent = '';
+            msg.className = 'msg';
+        }
+        const userInp = form ? form.querySelector('.sudo-username-field') : null;
+        if (userInp && window.currentUsername) {
+            userInp.value = window.currentUsername;
+        }
     }
-    if (msg) {
-        msg.textContent = '';
-        msg.className = 'msg';
+
+    if (window.isElevated) {
+        actionFn('').then(res => {
+            let data = {};
+            if (res && typeof res.clone === 'function') {
+                try { res.clone().json().then(d => handleResult(d)); return; } catch(e) {}
+            } else if (res && typeof res === 'object') {
+                handleResult(res);
+                return;
+            }
+            handleResult({});
+
+            function handleResult(data) {
+                if (data.requireElevation || (res && res.status === 401)) {
+                    window.isElevated = false;
+                    showStep2();
+                    return;
+                }
+                if (data.success || data.verified) {
+                    if (modalId === 'oidcModal' && data.client_id) {
+                        if (step1) step1.style.display = 'none';
+                        const step3 = modal.querySelector('#oidcStep3');
+                        if (step3) step3.style.display = 'block';
+                        document.getElementById('newOidcClientId').textContent = data.client_id;
+                        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+                        loadOidcClients();
+                    } else {
+                        closeAllModals();
+                    }
+                } else {
+                    showStep2();
+                    if (msg && (data.message || data.error)) {
+                        msg.textContent = data.message || data.error;
+                        msg.className = 'msg msg-err';
+                    }
+                }
+            }
+        }).catch(() => {
+            window.isElevated = false;
+            showStep2();
+        });
+        return;
     }
     
-    const userInp = form ? form.querySelector('.sudo-username-field') : null;
-    if (userInp && window.currentUsername) {
-        userInp.value = window.currentUsername;
-    }
+    showStep2();
     
     if (form) {
         form.onsubmit = async (e) => {
@@ -748,6 +783,7 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         document.getElementById('cancelEmailBtn2')?.addEventListener('click', closeAllModals);
         
         /* Change password */
+        document.getElementById('newPasswordForm')?.addEventListener('submit', (e) => e.preventDefault());
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
             closeAllModals();
             document.getElementById('passwordModal').style.display = 'flex';
