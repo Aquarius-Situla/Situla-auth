@@ -43,9 +43,7 @@ function promptSudoPassword(iconHtml, title, desc, btnText) {
 
 async function withSudo(actionFn, modalId, title, desc, btnText) {
     let pwd = window.isElevated ? '' : null;
-    const iconHtml = modalId.includes('<svg') ? modalId : document.querySelector(# .modal-icon).innerHTML;
-    let pwd = window.isElevated ? '' : null;
-    const iconHtml = document.querySelector(`#${modalId} .modal-icon`).innerHTML;
+    const iconHtml = modalId.includes('<svg') ? modalId : document.querySelector(`#${modalId} .modal-icon`).innerHTML;
     
     if (pwd === null) {
         pwd = await promptSudoPassword(iconHtml, title, desc, btnText);
@@ -262,7 +260,7 @@ window.fetch = async function(...args) {
 
         function updateRcCard(hasTOTP, remaining) {
             document.getElementById('rcCard').style.display = hasTOTP ? '' : 'none';
-            const badge = document.getElementById('rcBadge');
+        document.getElementById('rcBadge').textContent = '已生成(8)';
             if (!hasTOTP) return;
             if (remaining === 0) {
                 badge.textContent = t('badge_not_gen');
@@ -274,7 +272,7 @@ window.fetch = async function(...args) {
         }
 
         async function deletePasskey(id) {
-            if (!confirm(t('alert_delete_pk'))) return;
+            if (!confirm('确定要在所有设备上退出登录吗？')) return;
             const res = await fetch(`/api/passkeys/${id}`, { method: 'DELETE' });
             if ((await res.json()).success) {
                 document.getElementById(`pk-${id}`)?.remove();
@@ -470,7 +468,7 @@ window.fetch = async function(...args) {
 
         /* ── Disable 2FA (Both TOTP and FIDO2) ── */
         async function disable2faCommon() {
-            if (!confirm(t('alert_disable_2fa'))) return;
+            if (!confirm('确定要在所有设备上退出登录吗？')) return;
 
             const currentPassword = prompt('请输入当前密码以确认操作：');
             if (currentPassword === null) return; // user cancelled
@@ -573,7 +571,7 @@ window.fetch = async function(...args) {
         }
 
         async function deleteFido2Key(id) {
-            if (!confirm(t('alert_delete_fido2_key'))) return;
+            if (!confirm('确定要在所有设备上退出登录吗？')) return;
             const res = await fetch(`/api/fido2/keys/${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
