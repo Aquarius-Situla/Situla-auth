@@ -307,91 +307,59 @@ window.fetch = async function(...args) {
         /* Passkey Registration Modal */
         document.getElementById('regPasskeyBtn').addEventListener('click', () => {
             document.getElementById('passkeyModal').style.display = 'flex';
-            document.getElementById('passkeyStep1').style.display = 'block';
-            document.getElementById('passkeyStep2').style.display = 'none';
             document.getElementById('passkeyNameInput').value = '';
-            document.getElementById('passkeyConfirmPwd').value = '';
             document.getElementById('passkeyMsg1').textContent = '';
-            document.getElementById('passkeyMsg2').textContent = '';
-            if (window.innerWidth > 600) document.getElementById('passkeyNameInput').focus();
         });
 
         const cancelPasskey = () => {
             document.getElementById('passkeyModal').style.display = 'none';
         };
         document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', cancelPasskey);
-        document.getElementById('cancelPasskeyBtn2')?.addEventListener('click', cancelPasskey);
 
-        document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
-            const pkName = document.getElementById('passkeyNameInput').value.trim();
-            disableAllCurrentPasswords();
-            if (window.isElevated) {
-                document.getElementById('passkeyConfirmPwd').value = '';
-                document.getElementById('confirmAddPasskeyBtn').click();
-            } else {
-                document.getElementById('passkeyStep1').style.display = 'none';
-                document.getElementById('passkeyStep2').style.display = 'block';
-                enableFormInputs('passkeyStep2', 'passkeyConfirmPwd');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('passkeyConfirmPwd').focus(); }, 100);
-            }
-        });
-
-        document.getElementById('confirmAddPasskeyBtn')?.addEventListener('click', async () => {
-            const msg = document.getElementById('passkeyMsg2');
+        document.getElementById('continuePasskeyBtn')?.addEventListener('click', async () => {
             const passkeyName = document.getElementById('passkeyNameInput').value.trim() || t('default_pk_name');
-            const currentPassword = document.getElementById('passkeyConfirmPwd').value;
-            msg.textContent = '';
+            const msg1 = document.getElementById('passkeyMsg1');
+            msg1.textContent = '';
             
-            if (!currentPassword && !window.isElevated) {
-                msg.textContent = t('msg_enter_current_pwd');
-                msg.className = 'msg msg-err';
-                return;
-            }
+            const actionFn = async (pwd) => {
+                try {
+                    msg1.textContent = '请触碰你的安全密钥或验证设备...';
+                    msg1.className = 'msg';
+                    
+                    const optsRes = await fetch('/api/webauthn/register-options', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ currentPassword: pwd })
+                    });
+                    const opts = await optsRes.json();
+                    if (!opts.success) throw new Error(opts.message || 'Failed to get options');
 
-            try {
-                // Verify password first
-                const verifyRes = await fetch('/api/verify-password', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ currentPassword })
-                });
-                const verifyData = await verifyRes.json();
-                if (!verifyData.success) {
-                    msg.textContent = verifyData.message || 'Error';
-                    msg.className = 'msg msg-err';
-                    return;
-                }
+                    const attResp = await startRegistration(opts.options);
+                    attResp._passkeyName = passkeyName;
 
-                // Password is correct, start WebAuthn
-                msg.textContent = '请触碰你的安全密钥/验证设备...';
-                msg.className = 'msg';
+                    const verRes = await fetch('/api/webauthn/register-verify', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(attResp)
+                    });
+                    const verData = await verRes.json();
 
-                const options = await (await fetch('/api/webauthn/register-options')).json();
-                const attResp = await startRegistration(options);
-                attResp._passkeyName = passkeyName;
-                
-                const result = await (await fetch('/api/webauthn/register-verify', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(attResp)
-                })).json();
-
-                if (result.verified) {
-                    msg.textContent = '通行密钥添加成功！';
-                    msg.className = 'msg msg-ok';
-                    setTimeout(() => {
-                        document.getElementById('passkeyModal').style.display = 'none';
+                    if (verData.verified) {
+                        msg1.textContent = '通行密钥添加成功！';
+                        msg1.className = 'msg msg-ok';
                         loadStatus();
-                    }, 1200);
-                } else {
-                    throw new Error('Verification failed');
+                        setTimeout(cancelPasskey, 1200);
+                    } else {
+                        throw new Error(verData.message || 'Verification failed');
+                    }
+                } catch (e) {
+                    msg1.textContent = '错误: ' + (e.message || '取消或失败');
+                    msg1.className = 'msg msg-err';
                 }
-            } catch (e) {
-                msg.textContent = '错误: ' + (e.message || '取消或失败');
-                msg.className = 'msg msg-err';
-            }
+            };
+            await withSudo(actionFn, 'passkeyModal', t('btn_add_pk'), t('section_pk_desc'), '注册');
         });
-
+        
         /* ── 2FA General Setup ── */
         document.getElementById('setup2faBtn').addEventListener('click', () => {
             document.getElementById('twoFaDisabledUI').style.display = 'none';
@@ -586,98 +554,59 @@ window.fetch = async function(...args) {
         /* FIDO2 Registration Modal */
         document.getElementById('addFido2KeyBtn').addEventListener('click', () => {
             document.getElementById('fido2Modal').style.display = 'flex';
-            document.getElementById('fido2Step1').style.display = 'block';
-            document.getElementById('fido2Step2').style.display = 'none';
             document.getElementById('fido2KeyNameInput').value = '';
-            document.getElementById('fido2ConfirmPwd').value = '';
             document.getElementById('fido2Msg1').textContent = '';
-            document.getElementById('fido2Msg2').textContent = '';
-            if (window.innerWidth > 600) document.getElementById('fido2KeyNameInput').focus();
         });
 
         const cancelFido2 = () => {
             document.getElementById('fido2Modal').style.display = 'none';
         };
         document.getElementById('cancelFido2Btn1')?.addEventListener('click', cancelFido2);
-        document.getElementById('cancelFido2Btn2')?.addEventListener('click', cancelFido2);
 
-        document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
-            const f2Name = document.getElementById('fido2KeyNameInput').value.trim();
-            disableAllCurrentPasswords();
-            if (window.isElevated) {
-                document.getElementById('fido2ConfirmPwd').value = '';
-                document.getElementById('confirmAddFido2KeyBtn').click();
-            } else {
-                document.getElementById('fido2Step1').style.display = 'none';
-                document.getElementById('fido2Step2').style.display = 'block';
-                enableFormInputs('fido2Step2', 'fido2ConfirmPwd');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('fido2ConfirmPwd').focus(); }, 100);
-            }
-        });
-
-        document.getElementById('confirmAddFido2KeyBtn')?.addEventListener('click', async () => {
-            const msg = document.getElementById('fido2Msg2');
+        document.getElementById('continueFido2Btn')?.addEventListener('click', async () => {
             const keyName = document.getElementById('fido2KeyNameInput').value.trim() || t('default_fido2_key_name');
-            const currentPassword = document.getElementById('fido2ConfirmPwd').value;
-            msg.textContent = '';
+            const msg1 = document.getElementById('fido2Msg1');
+            msg1.textContent = '';
             
-            if (!currentPassword && !window.isElevated) {
-                msg.textContent = t('msg_enter_current_pwd');
-                msg.className = 'msg msg-err';
-                return;
-            }
+            const actionFn = async (pwd) => {
+                try {
+                    msg1.textContent = '请触碰你的 FIDO2 安全密钥...';
+                    msg1.className = 'msg';
+                    
+                    const optsRes = await fetch('/api/fido2/register-options', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ currentPassword: pwd })
+                    });
+                    const opts = await optsRes.json();
+                    if (!opts.success) throw new Error(opts.message || 'Failed to get options');
 
-            try {
-                // Verify password first
-                const verifyRes = await fetch('/api/verify-password', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ currentPassword })
-                });
-                const verifyData = await verifyRes.json();
-                if (!verifyData.success) {
-                    msg.textContent = verifyData.message || 'Error';
-                    msg.className = 'msg msg-err';
-                    return;
-                }
+                    const attResp = await startRegistration(opts.options);
+                    attResp._fido2KeyName = keyName;
 
-                // Password is correct, start WebAuthn
-                msg.textContent = '请触碰你的 FIDO2 安全密钥...';
-                msg.className = 'msg';
+                    const verRes = await fetch('/api/fido2/register-verify', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(attResp)
+                    });
+                    const verData = await verRes.json();
 
-                const optionsRes = await fetch('/api/fido2/register-options');
-                if (!optionsRes.ok) {
-                    const err = await optionsRes.json();
-                    throw new Error(err.error || 'Failed to get options');
-                }
-                const options = await optionsRes.json();
-                
-                const attResp = await startRegistration(options);
-                attResp._keyName = keyName;
-                
-                const verifyAuthRes = await fetch('/api/fido2/register-verify', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(attResp)
-                });
-                const result = await verifyAuthRes.json();
-
-                if (result.verified) {
-                    msg.textContent = '安全密钥添加成功！';
-                    msg.className = 'msg msg-ok';
-                    setTimeout(() => {
-                        document.getElementById('fido2Modal').style.display = 'none';
+                    if (verData.verified) {
+                        msg1.textContent = '安全密钥添加成功！';
+                        msg1.className = 'msg msg-ok';
                         loadStatus();
-                    }, 1200);
-                } else {
-                    throw new Error('Verification failed');
+                        setTimeout(cancelFido2, 1200);
+                    } else {
+                        throw new Error(verData.message || 'Verification failed');
+                    }
+                } catch (e) {
+                    msg1.textContent = '错误: ' + (e.message || '取消或失败');
+                    msg1.className = 'msg msg-err';
                 }
-            } catch (e) {
-                msg.textContent = '错误: ' + (e.message || '取消或失败');
-                msg.className = 'msg msg-err';
-            }
+            };
+            await withSudo(actionFn, 'fido2Modal', t('btn_add_fido2_key'), t('method_fido2_desc'), '添加');
         });
-
+        
         document.getElementById('enableFido2Btn').addEventListener('click', async () => {
             const msg = document.getElementById('fido2Msg');
             msg.textContent = '';
@@ -715,233 +644,115 @@ window.fetch = async function(...args) {
         /* Change username */
         document.getElementById('showUsernameFormBtn').addEventListener('click', () => {
             document.getElementById('usernameModal').style.display = 'flex';
-            document.getElementById('usernameStep1').style.display = 'block';
-            document.getElementById('usernameStep2').style.display = 'none';
             document.getElementById('newUsername').value = '';
-            document.getElementById('usernameConfirmPwd').value = '';
             document.getElementById('usernameMsg1').textContent = '';
-            document.getElementById('usernameMsg2').textContent = '';
         });
 
         const cancelUsername = () => {
             document.getElementById('usernameModal').style.display = 'none';
         };
         document.getElementById('cancelUsernameBtn1')?.addEventListener('click', cancelUsername);
-        document.getElementById('cancelUsernameBtn2')?.addEventListener('click', cancelUsername);
 
-        document.getElementById('continueUsernameBtn')?.addEventListener('click', () => {
+        document.getElementById('continueUsernameBtn')?.addEventListener('click', async () => {
             const newUsername = document.getElementById('newUsername').value.trim();
             const msg1 = document.getElementById('usernameMsg1');
             msg1.textContent = '';
             if (!newUsername) { msg1.textContent = t('msg_enter_new_username'); msg1.className = 'msg msg-err'; return; }
             
-            // Move to step 2
-            disableAllCurrentPasswords();
-            if (window.isElevated) {
-                document.getElementById('usernameConfirmPwd').value = '';
-                document.getElementById('confirmChangeUsernameBtn').click();
-            } else {
-                document.getElementById('usernameStep1').style.display = 'none';
-                document.getElementById('usernameStep2').style.display = 'block';
-                enableFormInputs('usernameStep2', 'usernameConfirmPwd');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('usernameConfirmPwd').focus(); }, 100);
-            }
-        });
-
-        document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('usernameMsg2');
-            const newUsername = document.getElementById('newUsername').value.trim();
-            const currentPassword = document.getElementById('usernameConfirmPwd').value;
-            msg.textContent = '';
-            if (!currentPassword && !window.isElevated) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
-
-            try {
+            const actionFn = async (pwd) => {
                 const res = await fetch('/api/change-username', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ newUsername, currentPassword })
+                    body: JSON.stringify({ newUsername, currentPassword: pwd })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = t('msg_username_changed', newUsername);
-                    msg.className = 'msg msg-ok';
-                    setTimeout(() => document.getElementById('usernameModal').style.display = 'none', 1000);
-                    document.getElementById('newUsername').value = '';
-                    document.getElementById('usernameConfirmPwd').value = '';
+                    msg1.textContent = t('msg_username_changed', newUsername);
+                    msg1.className = 'msg msg-ok';
+                    setTimeout(() => cancelUsername(), 1000);
                 } else {
-                    msg.textContent = data.message || 'Error';
-                    msg.className = 'msg msg-err';
+                    msg1.textContent = data.message || 'Error';
+                    msg1.className = 'msg msg-err';
                 }
-            } catch (err) {
-                msg.textContent = 'Network error';
-                msg.className = 'msg msg-err';
-            }
+            };
+            await withSudo(actionFn, 'usernameModal', t('section_username_title'), t('section_username_desc'), t('btn_save'));
         });
-
-
+        
         /* Change email */
         document.getElementById('showEmailFormBtn').addEventListener('click', () => {
             document.getElementById('emailModal').style.display = 'flex';
-            document.getElementById('emailStep1').style.display = 'block';
-            document.getElementById('emailStep2').style.display = 'none';
-            document.getElementById('newEmail').value = '';
-            document.getElementById('emailConfirmPwd').value = '';
             document.getElementById('emailMsg1').textContent = '';
-            document.getElementById('emailMsg2').textContent = '';
         });
 
         const cancelEmail = () => {
             document.getElementById('emailModal').style.display = 'none';
         };
         document.getElementById('cancelEmailBtn1')?.addEventListener('click', cancelEmail);
-        document.getElementById('cancelEmailBtn2')?.addEventListener('click', cancelEmail);
 
-        document.getElementById('continueEmailBtn')?.addEventListener('click', () => {
+        document.getElementById('continueEmailBtn')?.addEventListener('click', async () => {
             const newEmail = document.getElementById('newEmail').value.trim();
             const msg1 = document.getElementById('emailMsg1');
             msg1.textContent = '';
-            if (!newEmail) { msg1.textContent = t('msg_enter_email'); msg1.className = 'msg msg-err'; return; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-                msg1.textContent = t('msg_invalid_email'); 
-                msg1.className = 'msg msg-err'; 
-                return;
-            }
+            if (!newEmail) { msg1.textContent = t('msg_enter_new_email'); msg1.className = 'msg msg-err'; return; }
             
-            // Move to step 2
-            disableAllCurrentPasswords();
-            if (window.isElevated) {
-                document.getElementById('emailConfirmPwd').value = '';
-                document.getElementById('confirmChangeEmailBtn').click();
-            } else {
-                document.getElementById('emailStep1').style.display = 'none';
-                document.getElementById('emailStep2').style.display = 'block';
-                enableFormInputs('emailStep2', 'emailConfirmPwd');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('emailConfirmPwd').focus(); }, 100);
-            }
-        });
-
-        document.getElementById('changeEmailBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('emailMsg2');
-            const newEmail = document.getElementById('newEmail').value.trim();
-            const currentPassword = document.getElementById('emailConfirmPwd').value;
-            msg.textContent = '';
-            if (!currentPassword && !window.isElevated) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
-
-            try {
+            const actionFn = async (pwd) => {
                 const res = await fetch('/api/change-email', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ newEmail, currentPassword })
+                    body: JSON.stringify({ newEmail, currentPassword: pwd })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = t('msg_email_changed', newEmail);
-                    msg.className = 'msg msg-ok';
-                    setTimeout(() => document.getElementById('emailModal').style.display = 'none', 1000);
-                    document.getElementById('newEmail').value = '';
-                    document.getElementById('emailConfirmPwd').value = '';
+                    msg1.textContent = t('msg_email_changed');
+                    msg1.className = 'msg msg-ok';
+                    loadStatus();
+                    setTimeout(() => cancelEmail(), 1000);
                 } else {
-                    msg.textContent = data.message || 'Error';
-                    msg.className = 'msg msg-err';
+                    msg1.textContent = data.message || 'Error';
+                    msg1.className = 'msg msg-err';
                 }
-            } catch (err) {
-                msg.textContent = 'Network error';
-                msg.className = 'msg msg-err';
-            }
+            };
+            await withSudo(actionFn, 'emailModal', t('section_email_title'), t('section_email_desc'), t('btn_save'));
         });
-
-
+        
         /* Change password */
         document.getElementById('showPasswordFormBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').style.display = 'flex';
-            document.getElementById('passwordStep1').style.display = 'block';
-            document.getElementById('passwordStep2').style.display = 'none';
-            document.getElementById('currentPassword').value = '';
             document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordMsg1').textContent = '';
-            document.getElementById('passwordMsg2').textContent = '';
         });
 
         const cancelPassword = () => {
             document.getElementById('passwordModal').style.display = 'none';
         };
         document.getElementById('cancelPasswordBtn1')?.addEventListener('click', cancelPassword);
-        document.getElementById('cancelPasswordBtn2')?.addEventListener('click', cancelPassword);
 
-        document.getElementById('continuePasswordBtn')?.addEventListener('click', () => {
-            const newPwd = document.getElementById('newPassword').value;
-            const confirmPwd = document.getElementById('confirmPassword').value;
+        document.getElementById('continuePasswordBtn')?.addEventListener('click', async () => {
+            const newPassword = document.getElementById('newPassword').value;
             const msg1 = document.getElementById('passwordMsg1');
             msg1.textContent = '';
+            if (!newPassword) { msg1.textContent = t('msg_enter_new_pwd'); msg1.className = 'msg msg-err'; return; }
             
-            if (!newPwd || !confirmPwd) {
-                msg1.textContent = t('msg_enter_new_pwd');
-                msg1.className = 'msg msg-err';
-                return;
-            }
-            if (newPwd !== confirmPwd) {
-                msg1.textContent = t('msg_pwd_mismatch');
-                msg1.className = 'msg msg-err';
-                return;
-            }
-            if (newPwd.length < 8) {
-                msg1.textContent = t('msg_pwd_too_short');
-                msg1.className = 'msg msg-err';
-                return;
-            }
-            
-            // Move to Step 2
-            disableAllCurrentPasswords();
-            if (window.isElevated) {
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('changePasswordBtn').click();
-            } else {
-                document.getElementById('passwordStep1').style.display = 'none';
-                document.getElementById('passwordStep2').style.display = 'block';
-                enableFormInputs('passwordStep2', 'currentPassword');
-                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('currentPassword').focus(); }, 100);
-            }
-        });
-
-        document.getElementById('changePasswordBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('passwordMsg2');
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            msg.textContent = '';
-            
-            if (!currentPassword && !window.isElevated) { 
-                msg.textContent = t('msg_enter_current_pwd'); 
-                msg.className = 'msg msg-err'; 
-                return; 
-            }
-
-            try {
+            const actionFn = async (pwd) => {
                 const res = await fetch('/api/change-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+                    body: JSON.stringify({ newPassword, currentPassword: pwd })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    msg.textContent = t('msg_pwd_changed');
-                    msg.className = 'msg msg-ok';
-                    setTimeout(() => document.getElementById('passwordModal').style.display = 'none', 1000);
-                    document.getElementById('currentPassword').value = '';
+                    msg1.textContent = t('msg_pwd_changed');
+                    msg1.className = 'msg msg-ok';
                     document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
+                    setTimeout(() => cancelPassword(), 1000);
                 } else {
-                    msg.textContent = data.message || 'Error';
-                    msg.className = 'msg msg-err';
+                    msg1.textContent = data.message || 'Error';
+                    msg1.className = 'msg msg-err';
                 }
-            } catch (err) {
-                msg.textContent = 'Network error';
-                msg.className = 'msg msg-err';
-            }
+            };
+            await withSudo(actionFn, 'passwordModal', t('section_password_title'), t('section_password_desc'), t('btn_save'));
         });
-
-
+        
 document.getElementById('addOidcBtn')?.addEventListener('click', () => {
     document.getElementById('oidcModal').style.display = 'flex';
     document.getElementById('oidcStep1').style.display = 'block';
