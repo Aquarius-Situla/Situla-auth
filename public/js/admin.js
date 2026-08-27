@@ -1,3 +1,41 @@
+
+// Global fetch interceptor to handle elevation expiration
+const originalFetch = window.fetch;
+window.fetch = async function(...args) {
+    const res = await originalFetch.apply(this, args);
+    const contentType = res.headers.get('content-type');
+    if (res.status === 401 && contentType && contentType.includes('application/json')) {
+        const clone = res.clone();
+        try {
+            const data = await clone.json();
+            if (data && data.requireElevation) {
+                window.isElevated = false;
+                // If we get requireElevation, we need to show the password prompt!
+                // But how do we know which modal is active?
+                // We can just find the active Step2 and show it!
+                const activeModals = document.querySelectorAll('.modal-overlay[style*="display: flex"]');
+                if (activeModals.length > 0) {
+                    const step1s = activeModals[0].querySelectorAll('[id$="Step1"]');
+                    const step2s = activeModals[0].querySelectorAll('div[id$="Step2"], form[id$="Form"]'); // fallback for RC
+                    const pwdInputs = activeModals[0].querySelectorAll('input[type="password"]');
+                    
+                    if (step1s.length > 0) step1s[0].style.display = 'none';
+                    if (step2s.length > 0) step2s[0].style.display = 'block';
+                    if (pwdInputs.length > 0) {
+                        const msg = pwdInputs[0].nextElementSibling;
+                        if (msg && msg.classList.contains('msg')) {
+                            msg.textContent = '验证已过期，请重新输入密码';
+                            msg.className = 'msg msg-err';
+                        }
+                        setTimeout(() => pwdInputs[0].focus(), 100);
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+    return res;
+};
+
         const { startRegistration } = SimpleWebAuthnBrowser;
 
         /* ── Helpers ── */
@@ -211,9 +249,14 @@
 
         document.getElementById('continuePasskeyBtn')?.addEventListener('click', () => {
             const pkName = document.getElementById('passkeyNameInput').value.trim();
-            document.getElementById('passkeyStep1').style.display = 'none';
-            document.getElementById('passkeyStep2').style.display = 'block';
-            setTimeout(() => { if (window.innerWidth > 600) document.getElementById('passkeyConfirmPwd').focus(); }, 100);
+            if (window.isElevated) {
+                document.getElementById('passkeyConfirmPwd').value = '';
+                document.getElementById('confirmAddPasskeyBtn').click();
+            } else {
+                document.getElementById('passkeyStep1').style.display = 'none';
+                document.getElementById('passkeyStep2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('passkeyConfirmPwd').focus(); }, 100);
+            }
         });
 
         document.getElementById('confirmAddPasskeyBtn')?.addEventListener('click', async () => {
@@ -222,7 +265,7 @@
             const currentPassword = document.getElementById('passkeyConfirmPwd').value;
             msg.textContent = '';
             
-            if (!currentPassword) {
+            if (!currentPassword && !window.isElevated) {
                 msg.textContent = t('msg_enter_current_pwd');
                 msg.className = 'msg msg-err';
                 return;
@@ -483,9 +526,14 @@
 
         document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
             const f2Name = document.getElementById('fido2KeyNameInput').value.trim();
-            document.getElementById('fido2Step1').style.display = 'none';
-            document.getElementById('fido2Step2').style.display = 'block';
-            setTimeout(() => { if (window.innerWidth > 600) document.getElementById('fido2ConfirmPwd').focus(); }, 100);
+            if (window.isElevated) {
+                document.getElementById('fido2ConfirmPwd').value = '';
+                document.getElementById('confirmAddFido2KeyBtn').click();
+            } else {
+                document.getElementById('fido2Step1').style.display = 'none';
+                document.getElementById('fido2Step2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('fido2ConfirmPwd').focus(); }, 100);
+            }
         });
 
         document.getElementById('confirmAddFido2KeyBtn')?.addEventListener('click', async () => {
@@ -494,7 +542,7 @@
             const currentPassword = document.getElementById('fido2ConfirmPwd').value;
             msg.textContent = '';
             
-            if (!currentPassword) {
+            if (!currentPassword && !window.isElevated) {
                 msg.textContent = t('msg_enter_current_pwd');
                 msg.className = 'msg msg-err';
                 return;
@@ -609,10 +657,14 @@
             if (!newUsername) { msg1.textContent = t('msg_enter_new_username'); msg1.className = 'msg msg-err'; return; }
             
             // Move to step 2
-            document.getElementById('usernameStep1').style.display = 'none';
-            document.getElementById('usernameStep2').style.display = 'block';
-            // Auto focus the password field
-            setTimeout(() => { if (window.innerWidth > 600) document.getElementById('usernameConfirmPwd').focus(); }, 100);
+            if (window.isElevated) {
+                document.getElementById('usernameConfirmPwd').value = '';
+                document.getElementById('confirmChangeUsernameBtn').click();
+            } else {
+                document.getElementById('usernameStep1').style.display = 'none';
+                document.getElementById('usernameStep2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('usernameConfirmPwd').focus(); }, 100);
+            }
         });
 
         document.getElementById('changeUsernameBtn').addEventListener('click', async () => {
@@ -620,7 +672,7 @@
             const newUsername = document.getElementById('newUsername').value.trim();
             const currentPassword = document.getElementById('usernameConfirmPwd').value;
             msg.textContent = '';
-            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
+            if (!currentPassword && !window.isElevated) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
 
             try {
                 const res = await fetch('/api/change-username', {
@@ -675,9 +727,14 @@
             }
             
             // Move to step 2
-            document.getElementById('emailStep1').style.display = 'none';
-            document.getElementById('emailStep2').style.display = 'block';
-            setTimeout(() => { if (window.innerWidth > 600) document.getElementById('emailConfirmPwd').focus(); }, 100);
+            if (window.isElevated) {
+                document.getElementById('emailConfirmPwd').value = '';
+                document.getElementById('confirmChangeEmailBtn').click();
+            } else {
+                document.getElementById('emailStep1').style.display = 'none';
+                document.getElementById('emailStep2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('emailConfirmPwd').focus(); }, 100);
+            }
         });
 
         document.getElementById('changeEmailBtn').addEventListener('click', async () => {
@@ -685,7 +742,7 @@
             const newEmail = document.getElementById('newEmail').value.trim();
             const currentPassword = document.getElementById('emailConfirmPwd').value;
             msg.textContent = '';
-            if (!currentPassword) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
+            if (!currentPassword && !window.isElevated) { msg.textContent = t('msg_enter_current_pwd'); msg.className = 'msg msg-err'; return; }
 
             try {
                 const res = await fetch('/api/change-email', {
@@ -752,9 +809,14 @@
             }
             
             // Move to Step 2
-            document.getElementById('passwordStep1').style.display = 'none';
-            document.getElementById('passwordStep2').style.display = 'block';
-            setTimeout(() => { if (window.innerWidth > 600) document.getElementById('currentPassword').focus(); }, 100);
+            if (window.isElevated) {
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('changePasswordBtn').click();
+            } else {
+                document.getElementById('passwordStep1').style.display = 'none';
+                document.getElementById('passwordStep2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('currentPassword').focus(); }, 100);
+            }
         });
 
         document.getElementById('changePasswordBtn').addEventListener('click', async () => {
@@ -764,7 +826,7 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             msg.textContent = '';
             
-            if (!currentPassword) { 
+            if (!currentPassword && !window.isElevated) { 
                 msg.textContent = t('msg_enter_current_pwd'); 
                 msg.className = 'msg msg-err'; 
                 return; 
@@ -826,9 +888,14 @@ document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
     }
     
     // Move to step 2 (Password)
-    document.getElementById('oidcStep1').style.display = 'none';
-    document.getElementById('oidcStep2').style.display = 'block';
-    setTimeout(() => { if (window.innerWidth > 600) document.getElementById('oidcConfirmPwd').focus(); }, 100);
+    if (window.isElevated) {
+                document.getElementById('oidcConfirmPwd').value = '';
+                document.getElementById('confirmAddOidcBtn').click();
+            } else {
+                document.getElementById('oidcStep1').style.display = 'none';
+                document.getElementById('oidcStep2').style.display = 'block';
+                setTimeout(() => { if (window.innerWidth > 600) document.getElementById('oidcConfirmPwd').focus(); }, 100);
+            }
 });
 
 document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async () => {
@@ -838,7 +905,7 @@ document.getElementById('confirmAddOidcBtn')?.addEventListener('click', async ()
     const msg2 = document.getElementById('oidcMsg2');
     msg2.textContent = '';
 
-    if (!currentPassword) {
+    if (!currentPassword && !window.isElevated) {
         msg2.textContent = t('msg_enter_current_pwd');
         msg2.className = 'msg msg-err';
         return;
@@ -1026,4 +1093,26 @@ document.getElementById('logoutAllBtn')?.addEventListener('click', async () => {
         const res = await fetch('/api/logout-all', { method: 'POST' });
         if (res.ok) window.location.href = '/';
     } catch(e) {}
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = [
+        {form: 'usernameForm', btn: 'confirmChangeUsernameBtn'},
+        {form: 'emailForm', btn: 'confirmChangeEmailBtn'},
+        {form: 'passwordForm', btn: 'changePasswordBtn'},
+        {form: 'passkeyForm', btn: 'confirmAddPasskeyBtn'},
+        {form: 'fido2Form', btn: 'confirmAddFido2KeyBtn'},
+        {form: 'oidcForm', btn: 'confirmAddOidcClientBtn'},
+        {form: 'rcForm', btn: 'confirmGenRcBtn'}
+    ];
+    forms.forEach(f => {
+        const formEl = document.getElementById(f.form);
+        if (formEl) {
+            formEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                document.getElementById(f.btn).click();
+            });
+        }
+    });
 });
