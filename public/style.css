@@ -162,7 +162,6 @@ form {
     40% {
         transform: scale(1.035);
         border-color: #0071e3;
-        border-radius: 12px;
         background: #ffffff;
         box-shadow: 0 0 0 3.5px rgba(0, 113, 227, 0.22), 0 8px 24px rgba(0, 113, 227, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
     }
@@ -211,9 +210,20 @@ input:focus {
     outline: none;
 }
 
-/* Username top-input: no extra rounding needed (card handles it) */
-.top-input {
-    /* no additional styles needed */
+/* Username top-input (flat bottom when password revealed) */
+#username.top-input {
+    border-radius: 10px 10px 0 0;
+}
+#usernameGroup.top-group {
+    border-radius: 11px 11px 0 0;
+}
+
+/* Password group (flat top at divider junction) */
+#passwordGroup {
+    border-radius: 0 0 11px 11px;
+}
+#password {
+    border-radius: 0 0 10px 10px;
 }
 
 /* ===== Divider between username and password ===== */
@@ -432,7 +442,6 @@ input:focus {
         40% {
             transform: scale(1.035);
             border-color: #0a84ff;
-            border-radius: 12px;
             background: #1c1c1e;
             box-shadow: 0 0 0 3.5px rgba(10, 132, 255, 0.28), 0 8px 24px rgba(10, 132, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.6);
         }

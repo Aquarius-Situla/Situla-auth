@@ -125,8 +125,9 @@
                     return;
                 }
 
-                // Mark username input as "top" (square bottom corners)
+                // Mark username input and group as "top" (flat/square bottom corners)
                 usernameInput.classList.add('top-input');
+                usernameGroup.classList.add('top-group');
 
                 // Reveal divider + password with slide-down animation
                 dividerWrap.classList.add('show');
