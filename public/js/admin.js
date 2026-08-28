@@ -45,6 +45,74 @@ function enterSudoStep(modalId, actionFn) {
     const msg = form ? form.querySelector('.msg') : null;
     const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
+    function attachFormSubmit() {
+        if (!form) return;
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const pwd = pwdInp ? pwdInp.value : '';
+            if (!pwd) {
+                if (msg) {
+                    msg.textContent = t('msg_enter_current_pwd');
+                    msg.className = 'msg msg-err';
+                }
+                return;
+            }
+            
+            const actionsContainer = form.querySelector('.modal-actions');
+            setModalActionsLoading(actionsContainer, true, 'status_updating');
+            
+            try {
+                const res = await actionFn(pwd);
+                let data = {};
+                if (res && typeof res.clone === 'function') {
+                    try { data = await res.clone().json(); } catch(err) {}
+                } else if (res && typeof res === 'object') {
+                    data = res;
+                }
+                
+                if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误' || data.message === '密码错误，请重试'))) {
+                    setModalActionsLoading(actionsContainer, false);
+                    if (msg) {
+                        msg.textContent = data.message || t('msg_wrong_credentials');
+                        msg.className = 'msg msg-err';
+                    }
+                    if (pwdInp) {
+                        pwdInp.value = '';
+                        pwdInp.focus();
+                    }
+                    return;
+                }
+                
+                window.isElevated = true;
+                setModalActionsLoading(actionsContainer, false);
+                
+                if (data.success || data.verified) {
+                    if (modalId === 'oidcModal' && data.client_id) {
+                        if (step2) step2.style.display = 'none';
+                        const step3 = modal.querySelector('#oidcStep3');
+                        if (step3) step3.style.display = 'block';
+                        document.getElementById('newOidcClientId').textContent = data.client_id;
+                        document.getElementById('newOidcClientSecret').textContent = data.client_secret;
+                        loadOidcClients();
+                    } else {
+                        closeAllModals();
+                    }
+                } else if (data.message || data.error) {
+                    if (msg) {
+                        msg.textContent = data.message || data.error;
+                        msg.className = 'msg msg-err';
+                    }
+                }
+            } catch (err) {
+                setModalActionsLoading(actionsContainer, false);
+                if (msg) {
+                    msg.textContent = t('msg_network_error');
+                    msg.className = 'msg msg-err';
+                }
+            }
+        };
+    }
+
     function showStep2() {
         if (step1) step1.style.display = 'none';
         if (step2) step2.style.display = 'block';
@@ -57,6 +125,7 @@ function enterSudoStep(modalId, actionFn) {
             msg.textContent = '';
             msg.className = 'msg';
         }
+        attachFormSubmit();
     }
 
     if (window.isElevated) {
@@ -120,75 +189,6 @@ function enterSudoStep(modalId, actionFn) {
     }
     
     showStep2();
-    
-    if (form) {
-                form.onsubmit = async (e) => {
-            e.preventDefault();
-            const pwd = pwdInp ? pwdInp.value : '';
-            if (!pwd) {
-                if (msg) {
-                    msg.textContent = t('msg_enter_current_pwd');
-                    msg.className = 'msg msg-err';
-                }
-                return;
-            }
-            
-            const actionsContainer = form.querySelector('.modal-actions');
-            setModalActionsLoading(actionsContainer, true, 'status_updating');
-            
-            try {
-                const res = await actionFn(pwd);
-                let data = {};
-                if (res && typeof res.clone === 'function') {
-                    try { data = await res.clone().json(); } catch(err) {}
-                } else if (res && typeof res === 'object') {
-                    data = res;
-                }
-                
-                if ((res && res.status === 401) || (data && data.success === false && (data.message === 'Invalid password' || data.message === '当前密码错误' || data.message === 'Invalid credentials' || data.message === '密码错误' || data.message === '密码错误，请重试'))) {
-                    setModalActionsLoading(actionsContainer, false);
-                    if (msg) {
-                        msg.textContent = data.message || t('msg_wrong_credentials');
-                        msg.className = 'msg msg-err';
-                    }
-                    if (pwdInp) {
-                        pwdInp.value = '';
-                        pwdInp.focus();
-                    }
-                    return;
-                }
-                
-                if (data && (data.success === false || data.error)) {
-                    setModalActionsLoading(actionsContainer, false);
-                    if (msg) {
-                        msg.textContent = data.message || data.error || '操作失败';
-                        msg.className = 'msg msg-err';
-                    }
-                    return;
-                }
-                
-                window.isElevated = true;
-                setModalActionsLoading(actionsContainer, false);
-                if (modalId === 'oidcModal' && data.client_id) {
-                    if (step1) step1.style.display = 'none';
-                    if (step2) step2.style.display = 'none';
-                    const step3 = modal.querySelector('#oidcStep3');
-                    if (step3) step3.style.display = 'block';
-                    document.getElementById('newOidcClientId').textContent = data.client_id;
-                    document.getElementById('newOidcClientSecret').textContent = data.client_secret;
-                    loadOidcClients();
-                } else {
-                    closeAllModals();
-                }
-            } catch (err) {
-                setModalActionsLoading(actionsContainer, false);
-                if (msg) {
-                    msg.textContent = '操作异常，请重试';
-                    msg.className = 'msg msg-err';
-                }
-            }
-        };
-    }
 }
 
 const { startRegistration } = SimpleWebAuthnBrowser;

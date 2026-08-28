@@ -10,11 +10,30 @@
         const usernameGroup = document.getElementById('usernameGroup');
         const passwordGroup = document.getElementById('passwordGroup');
 
+        let lastUserVal = usernameInput.value;
+        let lastPwdVal = passwordInput.value;
+
         function triggerAutofillPulse(group) {
             if (!group) return;
             group.classList.remove('autofill-pulse');
             void group.offsetWidth;
             group.classList.add('autofill-pulse');
+        }
+
+        function checkAutofill() {
+            const curUser = usernameInput.value;
+            const curPwd = passwordInput.value;
+
+            if (curUser && curUser !== lastUserVal && (curUser.length - lastUserVal.length > 1 || lastUserVal === '')) {
+                triggerAutofillPulse(usernameGroup);
+            }
+            if (curPwd && curPwd !== lastPwdVal && (curPwd.length - lastPwdVal.length > 1 || lastPwdVal === '')) {
+                triggerAutofillPulse(passwordGroup);
+            }
+
+            lastUserVal = curUser;
+            lastPwdVal = curPwd;
+            updateButtonState();
         }
 
         // Unified focus ring on the card (no scaling on click/focus)
@@ -51,10 +70,10 @@
         }
 
         ['input', 'change', 'paste', 'keyup'].forEach(evt => {
-            usernameInput.addEventListener(evt, updateButtonState);
-            passwordInput.addEventListener(evt, updateButtonState);
+            usernameInput.addEventListener(evt, checkAutofill);
+            passwordInput.addEventListener(evt, checkAutofill);
         });
-        setInterval(updateButtonState, 200);
+        setInterval(checkAutofill, 200);
 
         /* ── Trusted-redirect resolution ── */
         // Cache the trusted roots fetched from the server
@@ -93,16 +112,17 @@
         getTrustedRoots();
 
         // Form submit handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
+        async function handleFormSubmit() {
             const u = usernameInput.value.trim();
             const p = passwordInput.value;
             errMsg.textContent = '';
 
             /* Step 1: Reveal password field with animation */
             if (step === 1) {
-                if (!u) return;
+                if (!u) {
+                    usernameInput.focus();
+                    return;
+                }
 
                 // Mark username input as "top" (square bottom corners)
                 usernameInput.classList.add('top-input');
@@ -120,7 +140,10 @@
             }
 
             /* Step 2: Attempt login */
-            if (step === 2 && !p) return;
+            if (step === 2 && !p) {
+                passwordInput.focus();
+                return;
+            }
 
             submitBtn.textContent = t('msg_verifying');
             submitBtn.classList.add('loading');
@@ -164,6 +187,16 @@
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
             }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleFormSubmit();
+        });
+
+        submitBtn.addEventListener('click', (e) => {
+            if (submitBtn.disabled) return;
+            handleFormSubmit();
         });
 
         // Passkey button
