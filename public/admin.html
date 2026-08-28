@@ -30,7 +30,7 @@
     <link rel="apple-touch-icon" href="/favicon.svg">
     <title>账户安全管理</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css?v=28">
+    <link rel="stylesheet" href="style.css?v=65">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
@@ -248,6 +248,59 @@
         .field-input:focus { background: #f5f8ff; }
         .field-input::placeholder { color: #86868b; }
 
+        
+        /* Login Logs styling */
+        .log-list-container {
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            text-align: left;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 4px 14px;
+            background: #fafafa;
+            box-sizing: border-box;
+            width: 100%;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+        }
+        .log-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+        }
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        .log-details {
+            font-size: 14px;
+            color: #1d1d1f;
+            font-weight: 500;
+            line-height: 1.4;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+        }
+        .log-ip {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            color: #86868b;
+            line-height: 1.4;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            letter-spacing: -0.2px;
+        }
+        .log-time {
+            font-size: 12px;
+            color: #86868b;
+            line-height: 1.3;
+        }
+
         /* Passkey list items */
         .passkey-item {
             display: flex;
@@ -369,9 +422,20 @@
             margin-top: 3px;
         }
 
-        @media (max-width: 480px) {
+                @media (max-width: 480px) {
             .qr-container { flex-direction: column; align-items: flex-start; }
             .apple-container { padding: 40px 16px; }
+            .modal-card {
+                width: calc(100vw - 32px) !important;
+                max-width: calc(100vw - 32px) !important;
+                margin: 16px !important;
+                padding: 24px 16px 20px !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+            }
+            .log-list-container {
+                padding: 2px 10px;
+            }
         }
 
 
@@ -419,6 +483,21 @@
             .method-title { color: #ffffff; }
             .method-desc { color: #636366; }
             .modal-icon { background: transparent !important; color: #0a84ff; }
+
+            .log-list-container {
+                border-color: #3a3a3c !important;
+                background: #1c1c1e;
+            }
+            .log-item {
+                border-bottom-color: #2c2c2e;
+            }
+            .log-details {
+                color: #f5f5f7;
+            }
+            .log-ip, .log-time {
+                color: #8e8e93;
+            }
+
         }
 
         .modal-icon {
@@ -827,7 +906,7 @@ fill="currentColor" stroke="none">
             <h3 style="margin-bottom: 8px;">近期登录日志</h3>
             <p class="modal-desc" style="margin-bottom: 16px;">最多显示最近的 20 条登录记录。</p>
             
-            <div id="loginLogsList" class="key-list" style="max-height: 300px; overflow-y: auto; text-align: left; border: 1px solid #d2d2d7; border-radius: 8px; padding: 10px;">
+            <div id="loginLogsList" class="log-list-container">
                 <!-- Logs rendered via JS -->
             </div>
             
@@ -1052,7 +1131,7 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script src="/js/admin.js?v=64" defer></script>
+    <script src="/js/admin.js?v=65" defer></script>
 
 </body>
 </html>
