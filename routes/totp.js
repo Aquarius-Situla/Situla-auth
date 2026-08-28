@@ -24,11 +24,10 @@ router.get('/generate', authenticateJWT, (req, res) => {
 });
 
 /* ── POST /api/totp/verify ── (finalise TOTP setup) */
-router.post('/verify', authenticateJWT, async (req, res) => {
-    if (!(await verifyElevationOrPassword(req, res))) return;
-
+router.post('/verify', authenticateJWT, (req, res) => {
     const decrypt = req.app.locals.decrypt;
     db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
+        if (!user || !user.totp_pending_secret) return res.status(400).json({ success: false, message: '请先生成 TOTP 设置' });
         const decryptedSecret = decrypt(user.totp_pending_secret);
         let verifyOk = false;
         if (decryptedSecret) {
@@ -39,11 +38,15 @@ router.post('/verify', authenticateJWT, async (req, res) => {
         if (verifyOk) {
             db.run(
                 'UPDATE users SET totp_secret = ?, totp_pending_secret = "", two_fa_method = ? WHERE id = ?',
-                [user.totp_pending_secret, 'totp', req.user.id]
+                [user.totp_pending_secret, 'totp', req.user.id],
+                (dbErr) => {
+                    if (dbErr) return res.status(500).json({ success: false, message: '数据库错误' });
+                    return res.json({ success: true });
+                }
             );
-            return res.json({ success: true });
+            return;
         }
-        res.status(400).json({ success: false, message: 'Invalid token' });
+        res.status(400).json({ success: false, message: '动态验证码无效，请重试' });
     });
 });
 
