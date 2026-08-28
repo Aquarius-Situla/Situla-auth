@@ -19,6 +19,9 @@ function setModalActionsLoading(actionsContainer, isLoading, textKey = 'status_u
 
 
 function closeAllModals() {
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
     document.querySelectorAll('.modal-overlay').forEach(m => {
         m.style.display = 'none';
         const step1 = m.querySelector('[id$="Step1"]');
@@ -449,6 +452,9 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         });
 
         async function onCancelMethodSelector() {
+            if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
             const container = document.getElementById('twoFaMethodSelector');
             const cardsRow = container.querySelector('.method-cards-row');
             const btnRow = container.querySelector('.btn-row');
@@ -536,6 +542,9 @@ const { startRegistration } = SimpleWebAuthnBrowser;
         });
 
         document.getElementById('cancelTotpSetupBtn')?.addEventListener('click', async () => {
+            if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
             const row = document.querySelector('#totpSetup .code-row');
             const originalRow = row ? row.innerHTML : '';
             if (row) {

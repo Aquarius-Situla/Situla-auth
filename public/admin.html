@@ -127,10 +127,10 @@
             font-weight: 500;
             cursor: pointer;
             padding: 9px 18px;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.15s, color 0.15s;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-outline:hover { background: #0071e3; color: #fff; }
         .btn-solid {
             background: #0071e3;
             border: none;
@@ -140,10 +140,10 @@
             font-weight: 500;
             cursor: pointer;
             padding: 10px 22px;
-            transition: background 0.2s;
+            transition: background 0.15s;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-solid:hover { background: #0077ed; }
         .btn-danger {
             background: transparent;
             border: 1px solid #ff3b30;
@@ -153,10 +153,27 @@
             font-weight: 500;
             cursor: pointer;
             padding: 9px 18px;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.15s, color 0.15s;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-danger:hover { background: #ff3b30; color: #fff; }
+
+        /* 仅在支持鼠标悬停的设备上触发 hover，彻底防止移动端触摸残留 */
+        @media (hover: hover) {
+            .btn-outline:hover { background: #0071e3; color: #fff; }
+            .btn-solid:hover { background: #0077ed; }
+            .btn-danger:hover { background: #ff3b30; color: #fff; }
+            .pk-rename:hover { background: #e0e0e8; }
+            .pk-delete:hover { background: #ff3b30; color: #fff; }
+            .method-card:hover { border-color: #0071e3; }
+        }
+
+        /* 移动端与桌面端按下即时触感反馈 */
+        .btn-outline:active { background: rgba(0, 113, 227, 0.12); color: #0071e3; }
+        .btn-solid:active { background: #005bb5; }
+        .btn-danger:active { background: rgba(255, 59, 48, 0.12); color: #ff3b30; }
+        .pk-rename:active { background: #d0d0d8; }
+        .pk-delete:active { background: #ff3b30; color: #fff; }
 
         /* QR setup panel */
         .setup-panel {
@@ -460,9 +477,23 @@
             .code-input:focus { border-color: #0a84ff; box-shadow: 0 0 0 3px rgba(10,132,255,0.22); }
             .form-panel { border-top-color: #2c2c2e; }
             .btn-outline { border-color: #0a84ff; color: #0a84ff; }
-            .btn-outline:hover { background: #0a84ff; color: #fff; }
             .btn-solid { background: #0a84ff; }
-            .btn-solid:hover { background: #1a90ff; }
+            
+            @media (hover: hover) {
+                .btn-outline:hover { background: #0a84ff; color: #fff; }
+                .btn-solid:hover { background: #1a90ff; }
+                .btn-danger:hover { background: #ff453a; color: #fff; }
+                .pk-rename:hover { background: #3a3a3c; }
+                .pk-delete:hover { background: #ff453a; color: #fff; }
+                .method-card:hover { border-color: #0a84ff; }
+            }
+
+            .btn-outline:active { background: rgba(10, 132, 255, 0.18); color: #0a84ff; }
+            .btn-solid:active { background: #0070df; }
+            .btn-danger:active { background: rgba(255, 69, 58, 0.18); color: #ff453a; }
+            .pk-rename:active { background: #48484a; }
+            .pk-delete:active { background: #ff453a; color: #fff; }
+
             .msg-ok { color: #30d158; }
             .form-fields { border-color: #3a3a3c; }
             .field-input { background: #1c1c1e; color: #ffffff; border-bottom-color: #3a3a3c; }
@@ -473,13 +504,10 @@
             .passkey-name { color: #ffffff; }
             .passkey-date { color: #636366; }
             .pk-rename { background: #2c2c2e; color: #aeaeb2; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
-            .pk-rename:hover { background: #3a3a3c; }
             .pk-delete { background: #2c1a1a; color: #ff453a; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
-            .pk-delete:hover { background: #ff453a; color: #fff; }
 
             .method-selector-title { color: #ffffff; }
             .method-card { background: #1c1c1e; border-color: #3a3a3c; }
-            .method-card:hover { border-color: #0a84ff; }
             .method-title { color: #ffffff; }
             .method-desc { color: #636366; }
             .modal-icon { background: transparent !important; color: #0a84ff; }

@@ -315,9 +315,6 @@ input:focus {
 .btn-primary.active {
     opacity: 1;
 }
-.btn-primary.active:hover {
-    background: #0077ed;
-}
 .btn-primary.active:active {
     background: #006ad6;
 }
@@ -326,9 +323,6 @@ input:focus {
 .passkey-btn {
     background: #1d1d1f;
     color: #ffffff;
-}
-.passkey-btn:hover {
-    background: #333;
 }
 .passkey-btn:active {
     background: #000;
@@ -340,11 +334,16 @@ input:focus {
     color: #3c3c43;
     border: 1px solid #e5e5ea;
 }
-.back-btn:hover {
-    background: #e9e9ef;
-}
 .back-btn:active {
     background: #dfdfe5;
+}
+
+@media (hover: hover) {
+    .btn-primary.active:hover { background: #0077ed; }
+    .passkey-btn:hover { background: #333; }
+    .back-btn:hover { background: #e9e9ef; }
+    .modal-btn-secondary:hover { background: rgba(0,113,227,0.05); }
+    .modal-btn-primary:hover { background: #0077ed; }
 }
 
 /* ===== Mobile responsive ===== */
@@ -476,7 +475,6 @@ input:focus {
     .btn-primary.active {
         opacity: 1;
     }
-    .btn-primary.active:hover  { background: #1a90ff; }
     .btn-primary.active:active { background: #0070e0; }
 
     /* Passkey button */
@@ -484,7 +482,6 @@ input:focus {
         background: #2c2c2e;
         color: #ffffff;
     }
-    .passkey-btn:hover  { background: #3a3a3c; }
     .passkey-btn:active { background: #48484a; }
 
     /* Back button */
@@ -493,8 +490,15 @@ input:focus {
         color: #aeaeb2;
         border-color: #3a3a3c;
     }
-    .back-btn:hover  { background: #3a3a3c; }
     .back-btn:active { background: #48484a; }
+
+    @media (hover: hover) {
+        .btn-primary.active:hover  { background: #1a90ff; }
+        .passkey-btn:hover  { background: #3a3a3c; }
+        .back-btn:hover  { background: #3a3a3c; }
+        .modal-btn-secondary:hover { background: rgba(10,132,255,0.12); }
+        .modal-btn-primary:hover { background: #1a90ff; }
+    }
 
     /* Or divider text */
     .or-divider { color: #636366; }
@@ -631,16 +635,10 @@ textarea.modal-input {
     color: #0071e3;
     border: 1px solid #0071e3;
 }
-.modal-btn-secondary:hover {
-    background: rgba(0,113,227,0.05);
-}
 .modal-btn-primary {
     background: #0071e3;
     color: #ffffff;
     border: 1px solid #0071e3;
-}
-.modal-btn-primary:hover {
-    background: #0077ed;
 }
 
 @keyframes fadeIn {
