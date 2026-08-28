@@ -43,36 +43,56 @@ router.post('/login', (req, res) => {
                 const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
                 const targetUserId = decoded.temp_id;
                 db.get('SELECT * FROM users WHERE id = ?', [targetUserId], (err, user) => {
-                    if (!user || (!user.totp_secret && user.two_fa_method !== 'totp'))
-                        return res.status(401).json({ success: false, message: 'Invalid session' });
+                    if (err || !user) {
+                        return res.status(401).json({ success: false, message: '会话已过期，请重新登录' });
+                    }
 
-                    if (authenticator.verify({ token: totp, secret: decrypt(req.app, user.totp_secret) })) {
+                    // Attempt TOTP verification if secret exists
+                    let totpOk = false;
+                    if (user.totp_secret) {
+                        try {
+                            const decryptedSecret = decrypt(req.app, user.totp_secret);
+                            if (decryptedSecret) {
+                                totpOk = authenticator.verify({ token: String(totp).trim(), secret: decryptedSecret });
+                            }
+                        } catch (totpErr) {
+                            console.error('[TOTP Verify Exception]:', totpErr.message);
+                        }
+                    }
+
+                    if (totpOk) {
                         setAuthCookie(req, res, user, 'totp');
                         return res.json({ success: true });
                     }
 
-                    const normalised = totp.replace(/[\s-]/g, '').toUpperCase();
+                    // Attempt Recovery Code verification
+                    const normalised = String(totp).replace(/[\s-]/g, '').toUpperCase();
                     db.all('SELECT * FROM recovery_codes WHERE user_id = ? AND used = 0', [user.id], async (err2, rcList) => {
-                        if (!rcList || rcList.length === 0)
-                            return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                        if (!rcList || rcList.length === 0) {
+                            return res.status(401).json({ success: false, message: '动态验证码或恢复码无效' });
+                        }
 
                         let validRc = null;
                         const crypto = require('crypto');
                         for (const rc of rcList) {
-                            if (rc.code_hash.startsWith('$2b$') || rc.code_hash.startsWith('$2a$')) {
-                                if (await bcrypt.compare(normalised, rc.code_hash)) { validRc = rc; break; }
-                            } else {
-                                if (crypto.createHash('sha256').update(normalised).digest('hex') === rc.code_hash) { validRc = rc; break; }
-                            }
+                            try {
+                                if (rc.code_hash.startsWith('$2b$') || rc.code_hash.startsWith('$2a$')) {
+                                    if (await bcrypt.compare(normalised, rc.code_hash)) { validRc = rc; break; }
+                                } else {
+                                    if (crypto.createHash('sha256').update(normalised).digest('hex') === rc.code_hash) { validRc = rc; break; }
+                                }
+                            } catch (rcErr) {}
                         }
-                        if (!validRc) return res.status(401).json({ success: false, message: '验证码或恢复码无效' });
+                        if (!validRc) {
+                            return res.status(401).json({ success: false, message: '动态验证码或恢复码无效' });
+                        }
                         db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [validRc.id]);
                         setAuthCookie(req, res, user, 'recovery');
                         res.json({ success: true, usedRecoveryCode: true });
                     });
                 });
             } catch (e) {
-                return res.status(401).json({ success: false, message: 'Session expired' });
+                return res.status(401).json({ success: false, message: '会话已过期，请重新登录' });
             }
             return;
         }

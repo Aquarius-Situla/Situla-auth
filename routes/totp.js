@@ -28,9 +28,14 @@ router.post('/verify', authenticateJWT, async (req, res) => {
 
     const decrypt = req.app.locals.decrypt;
     db.get('SELECT totp_pending_secret, two_fa_method FROM users WHERE id = ?', [req.user.id], (err, user) => {
-        if (!user || !user.totp_pending_secret)
-            return res.status(400).json({ success: false, message: 'No pending TOTP setup' });
-        if (authenticator.verify({ token: req.body.token, secret: decrypt(user.totp_pending_secret) })) {
+        const decryptedSecret = decrypt(user.totp_pending_secret);
+        let verifyOk = false;
+        if (decryptedSecret) {
+            try {
+                verifyOk = authenticator.verify({ token: req.body.token, secret: decryptedSecret });
+            } catch (e) {}
+        }
+        if (verifyOk) {
             db.run(
                 'UPDATE users SET totp_secret = ?, totp_pending_secret = "", two_fa_method = ? WHERE id = ?',
                 [user.totp_pending_secret, 'totp', req.user.id]
@@ -49,7 +54,14 @@ router.post('/disable', authenticateJWT, async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
         if (!(await verifyElevationOrPassword(req, res, currentPassword))) return;
         if (user.totp_secret) {
-            if (!totpToken || !authenticator.verify({ token: totpToken, secret: decrypt(user.totp_secret) }))
+            const decryptedSecret = decrypt(user.totp_secret);
+            let verifyOk = false;
+            if (decryptedSecret && totpToken) {
+                try {
+                    verifyOk = authenticator.verify({ token: totpToken, secret: decryptedSecret });
+                } catch(e) {}
+            }
+            if (!verifyOk)
                 return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });
         }
         db.run('UPDATE users SET totp_secret = NULL, two_fa_method = NULL WHERE id = ?', [req.user.id], (e) => {

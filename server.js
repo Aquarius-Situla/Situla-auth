@@ -109,7 +109,7 @@ function decrypt(text) {
         return decrypted;
     } catch (e) {
         console.error('[Encryption] Failed to decrypt:', e.message);
-        throw e;
+        return null;
     }
 }
 
