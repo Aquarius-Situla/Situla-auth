@@ -174,11 +174,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc:  ["'self'"],
+            scriptSrc:  ["'self'", "'unsafe-inline'", 'https://static.cloudflareinsights.com'],
+            scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://static.cloudflareinsights.com'],
             styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
             fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
             imgSrc:     ["'self'", 'data:'],
-            connectSrc: ["'self'"]
+            connectSrc: ["'self'", 'https://cloudflareinsights.com', 'https://static.cloudflareinsights.com']
         }
     }
 }));

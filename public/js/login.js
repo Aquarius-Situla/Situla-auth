@@ -9,6 +9,7 @@
         const inputCard = document.getElementById('inputCard');
         const usernameGroup = document.getElementById('usernameGroup');
         const passwordGroup = document.getElementById('passwordGroup');
+        const errMsg = document.getElementById('errorMessage');
 
         let lastUserVal = usernameInput.value;
         let lastPwdVal = passwordInput.value;
