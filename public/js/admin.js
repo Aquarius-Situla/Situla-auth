@@ -60,14 +60,26 @@ function enterSudoStep(modalId, actionFn) {
     }
 
     if (window.isElevated) {
+        const step1Actions = step1 ? step1.querySelector('.modal-actions') : null;
+        if (step1Actions) {
+            setModalActionsLoading(step1Actions, true, 'status_updating');
+        }
         actionFn('').then(res => {
             let data = {};
             if (res && typeof res.clone === 'function') {
-                try { res.clone().json().then(d => handleResult(d)); return; } catch(e) {}
+                try { 
+                    res.clone().json().then(d => {
+                        if (step1Actions) setModalActionsLoading(step1Actions, false);
+                        handleResult(d);
+                    }); 
+                    return; 
+                } catch(e) {}
             } else if (res && typeof res === 'object') {
+                if (step1Actions) setModalActionsLoading(step1Actions, false);
                 handleResult(res);
                 return;
             }
+            if (step1Actions) setModalActionsLoading(step1Actions, false);
             handleResult({});
 
             function handleResult(data) {
@@ -88,14 +100,19 @@ function enterSudoStep(modalId, actionFn) {
                         closeAllModals();
                     }
                 } else {
-                    showStep2();
-                    if (msg && (data.message || data.error)) {
+                    const step1Msg = step1 ? step1.querySelector('.msg') : null;
+                    if (step1Msg && (data.message || data.error)) {
+                        step1Msg.textContent = data.message || data.error;
+                        step1Msg.className = 'msg msg-err';
+                    } else if (msg && (data.message || data.error)) {
+                        showStep2();
                         msg.textContent = data.message || data.error;
                         msg.className = 'msg msg-err';
                     }
                 }
             }
         }).catch(() => {
+            if (step1Actions) setModalActionsLoading(step1Actions, false);
             window.isElevated = false;
             showStep2();
         });
@@ -117,7 +134,7 @@ function enterSudoStep(modalId, actionFn) {
             }
             
             const actionsContainer = form.querySelector('.modal-actions');
-            setModalActionsLoading(actionsContainer, true, 'status_verifying');
+            setModalActionsLoading(actionsContainer, true, 'status_updating');
             
             try {
                 const res = await actionFn(pwd);
