@@ -194,11 +194,6 @@
             handleFormSubmit();
         });
 
-        submitBtn.addEventListener('click', (e) => {
-            if (submitBtn.disabled) return;
-            handleFormSubmit();
-        });
-
         // Passkey button
         document.getElementById('passkeyBtn').addEventListener('click', async () => {
             errMsg.textContent = '';
