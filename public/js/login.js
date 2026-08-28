@@ -7,7 +7,8 @@
         const pwdGroup = document.getElementById('passwordGroup');
         const dividerWrap = document.getElementById('dividerWrap');
         const inputCard = document.getElementById('inputCard');
-        const errMsg = document.getElementById('errorMessage');
+        const usernameGroup = document.getElementById('usernameGroup');
+        const passwordGroup = document.getElementById('passwordGroup');
 
         function triggerPulse(el) {
             if (!el) return;
@@ -16,18 +17,38 @@
             el.classList.add('field-pulse');
         }
 
-        // Unified focus ring on the card with field-pulse animation
+        function setActiveHalf(group) {
+            [usernameGroup, passwordGroup].forEach(g => {
+                if (g) g.classList.remove('active-half');
+            });
+            if (group) {
+                group.classList.add('active-half');
+                triggerPulse(group);
+            }
+        }
+
+        // Unified focus ring on the card with active-half scaling
         usernameInput.addEventListener('focus', () => {
             inputCard.classList.add('focused');
-            triggerPulse(document.getElementById('usernameGroup'));
+            setActiveHalf(usernameGroup);
         });
-        usernameInput.addEventListener('blur', () => inputCard.classList.remove('focused'));
+        usernameInput.addEventListener('blur', (e) => {
+            if (e.relatedTarget !== passwordInput) {
+                inputCard.classList.remove('focused');
+                usernameGroup.classList.remove('active-half');
+            }
+        });
 
         passwordInput.addEventListener('focus', () => {
             inputCard.classList.add('focused');
-            triggerPulse(document.getElementById('passwordGroup'));
+            setActiveHalf(passwordGroup);
         });
-        passwordInput.addEventListener('blur', () => inputCard.classList.remove('focused'));
+        passwordInput.addEventListener('blur', (e) => {
+            if (e.relatedTarget !== usernameInput) {
+                inputCard.classList.remove('focused');
+                passwordGroup.classList.remove('active-half');
+            }
+        });
 
         // Blue button only when username has text and trigger pulse on first char
         function updateButtonState() {
@@ -40,12 +61,12 @@
         usernameInput.addEventListener('input', () => {
             updateButtonState();
             if (usernameInput.value.length === 1) {
-                triggerPulse(document.getElementById('usernameGroup'));
+                triggerPulse(usernameGroup);
             }
         });
         passwordInput.addEventListener('input', () => {
             if (passwordInput.value.length === 1) {
-                triggerPulse(document.getElementById('passwordGroup'));
+                triggerPulse(passwordGroup);
             }
         });
 

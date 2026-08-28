@@ -292,7 +292,8 @@ db.get('SELECT * FROM users ORDER BY id ASC LIMIT 1', async (err, row) => {
 
 // 鈹€鈹€ Security migrations 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 db.serialize(() => {
-    db.run(`UPDATE users SET two_fa_method = 'totp' WHERE totp_secret IS NOT NULL AND two_fa_method IS NULL AND id NOT IN (SELECT DISTINCT user_id FROM passkeys WHERE type = 'fido2')`,
+    db.run(`UPDATE users SET two_fa_method = NULL WHERE (totp_secret IS NULL OR totp_secret = '') AND two_fa_method = 'totp'`);
+    db.run(`UPDATE users SET two_fa_method = 'totp' WHERE totp_secret IS NOT NULL AND totp_secret != '' AND two_fa_method IS NULL AND id NOT IN (SELECT DISTINCT user_id FROM passkeys WHERE type = 'fido2')`,
         (err) => { if (err) console.error('[Migration]', err.message); else console.log('[Migration] State confusion fix applied.'); });
     db.all('SELECT id, totp_secret, totp_pending_secret FROM users', (err, users) => {
         if (err) return;

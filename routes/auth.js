@@ -110,7 +110,10 @@ router.post('/login', (req, res) => {
             if (!user || !passwordOk) {
                 return res.status(401).json({ success: false, message: 'Invalid credentials' });
             }
-            const twoFaMethod = user.two_fa_method;
+            let twoFaMethod = user.two_fa_method;
+            if (twoFaMethod === 'totp' && (!user.totp_secret || user.totp_secret === '')) {
+                twoFaMethod = null;
+            }
             if (twoFaMethod) {
                 const tempToken = jwt.sign({ temp_id: user.id }, JWT_SECRET, { expiresIn: '5m' });
                 return res.json({ success: false, requireTotp: true, tempToken, twoFaMethod });
