@@ -10,47 +10,38 @@
         const usernameGroup = document.getElementById('usernameGroup');
         const passwordGroup = document.getElementById('passwordGroup');
 
-        function triggerPulse(el) {
-            if (!el) return;
-            el.classList.remove('field-pulse');
-            void el.offsetWidth;
-            el.classList.add('field-pulse');
+        function triggerAutofillPulse(group) {
+            if (!group) return;
+            group.classList.remove('autofill-pulse');
+            void group.offsetWidth;
+            group.classList.add('autofill-pulse');
         }
 
-        function setActiveHalf(group) {
-            [usernameGroup, passwordGroup].forEach(g => {
-                if (g) g.classList.remove('active-half');
-            });
-            if (group) {
-                group.classList.add('active-half');
-                triggerPulse(group);
-            }
-        }
-
-        // Unified focus ring on the card with active-half scaling
-        usernameInput.addEventListener('focus', () => {
-            inputCard.classList.add('focused');
-            setActiveHalf(usernameGroup);
-        });
-        usernameInput.addEventListener('blur', (e) => {
-            if (e.relatedTarget !== passwordInput) {
-                inputCard.classList.remove('focused');
-                usernameGroup.classList.remove('active-half');
-            }
+        // Unified focus ring on the card (no scaling on click/focus)
+        usernameInput.addEventListener('focus', () => inputCard.classList.add('focused'));
+        usernameInput.addEventListener('blur', () => {
+            if (document.activeElement !== passwordInput) inputCard.classList.remove('focused');
         });
 
-        passwordInput.addEventListener('focus', () => {
-            inputCard.classList.add('focused');
-            setActiveHalf(passwordGroup);
+        passwordInput.addEventListener('focus', () => inputCard.classList.add('focused'));
+        passwordInput.addEventListener('blur', () => {
+            if (document.activeElement !== usernameInput) inputCard.classList.remove('focused');
         });
-        passwordInput.addEventListener('blur', (e) => {
-            if (e.relatedTarget !== usernameInput) {
-                inputCard.classList.remove('focused');
-                passwordGroup.classList.remove('active-half');
+
+        // Trigger Apple zoom pulse on autofill
+        usernameInput.addEventListener('animationstart', (e) => {
+            if (e.animationName === 'onAutoFillStart') {
+                triggerAutofillPulse(usernameGroup);
+                updateButtonState();
+            }
+        });
+        passwordInput.addEventListener('animationstart', (e) => {
+            if (e.animationName === 'onAutoFillStart') {
+                triggerAutofillPulse(passwordGroup);
             }
         });
 
-        // Blue button only when username has text and trigger pulse on first char
+        // Blue button only when username has text
         function updateButtonState() {
             if (usernameInput.value.trim()) {
                 submitBtn.classList.add('active');
@@ -58,17 +49,12 @@
                 submitBtn.classList.remove('active');
             }
         }
-        usernameInput.addEventListener('input', () => {
-            updateButtonState();
-            if (usernameInput.value.length === 1) {
-                triggerPulse(usernameGroup);
-            }
+
+        ['input', 'change', 'paste', 'keyup'].forEach(evt => {
+            usernameInput.addEventListener(evt, updateButtonState);
+            passwordInput.addEventListener(evt, updateButtonState);
         });
-        passwordInput.addEventListener('input', () => {
-            if (passwordInput.value.length === 1) {
-                triggerPulse(passwordGroup);
-            }
-        });
+        setInterval(updateButtonState, 200);
 
         /* ── Trusted-redirect resolution ── */
         // Cache the trusted roots fetched from the server
@@ -123,13 +109,14 @@
 
                 // Reveal divider + password with slide-down animation
                 dividerWrap.classList.add('show');
-                // Trigger reflow so transition fires
                 pwdGroup.getBoundingClientRect();
                 pwdGroup.classList.add('show');
 
-                setTimeout(() => passwordInput.focus(), 350);
                 step = 2;
-                return;
+                if (!p) {
+                    setTimeout(() => passwordInput.focus(), 350);
+                    return;
+                }
             }
 
             /* Step 2: Attempt login */
