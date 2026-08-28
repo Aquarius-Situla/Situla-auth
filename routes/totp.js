@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticator } = require('otplib');
+authenticator.options = { window: [1, 1] };
 const qrcode = require('qrcode');
 const db = require('../database');
 const { authenticateJWT, verifyElevationOrPassword } = require('../middleware/auth');

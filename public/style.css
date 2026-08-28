@@ -128,8 +128,27 @@ form {
     margin: 0 auto;
 }
 
+@keyframes appleFieldPulse {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .input-group {
     margin-bottom: 0;
+    position: relative;
+    transform-origin: center center;
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.input-group.field-pulse {
+    animation: appleFieldPulse 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* ===== Unified input card ===== */

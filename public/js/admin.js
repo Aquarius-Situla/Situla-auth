@@ -318,9 +318,6 @@ const { startRegistration } = SimpleWebAuthnBrowser;
                 if (data.username) {
                     window.currentUsername = data.username;
                 }
-                if (data.email) {
-                    document.getElementById('newEmail').value = data.email;
-                }
                 if (data.elevated) {
                     window.isElevated = true;
                 }
@@ -798,7 +795,9 @@ const { startRegistration } = SimpleWebAuthnBrowser;
             closeAllModals();
             document.getElementById('emailModal').style.display = 'flex';
             document.getElementById('emailStep1').style.display = 'block';
+            document.getElementById('newEmail').value = '';
             document.getElementById('emailMsg1').textContent = '';
+            setTimeout(() => document.getElementById('newEmail').focus(), 60);
         });
 
         document.getElementById('cancelEmailBtn1')?.addEventListener('click', closeAllModals);

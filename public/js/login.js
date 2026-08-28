@@ -9,13 +9,27 @@
         const inputCard = document.getElementById('inputCard');
         const errMsg = document.getElementById('errorMessage');
 
-        // Unified focus ring on the card
-        [usernameInput, passwordInput].forEach(input => {
-            input.addEventListener('focus', () => inputCard.classList.add('focused'));
-            input.addEventListener('blur', () => inputCard.classList.remove('focused'));
-        });
+        function triggerPulse(el) {
+            if (!el) return;
+            el.classList.remove('field-pulse');
+            void el.offsetWidth;
+            el.classList.add('field-pulse');
+        }
 
-        // Blue button only when username has text
+        // Unified focus ring on the card with field-pulse animation
+        usernameInput.addEventListener('focus', () => {
+            inputCard.classList.add('focused');
+            triggerPulse(document.getElementById('usernameGroup'));
+        });
+        usernameInput.addEventListener('blur', () => inputCard.classList.remove('focused'));
+
+        passwordInput.addEventListener('focus', () => {
+            inputCard.classList.add('focused');
+            triggerPulse(document.getElementById('passwordGroup'));
+        });
+        passwordInput.addEventListener('blur', () => inputCard.classList.remove('focused'));
+
+        // Blue button only when username has text and trigger pulse on first char
         function updateButtonState() {
             if (usernameInput.value.trim()) {
                 submitBtn.classList.add('active');
@@ -23,7 +37,17 @@
                 submitBtn.classList.remove('active');
             }
         }
-        usernameInput.addEventListener('input', updateButtonState);
+        usernameInput.addEventListener('input', () => {
+            updateButtonState();
+            if (usernameInput.value.length === 1) {
+                triggerPulse(document.getElementById('usernameGroup'));
+            }
+        });
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.value.length === 1) {
+                triggerPulse(document.getElementById('passwordGroup'));
+            }
+        });
 
         /* ── Trusted-redirect resolution ── */
         // Cache the trusted roots fetched from the server

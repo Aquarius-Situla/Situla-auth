@@ -9,6 +9,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { authenticator } = require('otplib');
+authenticator.options = { window: [1, 1] };
 const { generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 
 const db = require('../database');
@@ -53,7 +54,8 @@ router.post('/login', (req, res) => {
                         try {
                             const decryptedSecret = decrypt(req.app, user.totp_secret);
                             if (decryptedSecret) {
-                                totpOk = authenticator.verify({ token: String(totp).trim(), secret: decryptedSecret });
+                                const cleanedTotp = String(totp).replace(/[\s-]/g, '').trim();
+                                totpOk = authenticator.verify({ token: cleanedTotp, secret: decryptedSecret });
                             }
                         } catch (totpErr) {
                             console.error('[TOTP Verify Exception]:', totpErr.message);
