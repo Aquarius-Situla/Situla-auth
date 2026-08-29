@@ -1,9 +1,10 @@
-﻿/**
+/**
  * public/js/modules/totp.js
  * TOTP Setup, Verification, and 2FA Disable flows.
  */
 
-import { t, fetchApi, enterSudoStep } from './api.js';
+import { t } from './ui.js';
+import { fetchApi, enterSudoStep } from './api.js';
 import { set2faBadge } from './fido2.js';
 
 let currentSecret = '';
