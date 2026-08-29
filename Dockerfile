@@ -16,7 +16,7 @@ RUN mkdir -p /app/data && \
 USER node
 
 HEALTHCHECK --interval=5s --timeout=3s --start-period=2s --retries=2 \
-  CMD node -e "require('http').get('http://127.0.0.1:3000/api/health', (r) => { if (r.statusCode !== 200) process.exit(1); })" || exit 1
+  CMD node -e "const req=require('http').get('http://127.0.0.1:3000/api/health',res=>process.exit(res.statusCode===200?0:1));req.on('error',()=>process.exit(1));" || exit 1
 
 EXPOSE 3000
 CMD ["node", "server.js"]
