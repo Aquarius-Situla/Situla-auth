@@ -162,7 +162,19 @@ const translations = {
         "sudo_title": "确认你的密码",
         "sudo_desc": "出于安全考虑，请输入当前密码以继续操作。",
         "sudo_btn_confirm": "确认",
-        "sudo_btn_cancel": "取消"
+        "sudo_btn_cancel": "取消",
+        // OIDC & Dynamic UI status keys
+        "status_no_oidc_clients": "暂无接入的应用",
+        "status_no_passkeys": "暂无通行密钥",
+        "status_no_fido2": "暂无安全密钥",
+        "status_no_logs": "暂无日志",
+        "status_load_failed": "加载失败，请重试",
+        "status_updating": "正在更新...",
+        "status_copied": "已复制",
+        "status_email_not_set": "未绑定",
+        "confirm_delete_oidc": "确定删除该第三方应用？删除后它将无法通过本系统登录。",
+        "oidc_add_title": "生成 OIDC 凭证",
+        "btn_add_app": "＋ 添加第三方应用",
     },
     "en": {
         // index.html
@@ -327,7 +339,19 @@ const translations = {
         "sudo_title": "Confirm Your Password",
         "sudo_desc": "For security reasons, please enter your current password to continue.",
         "sudo_btn_confirm": "Confirm",
-        "sudo_btn_cancel": "Cancel"
+        "sudo_btn_cancel": "Cancel",
+        // OIDC & Dynamic UI status keys
+        "status_no_oidc_clients": "No client applications registered",
+        "status_no_passkeys": "No passkeys added",
+        "status_no_fido2": "No security keys added",
+        "status_no_logs": "No logs available",
+        "status_load_failed": "Failed to load, please try again",
+        "status_updating": "Updating...",
+        "status_copied": "Copied",
+        "status_email_not_set": "Not set",
+        "confirm_delete_oidc": "Are you sure you want to delete this application?",
+        "oidc_add_title": "Generate OIDC Client",
+        "btn_add_app": "+ Add Application",
     }
 };
 
