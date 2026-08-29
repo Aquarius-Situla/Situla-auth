@@ -1,4 +1,4 @@
-﻿services:
+services:
   situla-auth:
     build: .
     container_name: situla-auth
@@ -8,6 +8,8 @@
       - ./.env:/app/.env
       # Persist the SQLite database across rebuilds
       - ./data:/app/data
+    security_opt:
+      - no-new-privileges:true
     networks:
       - npm_default
 

@@ -1,19 +1,6 @@
-<!--
+﻿<!--
   Situla Auth 2.0
   Copyright (C) 2026 Situla
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Affero General Public License as
-  published by the Free Software Foundation, either version 3 of the
-  License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Affero General Public License for more details.
-
-  You should have received a copy of the GNU Affero General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <!DOCTYPE html>
 <html lang="zh-CN" class="login-html">
@@ -146,18 +133,18 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="style.css?v=21">
+    <link rel="stylesheet" href="/css/style.css?v=75">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="i18n.js"></script>
+    <script src="/i18n.js"></script>
 </head>
 <body class="login-page" data-page-title-key="twofa_doc_title">
 
     <!-- Top gray bar with nav -->
     <div class="gray-top-bar">
         <div class="nav-content">
-            <img src="/lock.svg" class="icon-adaptive" style="height:18px;width:auto;margin-bottom:0;" alt="">
+            <img src="/assets/icons/lock.svg" class="icon-adaptive" style="height:18px;width:auto;margin-bottom:0;" alt="">
             <span class="nav-title" data-i18n="twofa_title">双重认证</span>
         </div>
     </div>
@@ -219,7 +206,7 @@
             <div id="fido2Mode" style="display:none;">
                 <div class="logo-container">
                     <div class="fido2-icon-wrap">
-                        <img src="/FIDO.svg" alt="FIDO2">
+                        <img src="/assets/icons/fido.svg" alt="FIDO2">
                     </div>
                     <h1 data-i18n="fido2_title">安全密钥</h1>
                     <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">请插入并触摸你的安全密钥</p>
@@ -244,6 +231,6 @@
     <!-- Bottom gray bar -->
     <div class="gray-bottom-bar"></div>
 
-    <script src="/js/2fa.js?v=74"></script>
+    <script src="/js/2fa.js?v=75"></script>
 </body>
 </html>

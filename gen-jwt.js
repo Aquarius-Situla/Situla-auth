@@ -1,1 +1,0 @@
-const jwt = require('jsonwebtoken'); const fs = require('fs'); const env = fs.readFileSync('.env', 'utf8'); const secret = env.match(/JWT_SECRET=(.*)/)[1]; console.log(jwt.sign({ id: 1, user: 'akadmin', email: '', token_version: 0 }, secret));

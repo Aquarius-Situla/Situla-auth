@@ -1,4 +1,4 @@
-/**
+﻿/**
  * routes/recovery.js
  * Recovery code generation and status.
  */
@@ -6,45 +6,37 @@
 
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const db = require('../database');
-const { authenticateJWT, SALT_ROUNDS, verifyElevationOrPassword } = require('../middleware/auth');
+const RecoveryService = require('../services/recoveryService');
+const AuthService = require('../services/authService');
+const { authenticateJWT } = require('../middleware/auth');
+
+const sudoLimiter = (req, res, next) => {
+    const limiter = req.app.get('sudoLimiter');
+    if (limiter) return limiter(req, res, next);
+    next();
+};
 
 /* ── POST /api/recovery-codes/generate ── */
-router.post('/generate', authenticateJWT, async (req, res) => {
-    if (!(await verifyElevationOrPassword(req, res, req.body.currentPassword))) return;
+router.post('/generate', authenticateJWT, sudoLimiter, async (req, res) => {
+    if (!(await AuthService.verifyElevationOrPassword(req, res, req.body.currentPassword))) return;
 
-    const COUNT = 8;
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const codes = [];
-    for (let i = 0; i < COUNT; i++) {
-        let raw = '';
-        for (let j = 0; j < 10; j++) raw += chars[crypto.randomInt(chars.length)];
-        codes.push(raw.slice(0, 5) + '-' + raw.slice(5));
-    }
-
-    db.run('DELETE FROM recovery_codes WHERE user_id = ?', [req.user.id], async () => {
-        const stmt = db.prepare('INSERT INTO recovery_codes (user_id, code_hash, used) VALUES (?, ?, 0)');
-        for (const c of codes) {
-            const normalised = c.replace(/-/g, '');
-            const hashed = await bcrypt.hash(normalised, SALT_ROUNDS);
-            stmt.run([req.user.id, hashed]);
-        }
-        stmt.finalize();
+    try {
+        const codes = await RecoveryService.generateCodes(req.user.id);
         res.json({ success: true, codes });
-    });
+    } catch (err) {
+        console.error('[Recovery Codes Error]:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to generate recovery codes' });
+    }
 });
 
 /* ── GET /api/recovery-codes/status ── */
-router.get('/status', authenticateJWT, (req, res) => {
-    db.get('SELECT COUNT(*) as total FROM recovery_codes WHERE user_id = ? AND used = 0', [req.user.id], (err, row) => {
-        db.get('SELECT COUNT(*) as usedCount FROM recovery_codes WHERE user_id = ? AND used = 1', [req.user.id], (err2, row2) => {
-            const total = row ? row.total : 0;
-            const used = row2 ? row2.usedCount : 0;
-            res.json({ remaining: total, used, hasAny: (total + used) > 0 });
-        });
-    });
+router.get('/status', authenticateJWT, async (req, res) => {
+    try {
+        const status = await RecoveryService.getStatus(req.user.id);
+        res.json(status);
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
 });
 
 module.exports = router;
