@@ -1,4 +1,4 @@
-﻿# Dependencies (reinstalled during build)
+# Dependencies (reinstalled during build)
 node_modules/
 
 # Environment variables (secrets)
@@ -12,7 +12,6 @@ data/
 .gitignore
 
 # Tests and Dev tools
-tests/
 tools/
 *.py
 scripts/
