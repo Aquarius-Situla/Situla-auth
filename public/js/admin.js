@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/admin.js
  * Situla Auth 2.0 Admin Dashboard - Modern ESM Controller
  */
@@ -45,9 +45,18 @@ export async function reloadAccountStatus() {
         loadLoginLogs();
     } catch (e) {
         console.error('[Admin] Reload account status error:', e);
+    } finally {
+        hidePageLoader();
     }
 }
 window.reloadAccountStatus = reloadAccountStatus;
+
+function hidePageLoader() {
+    const loader = document.getElementById('pageLoader');
+    const content = document.getElementById('appContent');
+    if (loader) loader.style.display = 'none';
+    if (content) content.style.opacity = '1';
+}
 
 function updateTwoFaUI(data) {
     const badge = document.getElementById('twoFaBadge');
