@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - Core Database Client
  * Promise-based SQLite Client with Transaction and Migration support.
  */
@@ -89,6 +89,12 @@ class DatabaseClient {
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY(user_id) REFERENCES users(id)
                 )`);
+
+                this.db.run(`CREATE TABLE IF NOT EXISTS revoked_tokens (
+                    jti TEXT PRIMARY KEY,
+                    expires_at INTEGER NOT NULL
+                )`);
+                this.db.run(`CREATE INDEX IF NOT EXISTS idx_revoked_tokens_exp ON revoked_tokens(expires_at)`);
 
                 this.db.run(`CREATE TABLE IF NOT EXISTS oidc_clients (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,

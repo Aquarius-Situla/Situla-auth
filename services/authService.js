@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - Authentication Domain Service
  */
 'use strict';
@@ -17,22 +17,34 @@ const ELEVATION_COOKIE = 'situla_elevation';
 const tokenVersionCache = new Map();
 const revokedTokensCache = new Map();
 
-// Initialize token version cache
-db.ready().then(() => {
-    db.all('SELECT id, token_version FROM users').then(rows => {
+// Initialize token version & revoked tokens cache
+db.ready().then(async () => {
+    try {
+        const rows = await db.all('SELECT id, token_version FROM users');
         for (const row of rows) {
             tokenVersionCache.set(row.id, row.token_version || 0);
         }
-    }).catch(err => console.error('[AuthService] Token version cache error:', err));
+        const now = Date.now();
+        await db.run('DELETE FROM revoked_tokens WHERE expires_at < ?', [now]);
+        const revokedRows = await db.all('SELECT jti, expires_at FROM revoked_tokens WHERE expires_at >= ?', [now]);
+        for (const r of revokedRows) {
+            revokedTokensCache.set(r.jti, r.expires_at);
+        }
+    } catch (err) {
+        console.error('[AuthService] Token cache init error:', err);
+    }
 });
 
-// Periodic cache cleanup
-setInterval(() => {
+// Periodic cache & DB cleanup (evict expired revoked tokens every 30 minutes)
+setInterval(async () => {
     const now = Date.now();
+    try {
+        await db.run('DELETE FROM revoked_tokens WHERE expires_at < ?', [now]);
+    } catch (e) {}
     for (const [jti, exp] of revokedTokensCache.entries()) {
         if (now > exp) revokedTokensCache.delete(jti);
     }
-}, 60 * 60 * 1000);
+}, 30 * 60 * 1000);
 
 class AuthService {
     static get COOKIE_NAME() {
@@ -107,6 +119,8 @@ class AuthService {
             } catch (e) {}
         }
 
+        const MAX_ELEVATION_LIFETIME_MS = 30 * 60 * 1000; // 30 minutes hard absolute timeout
+
         if (pwd) {
             const userId = req.user.id;
             const user = await db.get('SELECT password FROM users WHERE id = ?', [userId]);
@@ -120,6 +134,7 @@ class AuthService {
                 const elevationToken = jwt.sign({
                     id: userId,
                     elevated: true,
+                    elevated_since: Date.now(),
                     session_jti: sessionJti,
                     token_version: currentVersion
                 }, JWT_SECRET, { expiresIn: '15m' });
@@ -152,10 +167,19 @@ class AuthService {
                         res.status(401).json({ success: false, message: '特权会话与当前设备不匹配，请重新验证密码', requireElevation: true });
                         return false;
                     }
-                    // Refresh elevation cookie
+
+                    // Enforce absolute maximum elevation lifespan
+                    const elevatedSince = decoded.elevated_since || 0;
+                    if (!elevatedSince || (Date.now() - elevatedSince > MAX_ELEVATION_LIFETIME_MS)) {
+                        res.status(401).json({ success: false, message: '特权会话已达最长有效期，请重新输入密码', requireElevation: true });
+                        return false;
+                    }
+
+                    // Refresh elevation cookie with preserved elevated_since
                     const newElevationToken = jwt.sign({
                         id: req.user.id,
                         elevated: true,
+                        elevated_since: elevatedSince,
                         session_jti: sessionJti,
                         token_version: currentVersion
                     }, JWT_SECRET, { expiresIn: '15m' });
@@ -182,7 +206,12 @@ class AuthService {
             try {
                 const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
                 if (decoded.jti && decoded.exp) {
-                    revokedTokensCache.set(decoded.jti, decoded.exp * 1000);
+                    const expMs = decoded.exp * 1000;
+                    revokedTokensCache.set(decoded.jti, expMs);
+                    db.run(
+                        'INSERT INTO revoked_tokens (jti, expires_at) VALUES (?, ?) ON CONFLICT(jti) DO UPDATE SET expires_at=excluded.expires_at',
+                        [decoded.jti, expMs]
+                    ).catch(e => console.error('[AuthService] Failed to persist revoked token:', e.message));
                 }
             } catch (e) {}
         }
@@ -202,3 +231,4 @@ class AuthService {
 }
 
 module.exports = AuthService;
+

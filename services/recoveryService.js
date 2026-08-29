@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - Recovery Codes Service
  */
 'use strict';
@@ -6,6 +6,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const db = require('../core/database');
+const { hmacSha256, ENCRYPTION_KEY } = require('../core/crypto');
 
 const COUNT = 8;
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -14,13 +15,15 @@ class RecoveryService {
     static async generateCodes(userId) {
         const plainCodes = [];
         const records = [];
+        const encKey = process.env.ENCRYPTION_KEY || ENCRYPTION_KEY;
 
         for (let i = 0; i < COUNT; i++) {
             let raw = '';
             for (let j = 0; j < 10; j++) raw += CHARS[crypto.randomInt(CHARS.length)];
             const formatted = `${raw.slice(0, 5)}-${raw.slice(5)}`;
             const normalised = raw.toUpperCase();
-            const hash = crypto.createHash('sha256').update(normalised).digest('hex');
+            // Cryptographically strong HMAC-SHA256 with per-user salt and encryption key pepper
+            const hash = hmacSha256(encKey, `${userId}:${normalised}`);
 
             plainCodes.push(formatted);
             records.push(hash);
@@ -41,9 +44,22 @@ class RecoveryService {
         const normalised = String(inputCode).replace(/[\s-]/g, '').toUpperCase();
         if (!normalised || normalised.length < 8) return false;
 
-        const inputSha256 = crypto.createHash('sha256').update(normalised).digest('hex');
+        const encKey = process.env.ENCRYPTION_KEY || ENCRYPTION_KEY;
+        const inputHmac = hmacSha256(encKey, `${userId}:${normalised}`);
 
-        // 1. Direct O(1) SHA-256 lookup (fast path, immune to DoS)
+        // 1. Primary path: Salted HMAC-SHA256 lookup (fast & immune to rainbow tables)
+        const hmacMatch = await db.get(
+            'SELECT id FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0 LIMIT 1',
+            [userId, inputHmac]
+        );
+
+        if (hmacMatch) {
+            await db.run('UPDATE recovery_codes SET used = 1 WHERE id = ?', [hmacMatch.id]);
+            return true;
+        }
+
+        // 2. Legacy raw SHA-256 fallback
+        const inputSha256 = crypto.createHash('sha256').update(normalised).digest('hex');
         const shaMatch = await db.get(
             'SELECT id FROM recovery_codes WHERE user_id = ? AND code_hash = ? AND used = 0 LIMIT 1',
             [userId, inputSha256]
@@ -54,7 +70,7 @@ class RecoveryService {
             return true;
         }
 
-        // 2. Legacy Bcrypt fallback
+        // 3. Legacy Bcrypt fallback
         const legacyRows = await db.all(
             "SELECT id, code_hash FROM recovery_codes WHERE user_id = ? AND used = 0 AND (code_hash LIKE '$2b$%' OR code_hash LIKE '$2a$%')",
             [userId]

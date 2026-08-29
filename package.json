@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "node server.js",
     "test": "jest --testPathPattern=tests/ --forceExit",
-    "test:watch": "jest --testPathPattern=tests/ --watch"
+    "test:watch": "jest --testPathPattern=tests/ --watch",
+    "test:smoke": "node tests/smoke-test.js",
+    "test:smoke:docker": "bash tests/docker-smoke-test.sh"
   },
   "devDependencies": {
     "jest": "^29.7.0",

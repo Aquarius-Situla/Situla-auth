@@ -95,7 +95,10 @@
          * Returns the original `rd` URL if trusted, otherwise returns null.
          */
         async function safeRedirectUrl(rd) {
-            if (!rd) return null;
+            if (!rd || typeof rd !== 'string') return null;
+            if (rd.startsWith('/') && !rd.startsWith('//') && !rd.startsWith('/\\')) {
+                return rd;
+            }
             try {
                 const rdUrl = new URL(rd, window.location.origin);
                 const hostname = rdUrl.hostname.toLowerCase();

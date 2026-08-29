@@ -1,4 +1,4 @@
-﻿/**
+/**
  * routes/fido2.js
  * FIDO2 hardware security key registration and 2FA login.
  */
@@ -57,6 +57,9 @@ router.delete('/keys/:id', authenticateJWT, async (req, res) => {
     try {
         const result = await WebAuthnService.deleteKey(req.user.id, req.params.id, 'fido2');
         if (result.notFound) return res.status(404).json({ success: false, message: 'Not found' });
+        if (result.cannotDeleteActive2Fa) {
+            return res.status(400).json(result);
+        }
         res.json(result);
     } catch (err) {
         res.status(500).json({ success: false });

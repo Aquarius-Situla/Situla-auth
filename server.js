@@ -15,7 +15,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const db = require('./core/database');
-const { encrypt, decrypt, randomHex, JWT_SECRET: DEFAULT_JWT_SECRET, ENCRYPTION_KEY: DEFAULT_ENC_KEY } = require('./core/crypto');
+const {
+    encrypt,
+    decrypt,
+    randomHex,
+    assertProductionKeySecurity,
+    JWT_SECRET: DEFAULT_JWT_SECRET,
+    ENCRYPTION_KEY: DEFAULT_ENC_KEY
+} = require('./core/crypto');
 const AuthService = require('./services/authService');
 const { authenticateJWT, tokenVersionCache, revokedTokensCache } = require('./middleware/auth');
 
@@ -30,19 +37,29 @@ const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || DEFAULT_ENC_KEY;
 const ADMIN_USER    = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || 'akadmin').replace(/^['"]|['"]$/g, '');
 
-// Trusted Redirects Resolution
-const DEFAULT_TRUST_ROOT = RP_ID.split('.').length <= 2 ? RP_ID : RP_ID.split('.').slice(1).join('.');
+// Enforce production secret hygiene
+assertProductionKeySecurity(JWT_SECRET, ENCRYPTION_KEY);
+
+// Trusted Redirects Resolution (Strict domain whitelisting, avoiding naive PSL slicing)
 const EXTRA_TRUST_ROOTS = (process.env.TRUSTED_DOMAINS || '')
     .split(',').map(d => d.trim().toLowerCase().replace(/^\*\./, '')).filter(Boolean);
-const ALL_TRUST_ROOTS = [...new Set([DEFAULT_TRUST_ROOT, ...EXTRA_TRUST_ROOTS])];
+const ALL_TRUST_ROOTS = [...new Set([RP_ID.toLowerCase(), ...EXTRA_TRUST_ROOTS])];
 
 function isTrustedRedirect(url) {
-    if (url && url.startsWith('/oidc/interaction/')) return true;
+    if (!url || typeof url !== 'string') return false;
+    // Allow safe internal relative paths (avoid protocol-relative // or /\)
+    if (url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\')) {
+        return true;
+    }
     try {
         const parsed = new URL(url);
-        if (parsed.protocol !== 'https:') return false;
+        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+        if (process.env.NODE_ENV === 'production' && parsed.protocol !== 'https:') return false;
         const hostname = parsed.hostname.toLowerCase();
-        return ALL_TRUST_ROOTS.some(root => hostname === root || hostname.endsWith('.' + root));
+        return ALL_TRUST_ROOTS.some(root => {
+            if (!root) return false;
+            return hostname === root || hostname.endsWith('.' + root);
+        });
     } catch {
         return false;
     }

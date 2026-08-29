@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - WebAuthn (Passkey & FIDO2) Service
  */
 'use strict';
@@ -284,6 +284,24 @@ class WebAuthnService {
     }
 
     static async deleteKey(userId, keyId, type) {
+        if (type === 'fido2') {
+            const user = await db.get('SELECT two_fa_method FROM users WHERE id = ?', [userId]);
+            if (user && user.two_fa_method === 'fido2') {
+                const countRow = await db.get(
+                    'SELECT COUNT(*) as cnt FROM passkeys WHERE user_id = ? AND type = ?',
+                    [userId, 'fido2']
+                );
+                const currentCount = countRow ? countRow.cnt : 0;
+                if (currentCount <= FIDO2_MIN_KEYS) {
+                    return {
+                        success: false,
+                        cannotDeleteActive2Fa: true,
+                        message: `无法删除：当前已启用 FIDO2 两步验证，且要求必须保留至少 ${FIDO2_MIN_KEYS} 把硬件密钥。若需删除，请先在安全设置中停用两步验证。`
+                    };
+                }
+            }
+        }
+
         const result = await db.run(
             'DELETE FROM passkeys WHERE id = ? AND user_id = ? AND type = ?',
             [keyId, userId, type]
@@ -296,14 +314,7 @@ class WebAuthnService {
                 [userId, 'fido2']
             );
             const remaining = countRow ? countRow.cnt : 0;
-            if (remaining < FIDO2_MIN_KEYS) {
-                await db.run(
-                    'UPDATE users SET two_fa_method = NULL WHERE id = ? AND two_fa_method = ?',
-                    [userId, 'fido2']
-                );
-                return { success: true, autoDisabled: true, remaining };
-            }
-            return { success: true, autoDisabled: false, remaining };
+            return { success: true, remaining };
         }
 
         return { success: true };

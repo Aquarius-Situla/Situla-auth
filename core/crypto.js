@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - Core Crypto Utilities
  * Secure AES-256-GCM encryption, key derivation, and random tokens.
  */
@@ -72,12 +72,45 @@ function randomBase64Url(bytes = 32) {
     return crypto.randomBytes(bytes).toString('base64url');
 }
 
+function hmacSha256(key, data) {
+    const keyBuf = typeof key === 'string' ? Buffer.from(key, 'utf8') : key;
+    return crypto.createHmac('sha256', keyBuf).update(String(data)).digest('hex');
+}
+
+const INSECURE_JWT_PLACEHOLDERS = [
+    'situla_jwt_secret_placeholder_must_be_overridden',
+    'default_jwt_secret',
+    'secret'
+];
+const INSECURE_ENC_KEYS = [
+    '0000000000000000000000000000000000000000000000000000000000000000'
+];
+
+function assertProductionKeySecurity(jwtSecret, encKey) {
+    if (process.env.NODE_ENV === 'production') {
+        const jSecret = jwtSecret || process.env.JWT_SECRET || '';
+        const eKey = encKey || process.env.ENCRYPTION_KEY || '';
+
+        if (!jSecret || INSECURE_JWT_PLACEHOLDERS.includes(jSecret)) {
+            console.error('[CRITICAL SECURITY ERROR] Production mode cannot start with default or empty JWT_SECRET!');
+            process.exit(1);
+        }
+        if (!eKey || INSECURE_ENC_KEYS.includes(eKey)) {
+            console.error('[CRITICAL SECURITY ERROR] Production mode cannot start with default or empty ENCRYPTION_KEY!');
+            process.exit(1);
+        }
+    }
+}
+
 module.exports = {
     encrypt,
     decrypt,
     sha256,
+    hmacSha256,
+    assertProductionKeySecurity,
     randomHex,
     randomBase64Url,
     JWT_SECRET,
     ENCRYPTION_KEY
 };
+
