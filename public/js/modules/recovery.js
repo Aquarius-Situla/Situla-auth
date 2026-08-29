@@ -1,75 +1,63 @@
 ﻿/**
  * public/js/modules/recovery.js
- * Recovery codes generation, download, and status monitoring.
+ * Recovery Codes generation, copy, and UI badge management.
  */
 
+import { t, copyToClipboard, closeAllModals } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
-import { copyToClipboard, downloadText } from './ui.js';
 
-let latestCodes = [];
+export function updateRcCard(has2FA, remaining = 0) {
+    const rcCard = document.getElementById('rcCard');
+    const badge = document.getElementById('rcBadge');
+    if (!rcCard) return;
 
-export async function loadRecoveryStatus() {
-    const el = document.getElementById('recoveryStatusText');
-    if (!el) return;
+    rcCard.style.display = has2FA ? '' : 'none';
+    if (!has2FA || !badge) return;
 
-    try {
-        const { ok, data } = await fetchApi('/api/recovery-codes/status');
-        if (ok && data) {
-            el.textContent = `${data.remaining} / 8`;
-        }
-    } catch (e) {
-        console.error('[Recovery] Status error:', e);
+    if (remaining === 0) {
+        badge.textContent = t('badge_not_gen') || '未生成';
+        badge.className = 'badge badge-disabled';
+    } else {
+        badge.textContent = t('badge_rc_remaining', remaining) || `剩余 ${remaining} 个`;
+        badge.className = remaining <= 2 ? 'badge badge-warn' : 'badge badge-count';
     }
 }
 
-export function setupRecoveryModal() {
-    const genBtn = document.getElementById('generateRecoveryBtn');
-    const copyBtn = document.getElementById('copyRcBtn');
-    const downloadBtn = document.getElementById('downloadRcBtn');
-
-    if (genBtn) {
-        genBtn.onclick = () => {
-            const modal = document.getElementById('recoveryModal');
-            if (modal) modal.style.display = 'flex';
-
-            enterSudoStep('recoveryModal', async (currentPassword) => {
-                const res = await fetchApi('/api/recovery-codes/generate', {
-                    method: 'POST',
-                    body: JSON.stringify({ currentPassword })
-                });
-
-                if (res.ok && res.data?.success) {
-                    latestCodes = res.data.codes || [];
-                    const rcListEl = document.getElementById('rcList');
-                    if (rcListEl) {
-                        rcListEl.innerHTML = latestCodes.join('<br>');
-                    }
-                    const step1 = document.getElementById('recoveryStep1');
-                    const step3 = document.getElementById('recoveryStep3');
-                    if (step1) step1.style.display = 'none';
-                    if (step3) step3.style.display = 'block';
-
-                    loadRecoveryStatus();
-                }
-                return res;
+export function setupRecoveryEvents(onSuccessReload) {
+    document.getElementById('genRcBtn')?.addEventListener('click', () => {
+        const actionFn = async (pwd) => {
+            const { ok, data } = await fetchApi('/api/recovery-codes/generate', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: pwd })
             });
-        };
-    }
 
-    if (copyBtn) {
-        copyBtn.onclick = () => {
-            if (latestCodes.length > 0) {
-                copyToClipboard(latestCodes.join('\n'), copyBtn);
-            }
-        };
-    }
+            if (ok && data.success) {
+                const rcPanel = document.getElementById('rcPanel');
+                const rcList = document.getElementById('rcList');
+                const rcBadge = document.getElementById('rcBadge');
 
-    if (downloadBtn) {
-        downloadBtn.onclick = () => {
-            if (latestCodes.length > 0) {
-                const content = `Situla Auth Recovery Codes\nGenerated at: ${new Date().toISOString()}\n\n${latestCodes.join('\n')}\n`;
-                downloadText('situla-auth-recovery-codes.txt', content);
+                if (rcPanel) rcPanel.style.display = 'block';
+                if (rcList) rcList.innerHTML = (data.codes || []).join('<br>');
+                if (rcBadge) {
+                    rcBadge.textContent = '已生成(8)';
+                    rcBadge.className = 'badge badge-enabled';
+                }
+                if (onSuccessReload) onSuccessReload();
+                return { success: true };
             }
+            return { success: false, message: data?.message || '生成失败' };
         };
-    }
+
+        enterSudoStep('sudoModal', actionFn);
+    });
+
+    document.getElementById('cancelSudoBtn')?.addEventListener('click', closeAllModals);
+
+    document.getElementById('copyRcBtn')?.addEventListener('click', () => {
+        const listText = document.getElementById('rcList')?.innerText?.replace(/\n/g, ' ') || '';
+        const btn = document.getElementById('copyRcBtn');
+        if (listText && btn) {
+            copyToClipboard(listText, btn, '已复制');
+        }
+    });
 }

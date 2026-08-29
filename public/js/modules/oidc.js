@@ -1,10 +1,10 @@
 ﻿/**
  * public/js/modules/oidc.js
- * OIDC Client Applications Management.
+ * OIDC Application Management (pixel-perfect list and Sudo modal).
  */
 
+import { t, escapeHTML, closeAllModals } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
-import { copyToClipboard } from './ui.js';
 
 export async function loadOidcClients() {
     const list = document.getElementById('oidcClientList');
@@ -12,97 +12,118 @@ export async function loadOidcClients() {
 
     try {
         const { ok, data } = await fetchApi('/api/oidc/clients');
-        if (!ok || !Array.isArray(data)) return;
+        if (!ok || !data) return;
 
-        if (data.length === 0) {
-            list.innerHTML = `<div style="color: #86868b; font-size: 14px; padding: 10px 0;">${window.t ? window.t('status_no_oidc_clients') : '暂无接入的应用'}</div>`;
+        list.innerHTML = '';
+        if (!Array.isArray(data) || data.length === 0) {
+            list.innerHTML = `<div style="color: #86868b; font-size: 14px; padding: 10px 0;">${t('status_no_oidc_clients') || '暂无接入的应用'}</div>`;
             return;
         }
 
-        list.innerHTML = data.map(c => `
-            <div class="key-item">
-                <div class="key-info">
-                    <div class="key-name">${escapeHtml(c.client_name || 'OIDC 应用')}</div>
-                    <div class="key-meta">ID: ${escapeHtml(c.client_id)} &bull; ${escapeHtml((c.redirect_uris || []).join(', '))}</div>
-                </div>
-                <div class="key-actions">
-                    <button class="btn-icon btn-danger" data-action="delete-oidc" data-id="${c.id}">
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        data.forEach(client => {
+            const item = document.createElement('div');
+            item.className = 'passkey-item';
 
-        attachOidcEvents(list);
+            const info = document.createElement('div');
+            info.className = 'passkey-info';
+
+            const name = document.createElement('span');
+            name.className = 'passkey-name';
+            name.textContent = client.client_name;
+
+            const meta = document.createElement('span');
+            meta.className = 'passkey-date';
+            meta.textContent = client.client_id;
+
+            info.appendChild(name);
+            info.appendChild(meta);
+
+            const actions = document.createElement('div');
+            actions.className = 'passkey-actions';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'pk-btn pk-delete';
+            delBtn.setAttribute('title', '删除');
+            delBtn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>`;
+
+            delBtn.onclick = async () => {
+                if (!confirm(t('confirm_delete_oidc') || '确定删除该第三方应用？删除后它将无法通过本系统登录。')) return;
+                const actionFn = async () => {
+                    const r = await fetchApi('/api/oidc/clients/' + client.id, { method: 'DELETE' });
+                    return r;
+                };
+                enterSudoStep('sudoModal', actionFn);
+                setTimeout(loadOidcClients, 500);
+            };
+
+            actions.appendChild(delBtn);
+            item.appendChild(info);
+            item.appendChild(actions);
+            list.appendChild(item);
+        });
     } catch (e) {
-        console.error('[OIDC] Load clients error:', e);
+        console.error('[OIDC] Error loading clients:', e);
     }
 }
 
-function escapeHtml(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+export function setupOidcEvents() {
+    document.getElementById('addOidcBtn')?.addEventListener('click', () => {
+        closeAllModals();
+        const modal = document.getElementById('oidcModal');
+        if (modal) modal.style.display = 'flex';
+        const step1 = document.getElementById('oidcStep1');
+        if (step1) step1.style.display = 'block';
+        const step3 = document.getElementById('oidcStep3');
+        if (step3) step3.style.display = 'none';
 
-function attachOidcEvents(container) {
-    container.querySelectorAll('button[data-action="delete-oidc"]').forEach(btn => {
-        btn.onclick = async () => {
-            if (!confirm((window.t && window.t('msg_confirm_delete_oidc')) || '确定要删除此应用吗？')) return;
-            const id = btn.dataset.id;
-            const { ok } = await fetchApi(`/api/oidc/clients/${id}`, { method: 'DELETE' });
-            if (ok) loadOidcClients();
-        };
+        const nameInp = document.getElementById('oidcAppName');
+        const urisInp = document.getElementById('oidcRedirectUris');
+        const msg1 = document.getElementById('oidcMsg1');
+
+        if (nameInp) nameInp.value = '';
+        if (urisInp) urisInp.value = '';
+        if (msg1) msg1.textContent = '';
     });
-}
 
-export function setupOidcModal() {
-    const addBtn = document.getElementById('addOidcBtn');
-    const form = document.getElementById('oidcStep1Form');
-    const copyIdBtn = document.getElementById('copyOidcIdBtn');
-    const copySecretBtn = document.getElementById('copyOidcSecretBtn');
+    document.getElementById('cancelOidcBtn1')?.addEventListener('click', closeAllModals);
+    document.getElementById('cancelOidcBtn2')?.addEventListener('click', closeAllModals);
 
-    if (addBtn) {
-        addBtn.onclick = () => {
-            const modal = document.getElementById('oidcModal');
-            if (modal) modal.style.display = 'flex';
-        };
-    }
+    document.getElementById('continueOidcBtn')?.addEventListener('click', () => {
+        const name = document.getElementById('oidcAppName')?.value?.trim() || '';
+        let uris = document.getElementById('oidcRedirectUris')?.value?.trim() || '';
+        const msg1 = document.getElementById('oidcMsg1');
+        if (msg1) msg1.textContent = '';
 
-    if (form) {
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            const nameInput = document.getElementById('oidcNameInput');
-            const urisInput = document.getElementById('oidcUrisInput');
+        if (!name || !uris) {
+            if (msg1) {
+                msg1.textContent = t('msg_fill_all_fields') || '请填写所有必填字段';
+                msg1.className = 'msg msg-err';
+            }
+            return;
+        }
 
-            const client_name = (nameInput?.value || '').trim();
-            const redirect_uris = (urisInput?.value || '').split('\n').map(u => u.trim()).filter(Boolean);
+        const uriList = uris.split('\n').map(u => u.trim()).filter(Boolean);
 
-            if (!client_name || redirect_uris.length === 0) return;
-
-            enterSudoStep('oidcModal', async (currentPassword) => {
-                const res = await fetchApi('/api/oidc/clients', {
-                    method: 'POST',
-                    body: JSON.stringify({ client_name, redirect_uris, currentPassword })
-                });
-
-                if (res.ok && res.data?.client_id) {
-                    loadOidcClients();
-                }
-                return res;
+        const actionFn = async (pwd) => {
+            const res = await fetchApi('/api/oidc/clients', {
+                method: 'POST',
+                body: JSON.stringify({ client_name: name, redirect_uris: uriList, currentPassword: pwd })
             });
-        };
-    }
 
-    if (copyIdBtn) {
-        copyIdBtn.onclick = () => {
-            const val = document.getElementById('newOidcClientId')?.textContent;
-            if (val) copyToClipboard(val, copyIdBtn);
+            if (res.ok && res.data?.client_id) {
+                loadOidcClients();
+            }
+            return res;
         };
-    }
 
-    if (copySecretBtn) {
-        copySecretBtn.onclick = () => {
-            const val = document.getElementById('newOidcClientSecret')?.textContent;
-            if (val) copyToClipboard(val, copySecretBtn);
-        };
-    }
+        enterSudoStep('oidcModal', actionFn);
+    });
+
+    document.getElementById('finishOidcSecretBtn')?.addEventListener('click', () => {
+        const modal = document.getElementById('oidcModal');
+        if (modal) modal.style.display = 'none';
+    });
 }

@@ -3,7 +3,7 @@
  * API communication, fetch wrapper, and Sudo elevation orchestrator.
  */
 
-import { renderInlineLoader, setModalActionsLoading, closeAllModals } from './ui.js';
+import { t, setModalActionsLoading, closeAllModals } from './ui.js';
 
 export async function fetchApi(url, options = {}) {
     const headers = {
@@ -36,7 +36,7 @@ export function enterSudoStep(modalId, actionFn) {
             const pwd = pwdInp ? pwdInp.value : '';
             if (!pwd) {
                 if (msg) {
-                    msg.textContent = (window.t && window.t('msg_enter_current_pwd')) || '请输入当前密码';
+                    msg.textContent = t('msg_enter_current_pwd') || '请输入当前密码';
                     msg.className = 'msg msg-err';
                 }
                 return;
@@ -52,7 +52,7 @@ export function enterSudoStep(modalId, actionFn) {
                 if (res?.status === 401 || data?.success === false && (data?.message?.includes('密码错误') || data?.message === 'Invalid credentials' || data?.message === 'Invalid password')) {
                     setModalActionsLoading(actionsContainer, false);
                     if (msg) {
-                        msg.textContent = data.message || (window.t && window.t('msg_wrong_credentials')) || '密码错误';
+                        msg.textContent = data.message || t('msg_wrong_credentials') || '密码错误';
                         msg.className = 'msg msg-err';
                     }
                     if (pwdInp) {
@@ -84,7 +84,7 @@ export function enterSudoStep(modalId, actionFn) {
             } catch (err) {
                 setModalActionsLoading(actionsContainer, false);
                 if (msg) {
-                    msg.textContent = (window.t && window.t('msg_network_error')) || '网络错误，请重试';
+                    msg.textContent = t('msg_network_error') || '网络错误，请重试';
                     msg.className = 'msg msg-err';
                 }
             }
