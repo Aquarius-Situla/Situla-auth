@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   Situla Auth 2.0
   Copyright (C) 2026 Situla
 -->
@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>双重身份验证</title>
+    <title>鍙岄噸韬唤楠岃瘉</title>
     <style>
         /* ===== TOTP 6-box input ===== */
         .totp-boxes {
@@ -145,7 +145,7 @@
     <div class="gray-top-bar">
         <div class="nav-content">
             <img src="/assets/icons/lock.svg" class="icon-adaptive" style="height:18px;width:auto;margin-bottom:0;" alt="">
-            <span class="nav-title" data-i18n="twofa_title">双重认证</span>
+            <span class="nav-title" data-i18n="twofa_title">鍙岄噸璁よ瘉</span>
         </div>
     </div>
 
@@ -156,7 +156,7 @@
             <!-- TOTP mode (default visible) -->
             <div id="totpMode">
                 <div class="logo-container">
-                    <h1 data-i18n="twofa_title">双重认证</h1>
+                    <h1 data-i18n="twofa_title">鍙岄噸璁よ瘉</h1>
                 </div>
 
                 <form id="totpForm">
@@ -184,20 +184,19 @@
                         >
                     </div>
 
-                    <p id="totpSubtitle" data-i18n="totp_subtitle_app" style="text-align:center; font-size:14px; margin-top:16px;">请输入身份验证器中显示的 6 位验证码</p>
+                    <p id="totpSubtitle" data-i18n="totp_subtitle_app" style="text-align:center; font-size:14px; margin-top:16px;">璇疯緭鍏ヨ韩浠介獙璇佸櫒涓樉绀虹殑 6 浣嶉獙璇佺爜</p>
 
                     <!-- Toggle link -->
                     <div style="text-align:center; margin-top:14px;">
                         <a id="toggleRcLink" href="#" style="font-size:13px; color:#0071e3; text-decoration:none;" data-i18n="totp_link_rc">
-                            使用恢复码登录
-                        </a>
+                            浣跨敤鎭㈠鐮佺櫥褰?                        </a>
                     </div>
 
                     <div id="totpError" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:10px;"></div>
 
                     <div class="button-row totp-buttons" style="margin-top:20px;">
-                        <button type="button" class="login-btn back-btn" id="backBtn" data-i18n="btn_back">返回</button>
-                        <button type="submit" class="login-btn btn-primary active" id="verifyBtn" data-i18n="btn_continue">继续</button>
+                        <button type="button" class="login-btn back-btn" id="backBtn" data-i18n="btn_back">杩斿洖</button>
+                        <button type="submit" class="login-btn btn-primary active" id="verifyBtn" data-i18n="btn_continue">缁х画</button>
                     </div>
                 </form>
             </div>
@@ -208,20 +207,20 @@
                     <div class="fido2-icon-wrap">
                         <img src="/assets/icons/fido.svg" alt="FIDO2">
                     </div>
-                    <h1 data-i18n="fido2_title">安全密钥</h1>
-                    <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">请插入并触摸你的安全密钥</p>
+                    <h1 data-i18n="fido2_title">瀹夊叏瀵嗛挜</h1>
+                    <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">璇锋彃鍏ュ苟瑙︽懜浣犵殑瀹夊叏瀵嗛挜</p>
                 </div>
 
                 <div id="fido2Section">
                     <div class="fido2-spinner" id="fido2Spinner"></div>
-                    <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_waiting">正在等待安全密钥...</div>
+                    <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_waiting">姝ｅ湪绛夊緟瀹夊叏瀵嗛挜...</div>
                 </div>
 
                 <div id="fido2Error" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:16px;"></div>
 
                 <div class="button-row" style="margin-top:24px; justify-content:center;">
-                    <button type="button" class="login-btn back-btn" id="fido2BackBtn" data-i18n="btn_back">返回</button>
-                    <button type="button" class="login-btn btn-primary active" id="fido2RetryBtn" data-i18n="fido2_btn_retry">重试</button>
+                    <button type="button" class="login-btn back-btn" id="fido2BackBtn" data-i18n="btn_back">杩斿洖</button>
+                    <button type="button" class="login-btn btn-primary active" id="fido2RetryBtn" data-i18n="fido2_btn_retry">閲嶈瘯</button>
                 </div>
             </div>
 
@@ -234,3 +233,4 @@
     <script src="/js/2fa.js?v=76"></script>
 </body>
 </html>
+
