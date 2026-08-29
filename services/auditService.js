@@ -37,21 +37,47 @@ function detectDevice(ua) {
     return '未知设备';
 }
 
+function detectLocation(req, cleanIp) {
+    if (isPrivateIp(cleanIp)) {
+        return '局域网';
+    }
+    // Cloudflare IP Geolocation headers
+    const cfCity = req.headers['cf-ipcity'];
+    const cfRegion = req.headers['cf-region'] || req.headers['cf-region-code'];
+    const cfCountry = req.headers['cf-ipcountry'];
+
+    if (cfCity && cfCountry) {
+        try {
+            return `${decodeURIComponent(escape(cfCity))}, ${cfCountry}`;
+        } catch {
+            return `${cfCity}, ${cfCountry}`;
+        }
+    }
+    if (cfRegion && cfCountry) {
+        return `${cfRegion}, ${cfCountry}`;
+    }
+    if (cfCountry) {
+        return cfCountry;
+    }
+    return '互联网';
+}
+
 class AuditService {
     static async logLogin(req, userId, authMethod = 'unknown') {
         if (!req) return;
         try {
-            const rawIp = req.ip || req.headers['cf-connecting-ip'] || req.headers['x-real-ip'] || req.socket.remoteAddress || 'Unknown';
-            const cleanIp = String(rawIp).replace(/^::ffff:/, '').replace(/^\[|\]$/g, '').trim().split(',')[0].trim();
+            // Prioritize proxy headers (Cloudflare connecting IP > X-Real-IP > X-Forwarded-For > Express req.ip > Socket)
+            const rawIp = req.headers['cf-connecting-ip'] ||
+                          req.headers['x-real-ip'] ||
+                          (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0].trim() : '') ||
+                          req.ip ||
+                          req.socket?.remoteAddress ||
+                          'Unknown';
+
+            const cleanIp = String(rawIp).replace(/^::ffff:/, '').replace(/^\[|\]$/g, '').trim();
             const ua = req.headers['user-agent'] || 'Unknown Device';
             const device = detectDevice(ua);
-
-            let location = '未知位置';
-            if (isPrivateIp(cleanIp)) {
-                location = '局域网';
-            } else if (req.headers['cf-ipcountry']) {
-                location = req.headers['cf-ipcountry'];
-            }
+            const location = detectLocation(req, cleanIp);
 
             await db.run(
                 'INSERT INTO login_logs (user_id, ip, location, device) VALUES (?, ?, ?, ?)',

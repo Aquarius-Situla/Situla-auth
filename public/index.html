@@ -1,6 +1,19 @@
-﻿<!--
+<!--
   Situla Auth 2.0
   Copyright (C) 2026 Situla
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <!DOCTYPE html>
 <html lang="zh-CN" class="login-html">
@@ -9,19 +22,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="韬唤楠岃瘉">
+    <meta name="apple-mobile-web-app-title" content="身份验证">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <title>鐧诲綍</title>
-    <link rel="stylesheet" href="/css/style.css?v=76">
+    <title>登录</title>
+    <link rel="stylesheet" href="/css/style.css?v=78">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js"></script>
+    <script src="i18n.js"></script>
 </head>
 <body class="login-page" data-page-title-key="login_doc_title">
 
@@ -29,7 +44,7 @@
     <div class="gray-top-bar">
         <div class="nav-content">
             <img src="/assets/icons/user.svg" width="18" height="18" alt="User" class="user-icon">
-            <span class="nav-title" data-i18n="login_title">鐧诲綍</span>
+            <span class="nav-title" data-i18n="login_title">登录</span>
         </div>
     </div>
 
@@ -38,15 +53,16 @@
         <div class="apple-container">
             <div class="logo-container">
                 <img src="/assets/icons/user.svg" width="48" height="48" alt="User" class="user-icon" style="margin-bottom:12px;">
-                <h1 data-i18n="login_title">鐧诲綍</h1>
-                <p id="subtitle" data-i18n="login_subtitle">绠＄悊浣犵殑璐︽埛</p>
+                <h1 data-i18n="login_title">登录</h1>
+                <p id="subtitle" data-i18n="login_subtitle">管理你的账户</p>
+                
             </div>
 
             <form id="loginForm">
                 <!-- Unified input card: username + divider + password -->
                 <div class="input-card" id="inputCard">
                     <div class="input-group" id="usernameGroup">
-                        <input type="text" id="username" data-i18n-placeholder="username_placeholder" placeholder="鐢ㄦ埛鍚? required autocomplete="username">
+                        <input type="text" id="username" data-i18n-placeholder="username_placeholder" placeholder="用户名" required autocomplete="username">
                     </div>
 
                     <!-- Divider (hidden until password revealed) -->
@@ -56,20 +72,20 @@
 
                     <!-- Password (hidden initially) -->
                     <div class="input-group reveal-group" id="passwordGroup">
-                        <input type="password" id="password" data-i18n-placeholder="password_placeholder" placeholder="瀵嗙爜" autocomplete="current-password">
+                        <input type="password" id="password" data-i18n-placeholder="password_placeholder" placeholder="密码" autocomplete="current-password">
                     </div>
                 </div>
 
                 <div id="errorMessage" class="error-message"></div>
 
                 <div class="button-row">
-                    <button type="submit" class="login-btn btn-primary" id="submitBtn" data-i18n="btn_continue">缁х画</button>
+                    <button type="submit" class="login-btn btn-primary" id="submitBtn" data-i18n="btn_continue">继续</button>
                     <div class="or-divider" data-i18n="or_divider">or</div>
                     <button type="button" class="login-btn passkey-btn" id="passkeyBtn">
                         <img src="/assets/icons/passkey.svg" width="18" height="18"
                              alt="Passkey"
                              style="margin-right:7px; flex-shrink:0; vertical-align:middle; object-fit:contain;">
-                        <span data-i18n="btn_passkey">閫氳繃閫氳瀵嗛挜鐧诲綍</span>
+                        <span data-i18n="btn_passkey">通过通行密钥登录</span>
                     </button>
                 </div>
             </form>
@@ -79,8 +95,8 @@
     <!-- Bottom gray bar (mobile) -->
     <div class="gray-bottom-bar"></div>
 
-    <script src="/js/login.js?v=76"></script>
+    
+
+    <script src="/js/login.js?v=78"></script>
 </body>
 </html>
-
-
