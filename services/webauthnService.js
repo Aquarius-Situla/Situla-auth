@@ -226,11 +226,19 @@ class WebAuthnService {
         const options = await generateAuthenticationOptions({
             rpID: rpId,
             userVerification: 'preferred',
-            allowCredentials: keys.map(k => ({
-                id: k.credential_id,
-                type: 'public-key',
-                transports: JSON.parse(k.transports || '[]')
-            }))
+            allowCredentials: keys.map(k => {
+                const cred = {
+                    id: k.credential_id,
+                    type: 'public-key'
+                };
+                try {
+                    const tr = JSON.parse(k.transports || '[]');
+                    if (Array.isArray(tr) && tr.length > 0) {
+                        cred.transports = tr;
+                    }
+                } catch {}
+                return cred;
+            })
         });
 
         this.setChallenge(`fido2_login_${userId}`, options.challenge);
