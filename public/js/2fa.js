@@ -36,12 +36,18 @@
         }
 
         /* ── Mode routing ── */
+        const container = document.getElementById('twoFaContainer');
         if (twoFaMethod === 'fido2') {
             document.getElementById('totpMode').style.display = 'none';
-            document.getElementById('fido2Mode').style.display = '';
+            document.getElementById('fido2Mode').style.display = 'block';
             initFido2Mode();
         } else {
+            document.getElementById('fido2Mode').style.display = 'none';
+            document.getElementById('totpMode').style.display = 'block';
             initTotpMode();
+        }
+        if (container) {
+            container.style.opacity = '1';
         }
 
         /* ════════════════════════════════════════
