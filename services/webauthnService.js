@@ -264,22 +264,31 @@ class WebAuthnService {
             throw new Error('No FIDO2 keys registered');
         }
 
+        const allowCredentials = [];
+        const seenIds = new Set();
+        for (const k of keys) {
+            if (!k.credential_id) continue;
+            const cleanId = WebAuthnService.normalizeCredentialId(k.credential_id);
+            if (cleanId && !seenIds.has(cleanId)) {
+                seenIds.add(cleanId);
+                allowCredentials.push({
+                    id: cleanId,
+                    type: 'public-key'
+                });
+            }
+            if (k.credential_id && k.credential_id !== cleanId && !seenIds.has(k.credential_id)) {
+                seenIds.add(k.credential_id);
+                allowCredentials.push({
+                    id: k.credential_id,
+                    type: 'public-key'
+                });
+            }
+        }
+
         const options = await generateAuthenticationOptions({
             rpID: rpId,
             userVerification: 'preferred',
-            allowCredentials: keys.map(k => {
-                const cred = {
-                    id: WebAuthnService.normalizeCredentialId(k.credential_id),
-                    type: 'public-key'
-                };
-                try {
-                    const tr = JSON.parse(k.transports || '[]');
-                    if (Array.isArray(tr) && tr.length > 0) {
-                        cred.transports = tr;
-                    }
-                } catch {}
-                return cred;
-            })
+            allowCredentials
         });
 
         this.setChallenge(`fido2_login_${userId}`, options.challenge);
@@ -303,6 +312,15 @@ class WebAuthnService {
                 'SELECT * FROM passkeys WHERE credential_id = ? AND user_id = ? AND type = ?',
                 [legacyId, userId, 'fido2']
             );
+            if (key) {
+                await db.run('UPDATE passkeys SET credential_id = ? WHERE id = ?', [body.id, key.id]);
+                key.credential_id = body.id;
+            }
+        }
+
+        if (!key) {
+            const allKeys = await db.all('SELECT * FROM passkeys WHERE user_id = ? AND type = ?', [userId, 'fido2']);
+            key = allKeys.find(k => WebAuthnService.normalizeCredentialId(k.credential_id) === body.id);
             if (key) {
                 await db.run('UPDATE passkeys SET credential_id = ? WHERE id = ?', [body.id, key.id]);
                 key.credential_id = body.id;

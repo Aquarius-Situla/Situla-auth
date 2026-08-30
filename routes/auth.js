@@ -85,12 +85,36 @@ router.post('/login', (req, res) => {
     });
 });
 
+function getRpId(req) {
+    const configured = req.app.get('RP_ID');
+    const rawHost = (req.headers['x-forwarded-host'] || req.get('host') || req.hostname || '').split(':')[0].trim().toLowerCase();
+    if (configured && configured !== 'auth.example.com') {
+        const confLower = configured.toLowerCase();
+        if (rawHost === confLower || rawHost.endsWith('.' + confLower)) {
+            return configured;
+        }
+    }
+    if (rawHost && rawHost !== '127.0.0.1') {
+        return rawHost;
+    }
+    return configured || 'localhost';
+}
+
+function getOrigin(req) {
+    const originHeader = req.get('origin');
+    if (originHeader) return originHeader;
+    const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    if (host) return `${proto}://${host}`;
+    return req.app.get('ORIGIN') || `https://${getRpId(req)}`;
+}
+
 /* ── Passkey Authentication ── */
 router.get('/webauthn/login-options', (req, res) => {
     const challengeLimiter = req.app.get('challengeLimiter') || req.app.get('loginLimiter');
     return challengeLimiter(req, res, async () => {
         try {
-            const RP_ID = req.app.get('RP_ID');
+            const RP_ID = getRpId(req);
             const JWT_SECRET = req.app.get('JWT_SECRET');
             const options = await WebAuthnService.getPasskeyLoginOptions(RP_ID);
             const challengeToken = jwt.sign({ challenge: options.challenge }, JWT_SECRET, { expiresIn: '5m' });
@@ -105,8 +129,8 @@ router.get('/webauthn/login-options', (req, res) => {
 router.post('/webauthn/login-verify', (req, res) => {
     const loginLimiter = req.app.get('loginLimiter');
     return loginLimiter(req, res, async () => {
-        const RP_ID = req.app.get('RP_ID');
-        const ORIGIN = req.app.get('ORIGIN');
+        const RP_ID = getRpId(req);
+        const ORIGIN = getOrigin(req);
         const JWT_SECRET = req.app.get('JWT_SECRET');
 
         try {
