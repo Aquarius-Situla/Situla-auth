@@ -228,6 +228,7 @@ class WebAuthnService {
             userVerification: 'preferred',
             allowCredentials: keys.map(k => ({
                 id: k.credential_id,
+                type: 'public-key',
                 transports: JSON.parse(k.transports || '[]')
             }))
         });
