@@ -276,21 +276,15 @@ class WebAuthnService {
         }
 
         const allowCredentials = [];
-        const seenIds = new Set();
+        const seenIds = [];
         for (const k of keys) {
             if (!k.credential_id || k.credential_id.trim() === '') continue;
             const cleanId = WebAuthnService.normalizeCredentialId(k.credential_id);
-            if (cleanId && cleanId.trim() !== '' && !seenIds.has(cleanId)) {
-                seenIds.add(cleanId);
+            if (cleanId && cleanId.trim() !== '' && !seenIds.includes(cleanId)) {
+                seenIds.push(cleanId);
+                const idBuf = Buffer.from(cleanId, 'base64url');
                 allowCredentials.push({
-                    id: cleanId,
-                    type: 'public-key'
-                });
-            }
-            if (k.credential_id && k.credential_id.trim() !== '' && k.credential_id !== cleanId && !seenIds.has(k.credential_id)) {
-                seenIds.add(k.credential_id);
-                allowCredentials.push({
-                    id: k.credential_id,
+                    id: idBuf,
                     type: 'public-key'
                 });
             }
@@ -301,6 +295,16 @@ class WebAuthnService {
             userVerification: 'preferred',
             allowCredentials
         });
+
+        // Ensure allowCredentials contains valid non-empty Base64URL string IDs
+        if (options.allowCredentials && options.allowCredentials.length > 0) {
+            options.allowCredentials = options.allowCredentials.map((cred, idx) => {
+                if (!cred.id || cred.id === '') {
+                    return { ...cred, id: seenIds[idx] || cred.id };
+                }
+                return cred;
+            });
+        }
 
         this.setChallenge(`fido2_login_${userId}`, options.challenge);
         return options;

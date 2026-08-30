@@ -229,7 +229,7 @@ app.get('/admin', authenticateJWT, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// First-run: seed admin user
+// First-run: seed admin user & cleanup corrupted keys
 db.ready().then(async () => {
     const existing = await db.get('SELECT id FROM users ORDER BY id ASC LIMIT 1');
     if (!existing) {
@@ -237,6 +237,13 @@ db.ready().then(async () => {
         await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USER, hashed]);
         console.log(`[Seed] Initial admin user "${ADMIN_USER}" created.`);
     }
+
+    try {
+        const cleanupResult = await db.run("DELETE FROM passkeys WHERE credential_id IS NULL OR trim(credential_id) = ''");
+        if (cleanupResult && cleanupResult.changes > 0) {
+            console.log(`[DB Cleanup] Pruned ${cleanupResult.changes} legacy corrupted empty key(s).`);
+        }
+    } catch (e) {}
 });
 
 // OIDC Provider & Server Boot
