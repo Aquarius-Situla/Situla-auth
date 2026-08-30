@@ -222,10 +222,20 @@
                     const target = (await safeRedirectUrl(rd)) || '/admin';
                     window.location.href = target;
                 } else {
+                    console.error('[Situla-Auth Passkey Login Verification Failed]:', verificationJSON);
                     errMsg.textContent = t('msg_passkey_failed');
                 }
             } catch (error) {
-                errMsg.textContent = error.message || t('msg_passkey_canceled');
+                console.error('[Situla-Auth Passkey Login Exception]:', error);
+                const name = error.name || '';
+                const msg = String(error.message || '');
+                if (name === 'NotAllowedError' || msg.includes('not allowed') || msg.includes('canceled') || msg.includes('cancelled') || msg.includes('aborted')) {
+                    errMsg.textContent = t('msg_operation_canceled');
+                } else if (msg === t('msg_no_passkey')) {
+                    errMsg.textContent = t('msg_no_passkey');
+                } else {
+                    errMsg.textContent = t('msg_passkey_failed');
+                }
             }
         });
 

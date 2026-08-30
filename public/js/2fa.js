@@ -348,13 +348,17 @@
                         throw new Error(verifyData.error || verifyData.message || t('fido2_verify_failed'));
                     }
                 } catch (err) {
-                    console.error('[FIDO2 Auth Error]:', { name: err.name, message: err.message, code: err.code, cause: err.cause });
+                    console.error('[Situla-Auth FIDO2 2FA Error]:', { name: err.name, message: err.message, stack: err.stack, err });
                     if (spinner) spinner.style.display = 'none';
                     if (statusHint) statusHint.textContent = t('fido2_prompt');
-                    if (err.name === 'NotAllowedError') {
-                        errMsg.textContent = t('fido2_canceled');
+                    const name = err.name || '';
+                    const msg = String(err.message || '');
+                    if (name === 'NotAllowedError' || msg.includes('not allowed') || msg.includes('canceled') || msg.includes('cancelled') || msg.includes('aborted')) {
+                        errMsg.textContent = t('msg_operation_canceled');
+                    } else if (msg && !msg.includes('http') && !msg.includes('dom-pkcreator') && msg.length <= 40) {
+                        errMsg.textContent = msg;
                     } else {
-                        errMsg.textContent = err.message || t('fido2_verify_failed');
+                        errMsg.textContent = t('fido2_verify_failed');
                     }
                     primaryBtn.disabled = false;
                     primaryBtn.setAttribute('data-i18n', 'fido2_btn_retry');

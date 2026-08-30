@@ -10,12 +10,21 @@ export async function fetchApi(url, options = {}) {
         'Content-Type': 'application/json',
         ...(options.headers || {})
     };
-    const res = await fetch(url, { ...options, headers });
-    let data = {};
     try {
-        data = await res.json();
-    } catch (e) {}
-    return { ok: res.ok, status: res.status, data };
+        const res = await fetch(url, { ...options, headers });
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (e) {}
+
+        if (!res.ok) {
+            console.warn(`[Situla-Auth API] ${options.method || 'GET'} ${url} returned HTTP ${res.status}:`, data);
+        }
+        return { ok: res.ok, status: res.status, data };
+    } catch (err) {
+        console.error(`[Situla-Auth Network Error] ${options.method || 'GET'} ${url}:`, err);
+        return { ok: false, status: 0, data: { error: 'msg_network_error', message: 'msg_network_error' } };
+    }
 }
 
 export function enterSudoStep(modalId, actionFn) {

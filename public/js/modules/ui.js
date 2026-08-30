@@ -107,6 +107,10 @@ export function copyToClipboard(text, triggerBtn, successText = '已复制') {
 
 export function formatError(err, fallbackKey = 'msg_operation_failed') {
     if (!err) return t(fallbackKey) || '操作失败';
+    
+    // Log full diagnostic technical error to F12 Console for developers
+    console.error('[Situla-Auth Diagnostic Error]:', err);
+
     const name = err.name || '';
     const msg = String(err.message || err || '');
 
