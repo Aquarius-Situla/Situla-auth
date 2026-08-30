@@ -3,7 +3,7 @@
  * Passkey WebAuthn registration and list management (pixel-perfect DOM and CSS).
  */
 
-import { t, escapeHTML, fmtDate, closeAllModals, setModalActionsLoading, renderTransportBadges } from './ui.js';
+import { t, escapeHTML, fmtDate, closeAllModals, setModalActionsLoading, renderTransportBadges, formatError } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function renderPasskeys(keys) {
@@ -176,7 +176,7 @@ export function setupPasskeyEvents(onSuccessReload) {
                     return { success: false, message: verData?.error || verData?.message || t('msg_passkey_failed') || '验证失败' };
                 }
             } catch (e) {
-                return { success: false, message: (t('msg_passkey_canceled') || '已取消') + ': ' + (e.message || '') };
+                return { success: false, message: formatError(e, 'msg_passkey_failed') };
             }
         };
 

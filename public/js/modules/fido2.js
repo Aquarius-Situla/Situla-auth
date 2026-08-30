@@ -3,7 +3,7 @@
  * FIDO2 Hardware Key Management and 2FA Multi-State UI Coordinator.
  */
 
-import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals, renderTransportBadges } from './ui.js';
+import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals, renderTransportBadges, formatError } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function set2faBadge(method, fido2Count = 0) {
@@ -255,7 +255,7 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                     return { success: false, message: verData?.message || verData?.error || t('fido2_verify_failed') || '验证失败' };
                 }
             } catch (e) {
-                return { success: false, message: (t('fido2_canceled') || '已取消') + ': ' + (e.message || '') };
+                return { success: false, message: formatError(e, 'fido2_verify_failed') };
             }
         };
 

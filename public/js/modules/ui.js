@@ -104,3 +104,36 @@ export function copyToClipboard(text, triggerBtn, successText = '已复制') {
         }
     });
 }
+
+export function formatError(err, fallbackKey = 'msg_operation_failed') {
+    if (!err) return t(fallbackKey) || '操作失败';
+    const name = err.name || '';
+    const msg = String(err.message || err || '');
+
+    if (name === 'NotAllowedError' || msg.includes('not allowed') || msg.includes('canceled') || msg.includes('cancelled') || msg.includes('aborted')) {
+        return t('msg_operation_canceled') || '操作已取消';
+    }
+    if (name === 'InvalidStateError' || msg.includes('already registered') || msg.includes('InvalidStateError')) {
+        return t('msg_key_already_registered') || '该密钥已注册';
+    }
+    if (name === 'NotSupportedError' || msg.includes('not supported') || msg.includes('NotSupportedError')) {
+        return t('msg_not_supported') || '当前设备或浏览器不支持此功能';
+    }
+    if (name === 'TimeoutError' || msg.includes('timed out') || msg.includes('timeout')) {
+        return t('msg_operation_timeout') || '操作超时，请重试';
+    }
+    if (msg.includes('NetworkError') || msg.includes('Failed to fetch') || msg.includes('network') || msg.includes('Network error')) {
+        return t('msg_network_error') || '网络错误，请重试';
+    }
+
+    const translated = t(msg);
+    if (translated && translated !== msg) {
+        return translated;
+    }
+
+    if (!msg.includes('http') && !msg.includes('dom-pkcreator') && msg.length <= 40) {
+        return msg;
+    }
+
+    return t(fallbackKey) || '操作失败，请重试';
+}

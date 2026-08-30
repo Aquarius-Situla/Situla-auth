@@ -238,7 +238,7 @@ export function setupProfileEvents(onSuccessReload) {
     });
 
     document.getElementById('logoutAllBtn')?.addEventListener('click', async () => {
-        if (!confirm(t('msg_confirm_logout_all') || '确定要在所有设备上退出登录吗？')) return;
+        if (!confirm(t('msg_logout_all_confirm') || '确定要在所有设备上退出登录吗？')) return;
         try {
             await fetchApi('/api/logout-all', { method: 'POST' });
             window.location.href = '/';

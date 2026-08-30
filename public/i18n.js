@@ -1,105 +1,83 @@
+/**
+ * public/i18n.js
+ * Internationalization (i18n) dictionary and dynamic localizer.
+ */
+
 const translations = {
     "zh": {
-        // index.html
-        "login_doc_title": "登录",
-        "login_title": "登录",
-        "login_subtitle": "管理你的账户",
-        "username_placeholder": "用户名",
-        "password_placeholder": "密码",
-        "btn_continue": "继续",
-        "btn_passkey": "通过通行密钥登录",
-        "or_divider": "or",
-        
-        "msg_verifying": "验证中...",
-        "msg_wrong_credentials": "用户名或密码错误",
-        "msg_network_error": "网络错误，请重试",
-        "msg_no_passkey": "未检测到可用的通行密钥",
-        "msg_passkey_failed": "通行密钥验证失败",
-        "msg_passkey_canceled": "通行密钥取消或验证失败",
-
-        // 2fa.html (formerly totp.html)
-        "twofa_doc_title": "双重认证",
-        "twofa_title": "双重认证",
-        "totp_doc_title": "双重认证",
-        "totp_title": "双重认证",
-        "totp_subtitle_app": "请输入身份验证器中显示的 6 位验证码",
-        "totp_subtitle_rc": "请输入恢复码（格式：XXXXX-XXXXX）",
-        "rc_placeholder": "XXXXX-XXXXX",
-        "btn_back": "返回",
-        "totp_link_rc": "使用恢复码登录",
-        "totp_link_code": "使用验证码登录",
-        "msg_verify_failed": "验证失败，请重试",
-
-        // FIDO2 mode keys
-        "fido2_title": "安全密钥验证",
-        "fido2_subtitle_usb": "请插入并触摸你的安全密钥",
-        "fido2_subtitle_nfc": "请将安全密钥靠近手机 NFC 感应区域",
-        "fido2_waiting": "正在等待安全密钥...",
-        "fido2_prompt": "请点击下方按钮开始安全密钥验证",
-        "fido2_btn_start": "验证安全密钥",
-        "fido2_btn_retry": "重试",
-        "fido2_link_rc": "使用恢复码登录",
-        "fido2_link_key": "使用安全密钥登录",
-        "fido2_canceled": "操作已取消或未检测到安全密钥，请点击下方重试",
-        "fido2_verify_failed": "验证失败，请重试",
-
-        // admin.html
-        "admin_doc_title": "账户安全管理",
+        "admin_doc_title": "账户安全设置",
         "admin_title": "安全设置",
-        
+        "index_doc_title": "登录",
+        "twofa_doc_title": "双重认证",
         "section_username_title": "修改用户名",
         "section_username_desc": "更改后需使用新用户名登录。",
         "section_email_title": "绑定邮箱",
         "section_email_desc": "用于单点登录 (SSO) 时识别身份。",
         "section_password_title": "修改密码",
         "section_password_desc": "支持任意特殊字符，包括 & # @ * 等。",
-        
         "btn_change": "更改",
         "btn_cancel": "取消",
+        "btn_continue": "继续",
+        "btn_confirm": "确认",
+        "btn_close": "关闭",
+        "btn_view": "查看",
+        "btn_view_logs": "查看日志",
+        "btn_save": "保存",
         "btn_save_username": "保存用户名",
         "btn_save_email": "保存邮箱",
         "btn_save_password": "保存密码",
-        
+        "btn_logout": "退出登录",
+        "btn_logout_all": "在所有设备上退出",
+        "btn_copy": "复制",
+        "btn_copied": "已复制",
+        "btn_delete": "删除",
+        "btn_rename": "重命名",
         "placeholder_new_username": "新用户名",
         "placeholder_current_pwd": "当前密码（确认身份）",
         "placeholder_new_email": "你的邮箱地址",
         "placeholder_current_pwd_only": "当前密码",
         "placeholder_new_pwd": "新密码",
         "placeholder_confirm_pwd": "再次输入新密码",
-
+        "placeholder_pk_name": "给这把通行密钥起个名字（可留空）",
+        "placeholder_fido2_name": "给这把安全密钥起个名字（可留空）",
+        "placeholder_app_name": "应用名称（如：我的网盘）",
+        "placeholder_redirect_uris": "重定向 URI（每行一个）",
         "msg_enter_new_username": "请输入新用户名",
         "msg_username_same": "新用户名不能与当前用户名相同",
         "msg_username_invalid": "用户名须为 3-32 位字母、数字、下划线或连字符",
-        "msg_invalid_email": "邮箱格式不正确",
-        "msg_enter_current_pwd": "请输入当前密码",
         "msg_username_changed": "✓ 用户名已更改为「{0}」，下次登录请使用新用户名",
+        "msg_enter_current_pwd": "请输入当前密码",
         "msg_enter_email": "请输入邮箱",
         "msg_invalid_email": "邮箱格式不正确",
         "msg_email_changed": "✓ 邮箱已更新，请重新登录！",
         "msg_enter_new_pwd": "请输入新密码",
-        "msg_pwd_mismatch": "两次输入的密码不一致",
         "msg_pwd_too_short": "密码长度至少为 6 位",
+        "msg_pwd_mismatch": "两次输入的密码不一致",
         "msg_pwd_same": "新密码不能与当前密码相同",
         "msg_pwd_changed": "✓ 密码已成功更改",
-        "msg_change_failed": "修改失败",
-
+        "msg_change_failed": "修改失败，请重试",
+        "msg_logout_all_confirm": "确定要在所有设备上退出登录吗？",
+        "msg_fill_all_fields": "请填写所有必填项",
+        "msg_delete_failed": "删除失败，请重试",
+        "sudo_title": "确认你的密码",
+        "sudo_desc": "出于安全考虑，请输入当前密码以继续操作。",
+        "sudo_btn_confirm": "确认",
+        "sudo_pwd_placeholder": "密码",
+        "sudo_verifying": "验证中...",
+        "sudo_verify_failed": "密码错误，请重试",
         "section_pk_title": "通行密钥",
         "section_pk_desc": "使用面容、指纹或设备密码安全登录，更快捷，更安全。",
         "badge_none": "未添加",
         "badge_pk_count": "{0} 把",
         "badge_pk_count_full": "{0} 个通行密钥",
         "btn_add_pk": "＋ 添加通行密钥",
-        
-        "placeholder_pk_name": "给这把通行密钥起个名字（可留空）",
-        "btn_confirm_add_pk": "确认并注册",
+        "passkey_add_title": "添加通行密钥",
+        "passkey_add_desc": "通行密钥允许您使用面容、指纹或设备密码安全地登录。",
+        "passkey_name_placeholder": "给这把通行密钥起个名字",
         "default_pk_name": "通行密钥",
-        "msg_preparing": "准备中…",
         "msg_pk_added": "✓ 「{0}」添加成功！",
-        "msg_cancel": "操作取消",
-        
         "alert_delete_pk": "确定要删除这把通行密钥吗？",
         "prompt_rename_pk": "请输入新名称：",
-
         "section_2fa_title": "双重认证",
         "section_2fa_desc": "添加第二道防护。可选择身份验证器（TOTP 动态码）或 FIDO2 安全密钥（YubiKey 等）。",
         "section_2fa_desc_totp": "已启用身份验证器（TOTP 动态码）。",
@@ -112,310 +90,383 @@ const translations = {
         "badge_2fa_fido2": "安全密钥",
         "btn_setup_2fa": "＋ 添加双重认证",
         "btn_reset_2fa": "重新设置",
-        "btn_disable_2fa": "禁用双重认证",
-
-        // 2FA type selector
-        "choose_2fa_method": "选择验证方式",
-        "method_fido2_title": "安全密钥",
-        "method_fido2_desc": "YubiKey 等 FIDO2 硬件密钥",
-        "method_totp_title": "身份验证器",
-        "method_totp_desc": "TOTP 动态验证码",
-
-        "status_updating": "正在更新...",
-        "status_verifying": "正在验证...",
-        "status_saving": "正在保存...",
-
-        // TOTP setup
-        "step_1_scan": "1. 使用身份验证器扫描下方二维码：",
-        "label_manual_secret": "手动输入密钥",
-        "step_2_enter": "2. 输入应用中的 6 位验证码：",
-        "btn_verify_enable": "验证并启用",
-        
-        "msg_enter_6_digits": "请输入 6 位验证码",
-        "msg_2fa_enabled": "✓ 双重认证已成功启用",
-        "msg_2fa_wrong": "验证码错误，请重试",
-        "alert_disable_2fa": "确定要禁用双重认证吗？这会降低账户安全性。",
-
-        // FIDO2 key management in admin
-        "section_fido2_keys_title": "FIDO2 安全密钥",
-        "fido2_key_count_tip": "需要至少 2 把密钥才能启用，最多 6 把",
-        "fido2_min_warning": "已低于最少数量（2 把），FIDO2 双重认证已自动关闭",
-        "fido2_max_reached": "已达到最大数量（6 把）",
-        "btn_add_fido2_key": "＋ 添加安全密钥",
-        "btn_enable_fido2": "启用 FIDO2 双重认证",
-        "btn_switch_to_fido2": "切换为 FIDO2 验证",
-        "placeholder_fido2_key_name": "给这把安全密钥起个名字（可留空）",
+        "method_totp_title": "身份验证器 App",
+        "method_totp_desc": "Google Authenticator、Microsoft Authenticator 或 1Password 等。",
+        "method_fido2_title": "FIDO2 安全密钥",
+        "method_fido2_desc": "YubiKey 或其他硬件安全密钥。至少需要添加 2 把安全密钥以防丢失。",
+        "totp_setup_title": "设置身份验证器",
+        "totp_setup_desc": "使用支持的身份验证器 App 扫描二维码，或手动输入密钥。",
+        "totp_secret_label": "密钥：",
+        "totp_code_placeholder": "输入 6 位动态码",
+        "btn_confirm_totp": "确认并启用",
+        "msg_invalid_totp": "验证码不正确，请重新输入",
+        "msg_totp_enabled": "✓ 身份验证器已成功启用！",
+        "fido2_add_title": "添加 FIDO2 安全密钥",
+        "fido2_add_desc": "插入您的硬件安全密钥（如 YubiKey），并按照提示触摸激活。",
+        "fido2_name_placeholder": "给这把安全密钥起个名字",
         "default_fido2_key_name": "安全密钥",
-        "msg_fido2_key_added": "✓ 「{0}」添加成功！",
-        "alert_delete_fido2_key": "确定要删除这把安全密钥吗？",
+        "fido2_keys_status": "已添加 {0} 把安全密钥",
+        "fido2_min_warning": "（至少需要 2 把）",
+        "fido2_enable_hint": "已添加 {0} 把，满足启用要求。",
+        "btn_enable_fido2": "启用 FIDO2 双重认证",
+        "btn_add_another_fido2": "＋ 添加另一把密钥",
+        "alert_delete_fido2": "确定要删除这把安全密钥吗？",
+        "prompt_rename_fido2": "请输入新名称：",
+        "section_rc_title": "恢复码",
+        "section_rc_desc": "当您无法使用双重认证设备时，可使用恢复码登录。每组包含 16 个 8 位恢复码，每个仅可使用一次。",
+        "badge_rc_count": "剩余 {0} 个",
+        "badge_rc_none": "未生成",
+        "btn_view_rc": "查看 / 重新生成",
+        "rc_modal_title": "您的恢复码",
+        "rc_modal_desc": "请妥善保管以下恢复码。每个恢复码只能使用一次。",
+        "btn_regen_rc": "重新生成所有恢复码",
+        "confirm_regen_rc": "重新生成将使所有现有恢复码失效，确定要继续吗？",
+        "oidc_title": "OIDC 设置",
+        "oidc_desc": "管理可以通过当前身份验证系统登录的第三方应用（如网盘、论坛等）。",
+        "oidc_add": "＋ 添加第三方应用",
+        "oidc_add_title": "添加第三方应用",
+        "oidc_add_desc": "输入应用基本信息以创建 OIDC 客户端。",
+        "oidc_app_name_label": "应用名称",
+        "oidc_redirect_uris_label": "重定向 URI",
+        "oidc_secret_title": "应用已创建",
+        "oidc_secret_desc": "请妥善保管 Client Secret，它将只显示一次！",
+        "oidc_client_id_label": "Client ID：",
+        "oidc_client_secret_label": "Client Secret：",
+        "confirm_delete_oidc": "确定删除该第三方应用？删除后它将无法通过本系统登录。",
+        "status_no_oidc_clients": "暂无接入的应用",
+        "logs_title": "登录信息",
+        "logs_desc": "查看近期的登录日志，包含时间、IP、地理位置和设备信息。",
+        "status_no_logs": "暂无登录日志",
+        "msg_operation_canceled": "操作已取消",
+        "msg_key_already_registered": "该密钥已注册",
+        "msg_not_supported": "当前设备或浏览器不支持此功能",
+        "msg_operation_timeout": "操作超时，请重试",
+        "msg_network_error": "网络错误，请重试",
+        "msg_operation_failed": "操作失败，请重试",
+        "msg_passkey_failed": "通行密钥验证失败，请重试",
+        "msg_passkey_canceled": "操作已取消",
+        "fido2_verify_failed": "安全密钥验证失败，请重试",
+        "fido2_canceled": "操作已取消",
+        "status_no_passkeys": "未添加通行密钥",
+        "status_no_fido2": "未添加安全密钥",
+        "status_load_failed": "加载失败，请刷新页面",
+        "status_updating": "正在更新...",
+        "status_copied": "已复制到剪贴板",
+        "status_email_not_set": "未绑定",
         "transport_usb": "USB",
         "transport_nfc": "NFC",
         "transport_ble": "蓝牙",
-        "transport_internal": "内置",
-
-        "section_rc_title": "恢复码",
-        "section_rc_desc": "当你无法使用双重认证设备时，可用恢复码一次性登录。每码只能使用一次，请妥善保存。",
+        "transport_internal": "内置生物识别",
+        "login_doc_title": "登录",
+        "login_title": "登录到账户",
+        "login_subtitle": "使用您的凭据或通行密钥继续访问。",
+        "username_placeholder": "用户名",
+        "password_placeholder": "密码",
+        "btn_passkey": "使用通行密钥登录",
+        "or_divider": "或",
+        "msg_wrong_credentials": "用户名或密码错误",
+        "msg_verifying": "正在验证...",
+        "msg_no_passkey": "未找到匹配的通行密钥",
+        "twofa_title": "双重认证",
+        "choose_2fa_method": "选择认证方式",
+        "totp_subtitle_app": "输入身份验证器 App 生成的 6 位动态验证码。",
+        "step_1_scan": "第一步：使用身份验证器 App 扫描二维码",
+        "step_2_enter": "第二步：输入 6 位动态验证码",
+        "label_manual_secret": "无法扫码？手动输入密钥：",
+        "btn_verify_enable": "验证并启用",
+        "btn_back": "返回",
+        "totp_link_rc": "无法使用验证器？使用恢复码登录",
+        "fido2_title": "安全密钥",
+        "fido2_subtitle_usb": "插入您的硬件安全密钥（如 YubiKey）并轻触以进行验证。",
+        "fido2_prompt": "正在等待安全密钥响应，请触摸您的密钥...",
+        "fido2_waiting": "等待密钥响应...",
+        "fido2_btn_start": "使用安全密钥验证",
+        "fido2_btn_retry": "重试安全密钥",
+        "fido2_link_rc": "安全密钥丢失？使用恢复码登录",
+        "rc_placeholder": "输入 8 位恢复码",
+        "rc_warning": "每个恢复码仅能使用一次。使用后请尽快在安全设置中重新生成。",
+        "btn_copy_all": "复制全部恢复码",
+        "btn_disable_2fa": "停用双重认证",
+        "btn_gen_rc": "生成恢复码",
         "badge_not_gen": "未生成",
         "badge_rc_remaining": "剩余 {0} 个",
-        "btn_gen_rc": "生成恢复码",
-        "rc_warning": "⚠️ 请立即将这些恢复码保存到安全的地方，它们只会显示一次。",
-        "btn_copy_all": "复制全部",
-        "msg_copied": "✓ 已复制到剪贴板",
-        "alert_regen_rc": "生成新恢复码将使旧恢复码全部失效，确定继续吗？",
-
-        "btn_logout": "退出登录",
-        "btn_logout_all": "在所有设备上退出",
-        "msg_logout_all_confirm": "确定要在所有设备上退出登录吗？此操作会使所有当前已登录的会话立即失效。",
-
-        // Sudo modal
-        "sudo_title": "确认你的密码",
-        "sudo_desc": "出于安全考虑，请输入当前密码以继续操作。",
-        "sudo_btn_confirm": "确认",
-        "sudo_btn_cancel": "取消",
-        // OIDC & Dynamic UI status keys
-        "status_no_oidc_clients": "暂无接入的应用",
-        "passkey_add_title": "添加通行密钥",
-        "passkey_add_desc": "通行密钥允许您使用面容、指纹或设备密码安全地登录。",
-        "passkey_name_placeholder": "给这把通行密钥起个名字",
-        "fido2_add_title": "添加 FIDO2 安全密钥",
-        "fido2_add_desc": "使用硬件 USB 密钥或 NFC 设备进行超强安全验证。",
-        "fido2_name_placeholder": "给这把安全密钥起个名字",
-        "status_no_passkeys": "暂无通行密钥",
-        "status_no_fido2": "暂无安全密钥",
-        "status_no_logs": "暂无日志",
-        "status_load_failed": "加载失败，请重试",
-        "status_updating": "正在更新...",
-        "status_copied": "已复制",
-        "status_email_not_set": "未绑定",
-        "confirm_delete_oidc": "确定删除该第三方应用？删除后它将无法通过本系统登录。",
-        "oidc_add_title": "生成 OIDC 凭证",
-        "btn_add_app": "＋ 添加第三方应用",
-    },
+        "btn_add_fido2_key": "＋ 添加安全密钥",
+        "alert_delete_fido2_key": "确定要删除这把安全密钥吗？",
+        "msg_verify_failed": "验证失败，请重试",
+        "msg_2fa_wrong": "双重认证码错误或已失效",
+        "msg_enter_6_digits": "请输入完整的 6 位验证码",
+        "btn_switch_to_fido2": "使用安全密钥",
+        "msg_2fa_enabled": "双重认证已成功启用！",
+        "btn_confirm_add_pk": "确认并添加",
+        "placeholder_fido2_key_name": "安全密钥名称（如：YubiKey 5C）"
+},
     "en": {
-        // index.html
-        "login_doc_title": "Sign In",
-        "login_title": "Sign In",
-        "login_subtitle": "Manage your account",
-        "username_placeholder": "Username",
-        "password_placeholder": "Password",
-        "btn_continue": "Continue",
-        "btn_passkey": "Sign in with Passkey",
-        "or_divider": "or",
-        
-        "msg_verifying": "Verifying...",
-        "msg_wrong_credentials": "Incorrect username or password",
-        "msg_network_error": "Network error, please try again",
-        "msg_no_passkey": "No available passkey detected",
-        "msg_passkey_failed": "Passkey verification failed",
-        "msg_passkey_canceled": "Passkey canceled or verification failed",
-
-        // 2fa.html (formerly totp.html)
-        "twofa_doc_title": "Two-Factor Authentication",
-        "twofa_title": "Two-Factor Authentication",
-        "totp_doc_title": "Two-Factor Authentication",
-        "totp_title": "Two-Factor Authentication",
-        "totp_subtitle_app": "Enter the 6-digit code from your Authenticator",
-        "totp_subtitle_rc": "Enter recovery code (Format: XXXXX-XXXXX)",
-        "rc_placeholder": "XXXXX-XXXXX",
-        "btn_back": "Back",
-        "totp_link_rc": "Use a recovery code",
-        "totp_link_code": "Use authenticator code",
-        "msg_verify_failed": "Verification failed, please try again",
-
-        // FIDO2 mode keys
-        "fido2_title": "Security Key",
-        "fido2_subtitle_usb": "Insert and touch your security key",
-        "fido2_subtitle_nfc": "Hold your security key near the NFC area on your phone",
-        "fido2_waiting": "Waiting for security key...",
-        "fido2_prompt": "Click the button below to verify with your security key",
-        "fido2_btn_start": "Verify Security Key",
-        "fido2_btn_retry": "Retry",
-        "fido2_link_rc": "Use a recovery code",
-        "fido2_link_key": "Use security key",
-        "fido2_canceled": "Operation canceled or no key detected. Click retry below.",
-        "fido2_verify_failed": "Verification failed, please try again",
-
-        // admin.html
-        "admin_doc_title": "Account Security",
+        "admin_doc_title": "Account Security Settings",
         "admin_title": "Security Settings",
-        
+        "index_doc_title": "Sign In",
+        "twofa_doc_title": "Two-Factor Authentication",
         "section_username_title": "Change Username",
         "section_username_desc": "You will need to sign in with your new username.",
         "section_email_title": "Bind Email",
         "section_email_desc": "Used for identity recognition during Single Sign-On (SSO).",
         "section_password_title": "Change Password",
-        "section_password_desc": "Supports any special characters, including & # @ * etc.",
-        
+        "section_password_desc": "Supports arbitrary special characters, including & # @ * etc.",
         "btn_change": "Change",
         "btn_cancel": "Cancel",
+        "btn_continue": "Continue",
+        "btn_confirm": "Confirm",
+        "btn_close": "Close",
+        "btn_view": "View",
+        "btn_view_logs": "View Logs",
+        "btn_save": "Save",
         "btn_save_username": "Save Username",
         "btn_save_email": "Save Email",
         "btn_save_password": "Save Password",
-        
+        "btn_logout": "Sign Out",
+        "btn_logout_all": "Sign Out All Devices",
+        "btn_copy": "Copy",
+        "btn_copied": "Copied",
+        "btn_delete": "Delete",
+        "btn_rename": "Rename",
         "placeholder_new_username": "New username",
-        "placeholder_current_pwd": "Current password (to verify identity)",
+        "placeholder_current_pwd": "Current password",
         "placeholder_new_email": "Your email address",
         "placeholder_current_pwd_only": "Current password",
         "placeholder_new_pwd": "New password",
-        "placeholder_confirm_pwd": "Re-enter new password",
-
+        "placeholder_confirm_pwd": "Confirm new password",
+        "placeholder_pk_name": "Name this passkey (optional)",
+        "placeholder_fido2_name": "Name this security key (optional)",
+        "placeholder_app_name": "App Name (e.g. Nextcloud)",
+        "placeholder_redirect_uris": "Redirect URIs (one per line)",
         "msg_enter_new_username": "Please enter a new username",
         "msg_username_same": "New username cannot be the same as current",
         "msg_username_invalid": "Username must be 3-32 alphanumeric characters, hyphens, or underscores",
-        "msg_invalid_email": "Invalid email format",
-        "msg_enter_current_pwd": "Please enter your current password",
-        "msg_username_changed": "✓ Username changed to '{0}'. Please use it next time.",
-        "msg_enter_email": "Please enter an email address",
+        "msg_username_changed": "✓ Username changed to \"{0}\", please sign in with it next time",
+        "msg_enter_current_pwd": "Please enter current password",
+        "msg_enter_email": "Please enter email address",
         "msg_invalid_email": "Invalid email format",
         "msg_email_changed": "✓ Email updated. Please sign in again!",
         "msg_enter_new_pwd": "Please enter a new password",
-        "msg_pwd_mismatch": "Passwords do not match",
         "msg_pwd_too_short": "Password must be at least 6 characters",
-        "msg_pwd_same": "New password cannot be the same as the current one",
+        "msg_pwd_mismatch": "Passwords do not match",
+        "msg_pwd_same": "New password cannot be the same as current",
         "msg_pwd_changed": "✓ Password successfully changed",
-        "msg_change_failed": "Update failed",
-
+        "msg_change_failed": "Update failed, please try again",
+        "msg_logout_all_confirm": "Are you sure you want to sign out on all devices?",
+        "msg_fill_all_fields": "Please fill in all required fields",
+        "msg_delete_failed": "Deletion failed, please try again",
+        "sudo_title": "Confirm Password",
+        "sudo_desc": "For security reasons, please enter your current password to continue.",
+        "sudo_btn_confirm": "Confirm",
+        "sudo_pwd_placeholder": "Password",
+        "sudo_verifying": "Verifying...",
+        "sudo_verify_failed": "Incorrect password, please try again",
         "section_pk_title": "Passkeys",
-        "section_pk_desc": "Sign in safely and quickly with Face ID, Touch ID, or device passcode.",
-        "badge_none": "None",
-        "badge_pk_count": "{0} Keys",
-        "badge_pk_count_full": "{0} Passkeys",
-        "btn_add_pk": "＋ Add a Passkey",
-        
-        "placeholder_pk_name": "Name this passkey (optional)",
-        "btn_confirm_add_pk": "Confirm & Register",
+        "section_pk_desc": "Sign in securely using Face ID, fingerprint, or device PIN. Faster and safer.",
+        "badge_none": "Not added",
+        "badge_pk_count": "{0}",
+        "badge_pk_count_full": "{0} passkeys",
+        "btn_add_pk": "+ Add Passkey",
+        "passkey_add_title": "Add Passkey",
+        "passkey_add_desc": "Passkeys allow you to sign in securely using Face ID, fingerprint, or screen lock.",
+        "passkey_name_placeholder": "Name this passkey",
         "default_pk_name": "Passkey",
-        "msg_preparing": "Preparing...",
-        "msg_pk_added": "✓ '{0}' added successfully!",
-        "msg_cancel": "Operation canceled",
-        
+        "msg_pk_added": "✓ \"{0}\" added successfully!",
         "alert_delete_pk": "Are you sure you want to delete this passkey?",
         "prompt_rename_pk": "Enter new name:",
-
         "section_2fa_title": "Two-Factor Authentication",
-        "section_2fa_desc": "Add a second layer of protection — choose between an Authenticator (TOTP) or a FIDO2 Security Key (YubiKey, etc.).",
-        "section_2fa_desc_totp": "Authenticator (TOTP) is enabled.",
+        "section_2fa_desc": "Add a second layer of security. Choose an authenticator app (TOTP) or FIDO2 security key.",
+        "section_2fa_desc_totp": "Authenticator App (TOTP) is enabled.",
         "section_2fa_desc_fido2": "FIDO2 Security Key verification is enabled.",
-        "section_fido2_downgraded_desc": "FIDO2 Security Keys dropped below 2. Two-Factor Authentication is frozen. Please add keys to re-enable.",
+        "section_fido2_downgraded_desc": "Fewer than 2 security keys registered. 2FA is frozen until 2 or more keys are added.",
         "badge_disabled": "Disabled",
-        "badge_downgraded": "Downgraded",
+        "badge_downgraded": "Frozen",
         "badge_enabled": "Enabled",
-        "badge_2fa_totp": "Authenticator",
+        "badge_2fa_totp": "Authenticator App",
         "badge_2fa_fido2": "Security Key",
-        "btn_setup_2fa": "＋ Add Two-Factor Authentication",
+        "btn_setup_2fa": "+ Set Up 2FA",
         "btn_reset_2fa": "Reset 2FA",
-        "btn_disable_2fa": "Disable 2FA",
-
-        // 2FA type selector
-        "choose_2fa_method": "Choose verification method",
-        "method_fido2_title": "Security Key",
-        "method_fido2_desc": "FIDO2 hardware key (YubiKey, etc.)",
-        "method_totp_title": "Authenticator",
-        "method_totp_desc": "TOTP time-based code",
-
-        "status_updating": "Updating...",
-        "status_verifying": "Verifying...",
-        "status_saving": "Saving...",
-
-        // TOTP setup
-        "step_1_scan": "1. Scan the QR code below with your Authenticator:",
-        "label_manual_secret": "Manual Secret Key",
-        "step_2_enter": "2. Enter the 6-digit code from the app:",
-        "btn_verify_enable": "Verify & Enable",
-        
-        "msg_enter_6_digits": "Please enter a 6-digit code",
-        "msg_2fa_enabled": "✓ Two-Factor Authentication successfully enabled",
-        "msg_2fa_wrong": "Incorrect code, please try again",
-        "alert_disable_2fa": "Are you sure you want to disable Two-Factor Authentication? This will reduce your account security.",
-
-        // FIDO2 key management in admin
-        "section_fido2_keys_title": "FIDO2 Security Keys",
-        "fido2_key_count_tip": "Minimum 2 keys required to enable; maximum 6",
-        "fido2_min_warning": "Below minimum (2 keys) — FIDO2 Two-Factor Authentication has been automatically disabled",
-        "fido2_max_reached": "Maximum reached (6 keys)",
-        "btn_add_fido2_key": "＋ Add Security Key",
-        "btn_enable_fido2": "Enable FIDO2 Two-Factor Authentication",
-        "btn_switch_to_fido2": "Switch to FIDO2 2FA",
-        "placeholder_fido2_key_name": "Name this key (optional)",
+        "method_totp_title": "Authenticator App",
+        "method_totp_desc": "Google Authenticator, Microsoft Authenticator, 1Password, etc.",
+        "method_fido2_title": "FIDO2 Security Key",
+        "method_fido2_desc": "YubiKey or other hardware keys. At least 2 security keys are required to prevent lockout.",
+        "totp_setup_title": "Set Up Authenticator App",
+        "totp_setup_desc": "Scan the QR code with your authenticator app or enter the key manually.",
+        "totp_secret_label": "Key:",
+        "totp_code_placeholder": "Enter 6-digit code",
+        "btn_confirm_totp": "Confirm & Enable",
+        "msg_invalid_totp": "Invalid verification code, please try again",
+        "msg_totp_enabled": "✓ Authenticator App successfully enabled!",
+        "fido2_add_title": "Add FIDO2 Security Key",
+        "fido2_add_desc": "Insert your hardware key (e.g. YubiKey) and touch to activate.",
+        "fido2_name_placeholder": "Name this security key",
         "default_fido2_key_name": "Security Key",
-        "msg_fido2_key_added": "✓ '{0}' added successfully!",
-        "alert_delete_fido2_key": "Are you sure you want to delete this security key?",
+        "fido2_keys_status": "{0} security keys registered",
+        "fido2_min_warning": "(minimum 2 required)",
+        "fido2_enable_hint": "{0} keys added. Meets requirement to enable 2FA.",
+        "btn_enable_fido2": "Enable FIDO2 2FA",
+        "btn_add_another_fido2": "+ Add Another Key",
+        "alert_delete_fido2": "Are you sure you want to delete this security key?",
+        "prompt_rename_fido2": "Enter new name:",
+        "section_rc_title": "Recovery Codes",
+        "section_rc_desc": "Use recovery codes to sign in if you lose access to your 2FA devices. 16 single-use codes provided.",
+        "badge_rc_count": "{0} remaining",
+        "badge_rc_none": "Not generated",
+        "btn_view_rc": "View / Regenerate",
+        "rc_modal_title": "Your Recovery Codes",
+        "rc_modal_desc": "Save these recovery codes in a safe place. Each code can only be used once.",
+        "btn_regen_rc": "Regenerate All Codes",
+        "confirm_regen_rc": "Regenerating will invalidate all existing codes. Are you sure you want to continue?",
+        "oidc_title": "OIDC Settings",
+        "oidc_desc": "Manage third-party applications connected to this authentication system.",
+        "oidc_add": "+ Add Application",
+        "oidc_add_title": "Add Application",
+        "oidc_add_desc": "Enter basic application details to create an OIDC client.",
+        "oidc_app_name_label": "Application Name",
+        "oidc_redirect_uris_label": "Redirect URIs",
+        "oidc_secret_title": "Application Created",
+        "oidc_secret_desc": "Save the Client Secret now. It will only be shown once!",
+        "oidc_client_id_label": "Client ID:",
+        "oidc_client_secret_label": "Client Secret:",
+        "confirm_delete_oidc": "Are you sure you want to delete this application? It will no longer be able to authenticate users.",
+        "status_no_oidc_clients": "No applications connected",
+        "logs_title": "Login Activity",
+        "logs_desc": "View recent login history, including time, IP, location, and device info.",
+        "status_no_logs": "No logs available",
+        "msg_operation_canceled": "Operation canceled",
+        "msg_key_already_registered": "This security key is already registered",
+        "msg_not_supported": "Not supported on this device or browser",
+        "msg_operation_timeout": "Operation timed out, please try again",
+        "msg_network_error": "Network error, please try again",
+        "msg_operation_failed": "Operation failed, please try again",
+        "msg_passkey_failed": "Passkey verification failed, please try again",
+        "msg_passkey_canceled": "Operation canceled",
+        "fido2_verify_failed": "Security key verification failed, please try again",
+        "fido2_canceled": "Operation canceled",
+        "status_no_passkeys": "No passkeys added",
+        "status_no_fido2": "No security keys added",
+        "status_load_failed": "Failed to load, please refresh",
+        "status_updating": "Updating...",
+        "status_copied": "Copied to clipboard",
+        "status_email_not_set": "Not set",
         "transport_usb": "USB",
         "transport_nfc": "NFC",
         "transport_ble": "Bluetooth",
-        "transport_internal": "Built-in",
-        
-        "section_rc_title": "Recovery Codes",
-        "section_rc_desc": "If you lose access to your Two-Factor Authentication device, you can use a recovery code to sign in. Each code can only be used once. Please keep them safe.",
-        "badge_not_gen": "None",
-        "badge_rc_remaining": "{0} left",
-        "btn_gen_rc": "Generate Codes",
-        "rc_warning": "⚠️ Please save these recovery codes in a safe place immediately. They will only be shown once.",
-        "btn_copy_all": "Copy All",
-        "msg_copied": "✓ Copied to clipboard",
-        "alert_regen_rc": "Generating new recovery codes will invalidate all existing ones. Continue?",
-
-        "btn_logout": "Sign Out",
-        "btn_logout_all": "Sign out from all devices",
-        "msg_logout_all_confirm": "Are you sure you want to sign out from all devices? This will immediately invalidate all active sessions.",
-
-        // Sudo modal
-        "sudo_title": "Confirm Your Password",
-        "sudo_desc": "For security reasons, please enter your current password to continue.",
-        "sudo_btn_confirm": "Confirm",
-        "sudo_btn_cancel": "Cancel",
-        // OIDC & Dynamic UI status keys
-        "status_no_oidc_clients": "No client applications registered",
-        "passkey_add_title": "Add Passkey",
-        "passkey_add_desc": "Passkeys allow you to sign in securely using Face ID, Touch ID, or device lock.",
-        "passkey_name_placeholder": "Name this passkey",
-        "fido2_add_title": "Add FIDO2 Security Key",
-        "fido2_add_desc": "Use hardware USB or NFC security keys for robust authentication.",
-        "fido2_name_placeholder": "Name this security key",
-        "status_no_passkeys": "No passkeys added",
-        "status_no_fido2": "No security keys added",
-        "status_no_logs": "No logs available",
-        "status_load_failed": "Failed to load, please try again",
-        "status_updating": "Updating...",
-        "status_copied": "Copied",
-        "status_email_not_set": "Not set",
-        "confirm_delete_oidc": "Are you sure you want to delete this application?",
-        "oidc_add_title": "Generate OIDC Client",
-        "btn_add_app": "+ Add Application",
-    }
+        "transport_internal": "Platform Biometrics",
+        "login_doc_title": "Sign In",
+        "login_title": "Sign In to Account",
+        "login_subtitle": "Continue with your credentials or passkey.",
+        "username_placeholder": "Username",
+        "password_placeholder": "Password",
+        "btn_passkey": "Sign in with a passkey",
+        "or_divider": "or",
+        "msg_wrong_credentials": "Invalid username or password",
+        "msg_verifying": "Verifying...",
+        "msg_no_passkey": "No matching passkey found",
+        "twofa_title": "Two-Factor Authentication",
+        "choose_2fa_method": "Choose Authentication Method",
+        "totp_subtitle_app": "Enter the 6-digit verification code generated by your authenticator app.",
+        "step_1_scan": "Step 1: Scan QR code with your authenticator app",
+        "step_2_enter": "Step 2: Enter 6-digit verification code",
+        "label_manual_secret": "Can't scan? Enter key manually:",
+        "btn_verify_enable": "Verify & Enable",
+        "btn_back": "Back",
+        "totp_link_rc": "Can't access app? Use a recovery code",
+        "fido2_title": "Security Key",
+        "fido2_subtitle_usb": "Insert your hardware key (e.g. YubiKey) and touch to verify.",
+        "fido2_prompt": "Waiting for security key response, please touch your key...",
+        "fido2_waiting": "Waiting for key response...",
+        "fido2_btn_start": "Verify with Security Key",
+        "fido2_btn_retry": "Retry Security Key",
+        "fido2_link_rc": "Lost your key? Use a recovery code",
+        "rc_placeholder": "Enter 8-character recovery code",
+        "rc_warning": "Each recovery code can only be used once. Please regenerate when low.",
+        "btn_copy_all": "Copy All Codes",
+        "btn_disable_2fa": "Disable 2FA",
+        "btn_gen_rc": "Generate Recovery Codes",
+        "badge_not_gen": "Not generated",
+        "badge_rc_remaining": "{0} remaining",
+        "btn_add_fido2_key": "+ Add Security Key",
+        "alert_delete_fido2_key": "Are you sure you want to delete this security key?",
+        "msg_verify_failed": "Verification failed, please try again",
+        "msg_2fa_wrong": "Invalid or expired 2FA code",
+        "msg_enter_6_digits": "Please enter a complete 6-digit code",
+        "btn_switch_to_fido2": "Use Security Key",
+        "msg_2fa_enabled": "Two-factor authentication successfully enabled!",
+        "btn_confirm_add_pk": "Confirm & Add",
+        "placeholder_fido2_key_name": "Security key name (e.g. YubiKey 5C)"
+}
 };
 
-const currentLang = (navigator.language || navigator.userLanguage).toLowerCase().startsWith('zh') ? 'zh' : 'en';
+let currentLang = 'zh';
+
+function getInitialLanguage() {
+    const saved = localStorage.getItem('situla_lang');
+    if (saved && (saved === 'zh' || saved === 'en')) {
+        return saved;
+    }
+    const navLang = navigator.language || navigator.userLanguage || '';
+    if (navLang.toLowerCase().startsWith('zh')) {
+        return 'zh';
+    }
+    return 'en';
+}
+
+function setLanguage(lang) {
+    if (lang !== 'zh' && lang !== 'en') return;
+    currentLang = lang;
+    localStorage.setItem('situla_lang', lang);
+    applyTranslations();
+    document.documentElement.lang = lang;
+}
 
 function t(key, ...args) {
-    let str = translations[currentLang][key] || translations['zh'][key] || key;
-    args.forEach((arg, i) => {
-        str = str.replace(`{${i}}`, arg);
-    });
+    const dict = translations[currentLang] || translations['zh'];
+    let str = dict[key] || translations['zh'][key] || key;
+    if (args.length > 0) {
+        args.forEach((arg, i) => {
+            str = str.replace(new RegExp(`\\{${i}\\}`, 'g'), arg);
+        });
+    }
     return str;
 }
 
 function applyTranslations() {
-    // Update elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[currentLang][key]) {
-            el.textContent = translations[currentLang][key];
+        const translated = t(key);
+        if (translated && translated !== key) {
+            el.textContent = translated;
         }
     });
 
-    // Update elements with data-i18n-placeholder
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
-        if (translations[currentLang][key]) {
-            el.setAttribute('placeholder', translations[currentLang][key]);
+        const translated = t(key);
+        if (translated && translated !== key) {
+            el.setAttribute('placeholder', translated);
         }
     });
 
-    // Specific logic for document title if present
-    if (document.title && document.body.dataset.pageTitleKey) {
-        document.title = t(document.body.dataset.pageTitleKey);
+    const pageTitleEl = document.querySelector('[data-page-title-key]');
+    if (pageTitleEl) {
+        const key = pageTitleEl.getAttribute('data-page-title-key');
+        const translated = t(key);
+        if (translated && translated !== key) {
+            document.title = translated;
+        }
     }
 }
 
-document.addEventListener('DOMContentLoaded', applyTranslations);
+currentLang = getInitialLanguage();
+document.documentElement.lang = currentLang;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyTranslations);
+} else {
+    applyTranslations();
+}
+
+window.t = t;
+window.setLanguage = setLanguage;
+window.getLanguage = () => currentLang;
