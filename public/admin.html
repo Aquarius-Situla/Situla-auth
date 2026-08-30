@@ -30,7 +30,7 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全管理</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=79">
+    <link rel="stylesheet" href="/css/style.css?v=80">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
@@ -389,10 +389,15 @@
             border-radius: 6px;
             border: none;
             cursor: pointer;
-            transition: background 0.15s;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.15s, color 0.15s;
+        }
+        .pk-btn:focus:not(:focus-visible) {
+            outline: none;
         }
         .pk-rename {
-            
+            background: #f0f0f5;
             color: #3c3c43;
             width: 30px;
             height: 30px;
@@ -402,7 +407,6 @@
             justify-content: center;
             border-radius: 8px;
         }
-        .pk-rename:hover { background: #e0e0e8; }
         .pk-delete {
             background: #fff0f0;
             color: #ff3b30;
@@ -414,7 +418,12 @@
             justify-content: center;
             border-radius: 8px;
         }
-        .pk-delete:hover { background: #ff3b30; color: #fff; }
+        @media (hover: hover) and (pointer: fine) {
+            .pk-rename:hover { background: #e0e0e8; }
+            .pk-delete:hover { background: #ff3b30; color: #fff; }
+        }
+        .pk-rename:active { background: #d0d0d8; }
+        .pk-delete:active { background: #e02d24; color: #fff; }
 
         /* Method Selector */
         .method-selector-container {
@@ -567,7 +576,7 @@
     </style>
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js?v=79"></script>
+    <script src="/i18n.js?v=80"></script>
 </head>
 <body data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">

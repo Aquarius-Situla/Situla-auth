@@ -63,8 +63,14 @@ export function renderPasskeys(keys) {
     }).join('');
 }
 
-export async function deletePasskey(id) {
-    if (!confirm(t('alert_delete_pk') || '确定要删除此通行密钥吗？')) return;
+export async function deletePasskey(id, btn) {
+    if (btn) btn.blur();
+    if (document.activeElement) document.activeElement.blur();
+    const confirmed = confirm(t('alert_delete_pk') || '确定要删除此通行密钥吗？');
+    if (btn) btn.blur();
+    if (document.activeElement) document.activeElement.blur();
+    if (!confirmed) return;
+
     const { ok, data } = await fetchApi(`/api/passkeys/${id}`, { method: 'DELETE' });
     if (ok && data?.success) {
         document.getElementById(`pk-${id}`)?.remove();
@@ -77,10 +83,15 @@ export async function deletePasskey(id) {
     }
 }
 
-export async function renamePasskey(id) {
+export async function renamePasskey(id, btn) {
+    if (btn) btn.blur();
+    if (document.activeElement) document.activeElement.blur();
     const current = document.getElementById(`pk-name-${id}`)?.textContent || t('default_pk_name') || '通行密钥';
     const newName = prompt(t('prompt_rename_pk') || '请输入新名称：', current);
+    if (btn) btn.blur();
+    if (document.activeElement) document.activeElement.blur();
     if (!newName || newName.trim() === current) return;
+
     const { ok, data } = await fetchApi(`/api/passkeys/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({ name: newName.trim() })
@@ -97,10 +108,11 @@ export function setupPasskeyEvents(onSuccessReload) {
         list.addEventListener('click', (e) => {
             const btn = e.target.closest('.pk-btn');
             if (!btn) return;
+            btn.blur();
             const action = btn.getAttribute('data-action');
             const id = btn.getAttribute('data-id');
-            if (action === 'rename') renamePasskey(id);
-            if (action === 'delete') deletePasskey(id);
+            if (action === 'rename') renamePasskey(id, btn);
+            if (action === 'delete') deletePasskey(id, btn);
         });
     }
 

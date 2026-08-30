@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/oidc.js
  * OIDC Application Management (pixel-perfect list and Sudo modal).
  */
@@ -50,7 +50,12 @@ export async function loadOidcClients() {
             </svg>`;
 
             delBtn.onclick = async () => {
-                if (!confirm(t('confirm_delete_oidc') || '确定删除该第三方应用？删除后它将无法通过本系统登录。')) return;
+                delBtn.blur();
+                if (document.activeElement) document.activeElement.blur();
+                const confirmed = confirm(t('confirm_delete_oidc') || '确定删除该第三方应用？删除后它将无法通过本系统登录。');
+                delBtn.blur();
+                if (document.activeElement) document.activeElement.blur();
+                if (!confirmed) return;
                 const actionFn = async () => {
                     const r = await fetchApi('/api/oidc/clients/' + client.id, { method: 'DELETE' });
                     return r;

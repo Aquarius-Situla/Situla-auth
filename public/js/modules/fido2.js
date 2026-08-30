@@ -125,6 +125,8 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
         list.addEventListener('click', async (e) => {
             const btn = e.target.closest('.pk-btn');
             if (!btn) return;
+            btn.blur();
+            if (document.activeElement) document.activeElement.blur();
             const action = btn.getAttribute('data-action');
             const id = btn.getAttribute('data-id');
 
@@ -132,6 +134,8 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                 const currentEl = document.getElementById(`fido2-name-${id}`);
                 const current = currentEl ? currentEl.childNodes[0].nodeValue.trim() : (t('default_fido2_key_name') || '安全密钥');
                 const newName = prompt(t('prompt_rename_pk') || '请输入新名称：', current);
+                btn.blur();
+                if (document.activeElement) document.activeElement.blur();
                 if (!newName || newName.trim() === current) return;
                 const { ok, data } = await fetchApi(`/api/fido2/keys/${id}`, {
                     method: 'PATCH',
@@ -141,7 +145,10 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                     currentEl.childNodes[0].nodeValue = newName.trim();
                 }
             } else if (action === 'delete') {
-                if (!confirm(t('alert_delete_fido2_key') || '确定要删除此安全密钥吗？')) return;
+                const confirmed = confirm(t('alert_delete_fido2_key') || '确定要删除此安全密钥吗？');
+                btn.blur();
+                if (document.activeElement) document.activeElement.blur();
+                if (!confirmed) return;
                 const { ok, data } = await fetchApi(`/api/fido2/keys/${id}`, { method: 'DELETE' });
                 if (ok && data?.success) {
                     document.getElementById(`fido2-${id}`)?.remove();
