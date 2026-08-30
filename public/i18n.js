@@ -68,6 +68,9 @@ const translations = {
         "placeholder_confirm_pwd": "再次输入新密码",
 
         "msg_enter_new_username": "请输入新用户名",
+        "msg_username_same": "新用户名不能与当前用户名相同",
+        "msg_username_invalid": "用户名须为 3-32 位字母、数字、下划线或连字符",
+        "msg_invalid_email": "邮箱格式不正确",
         "msg_enter_current_pwd": "请输入当前密码",
         "msg_username_changed": "✓ 用户名已更改为「{0}」，下次登录请使用新用户名",
         "msg_enter_email": "请输入邮箱",
@@ -257,6 +260,9 @@ const translations = {
         "placeholder_confirm_pwd": "Re-enter new password",
 
         "msg_enter_new_username": "Please enter a new username",
+        "msg_username_same": "New username cannot be the same as current",
+        "msg_username_invalid": "Username must be 3-32 alphanumeric characters, hyphens, or underscores",
+        "msg_invalid_email": "Invalid email format",
         "msg_enter_current_pwd": "Please enter your current password",
         "msg_username_changed": "✓ Username changed to '{0}'. Please use it next time.",
         "msg_enter_email": "Please enter an email address",

@@ -13,25 +13,53 @@ export function setupProfileEvents(onSuccessReload) {
         const modal = document.getElementById('usernameModal');
         if (modal) modal.style.display = 'flex';
         const step1 = document.getElementById('usernameStep1');
+        const step2 = document.getElementById('usernameStep2');
         if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
         const inp = document.getElementById('newUsername');
         if (inp) inp.value = '';
         const msg1 = document.getElementById('usernameMsg1');
-        if (msg1) msg1.textContent = '';
+        if (msg1) {
+            msg1.textContent = '';
+            msg1.className = 'msg';
+        }
+        setTimeout(() => inp?.focus(), 60);
     });
 
     document.getElementById('cancelUsernameBtn1')?.addEventListener('click', closeAllModals);
     document.getElementById('cancelUsernameBtn2')?.addEventListener('click', closeAllModals);
 
-    document.getElementById('continueUsernameBtn')?.addEventListener('click', () => {
+    function handleUsernameStep1Submit(e) {
+        if (e) e.preventDefault();
         const newUsername = document.getElementById('newUsername')?.value?.trim() || '';
         const msg1 = document.getElementById('usernameMsg1');
         if (msg1) msg1.textContent = '';
+
         if (!newUsername) {
             if (msg1) {
                 msg1.textContent = t('msg_enter_new_username') || '请输入新用户名';
                 msg1.className = 'msg msg-err';
             }
+            document.getElementById('newUsername')?.focus();
+            return;
+        }
+
+        if (window.currentUsername && newUsername === window.currentUsername) {
+            if (msg1) {
+                msg1.textContent = t('msg_username_same') || '新用户名不能与当前用户名相同';
+                msg1.className = 'msg msg-err';
+            }
+            document.getElementById('newUsername')?.focus();
+            return;
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,32}$/;
+        if (!usernameRegex.test(newUsername)) {
+            if (msg1) {
+                msg1.textContent = t('msg_username_invalid') || '用户名须为 3-32 位字母、数字、下划线或连字符';
+                msg1.className = 'msg msg-err';
+            }
+            document.getElementById('newUsername')?.focus();
             return;
         }
 
@@ -50,7 +78,10 @@ export function setupProfileEvents(onSuccessReload) {
         };
 
         enterSudoStep('usernameModal', actionFn);
-    });
+    }
+
+    document.getElementById('usernameStep1Form')?.addEventListener('submit', handleUsernameStep1Submit);
+    document.getElementById('continueUsernameBtn')?.addEventListener('click', handleUsernameStep1Submit);
 
     // ── Change Email ──
     document.getElementById('showEmailFormBtn')?.addEventListener('click', () => {
@@ -58,26 +89,44 @@ export function setupProfileEvents(onSuccessReload) {
         const modal = document.getElementById('emailModal');
         if (modal) modal.style.display = 'flex';
         const step1 = document.getElementById('emailStep1');
+        const step2 = document.getElementById('emailStep2');
         if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
         const inp = document.getElementById('newEmail');
         if (inp) inp.value = '';
         const msg1 = document.getElementById('emailMsg1');
-        if (msg1) msg1.textContent = '';
+        if (msg1) {
+            msg1.textContent = '';
+            msg1.className = 'msg';
+        }
         setTimeout(() => inp?.focus(), 60);
     });
 
     document.getElementById('cancelEmailBtn1')?.addEventListener('click', closeAllModals);
     document.getElementById('cancelEmailBtn2')?.addEventListener('click', closeAllModals);
 
-    document.getElementById('continueEmailBtn')?.addEventListener('click', () => {
+    function handleEmailStep1Submit(e) {
+        if (e) e.preventDefault();
         const newEmail = document.getElementById('newEmail')?.value?.trim() || '';
         const msg1 = document.getElementById('emailMsg1');
         if (msg1) msg1.textContent = '';
+
         if (!newEmail) {
             if (msg1) {
                 msg1.textContent = t('msg_enter_email') || '请输入有效邮箱';
                 msg1.className = 'msg msg-err';
             }
+            document.getElementById('newEmail')?.focus();
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) {
+            if (msg1) {
+                msg1.textContent = t('msg_invalid_email') || '邮箱格式不正确';
+                msg1.className = 'msg msg-err';
+            }
+            document.getElementById('newEmail')?.focus();
             return;
         }
 
@@ -96,7 +145,10 @@ export function setupProfileEvents(onSuccessReload) {
         };
 
         enterSudoStep('emailModal', actionFn);
-    });
+    }
+
+    document.getElementById('emailStep1Form')?.addEventListener('submit', handleEmailStep1Submit);
+    document.getElementById('continueEmailBtn')?.addEventListener('click', handleEmailStep1Submit);
 
     // ── Change Password ──
     document.getElementById('showPasswordFormBtn')?.addEventListener('click', () => {
