@@ -46,8 +46,8 @@ class AccountService {
     }
 
     static async changePassword(userId, newPassword) {
-        if (!newPassword || newPassword.length < 12) {
-            throw new Error('新密码至少需要12位');
+        if (!newPassword || newPassword.length < 6) {
+            throw new Error('新密码至少需要6位');
         }
         if (newPassword.length > 128) {
             throw new Error('密码过长（最多128位）');

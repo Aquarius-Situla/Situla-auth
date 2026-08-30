@@ -72,7 +72,7 @@
 .passkey-icon {
     width: 36px;
     height: 36px;
-    background: var(--bg-secondary);
+    background: var(--bg-icon-box);
     border-radius: 8px;
     display: flex;
     align-items: center;

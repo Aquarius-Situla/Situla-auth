@@ -24,7 +24,7 @@ body.login-page {
 .gray-top-bar {
     flex: 0 0 auto;
     width: 100%;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-bar);
     border-bottom: 1px solid var(--border-primary);
     min-height: 48px;
     display: flex;
@@ -72,7 +72,7 @@ body.login-page {
 .gray-bottom-bar {
     flex: 0 0 auto;
     width: 100%;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-bar);
     border-top: 1px solid var(--border-primary);
     min-height: 48px;
 }

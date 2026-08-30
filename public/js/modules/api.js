@@ -58,7 +58,10 @@ export function enterSudoStep(modalId, actionFn) {
                 const res = await actionFn(pwd);
                 let data = res?.data || res || {};
 
-                if (res?.status === 401 || data?.success === false && (data?.message?.includes('密码错误') || data?.message === 'Invalid credentials' || data?.message === 'Invalid password')) {
+                const isSuccess = data.success === true || data.verified === true || (res?.ok === true && !data.error && !data.requireElevation);
+                const isPasswordError = res?.status === 401 || (data?.success === false && (data?.message?.includes('密码错误') || data?.message === 'Invalid credentials' || data?.message === 'Invalid password'));
+
+                if (isPasswordError) {
                     setModalActionsLoading(actionsContainer, false);
                     if (msg) {
                         msg.textContent = data.message || t('msg_wrong_credentials') || '密码错误';
@@ -71,10 +74,10 @@ export function enterSudoStep(modalId, actionFn) {
                     return;
                 }
 
-                window.isElevated = true;
-                setModalActionsLoading(actionsContainer, false);
+                if (isSuccess) {
+                    window.isElevated = true;
+                    setModalActionsLoading(actionsContainer, false);
 
-                if (data.success || data.verified) {
                     if (modalId === 'oidcModal' && data.client_id) {
                         if (step2) step2.style.display = 'none';
                         const step3 = modal.querySelector('#oidcStep3');
@@ -84,10 +87,13 @@ export function enterSudoStep(modalId, actionFn) {
                     } else {
                         closeAllModals();
                     }
-                } else if (data.message || data.error) {
-                    if (msg) {
-                        msg.textContent = data.message || data.error;
-                        msg.className = 'msg msg-err';
+                } else {
+                    setModalActionsLoading(actionsContainer, false);
+                    if (data.message || data.error) {
+                        if (msg) {
+                            msg.textContent = data.message || data.error;
+                            msg.className = 'msg msg-err';
+                        }
                     }
                 }
             } catch (err) {
@@ -133,11 +139,15 @@ export function enterSudoStep(modalId, actionFn) {
 
         actionFn('').then(res => {
             const data = res?.data || res || {};
+            const isSuccess = data.success === true || data.verified === true || (res?.ok === true && !data.error && !data.requireElevation);
+            const needsElevation = data.requireElevation === true || res?.status === 401 || (data.message && (data.message.includes('需要密码确认') || data.message.includes('特权会话已过期') || data.message.includes('密码错误')));
+
             if (step1Actions) setModalActionsLoading(step1Actions, false);
-            if (data.requireElevation) {
+
+            if (needsElevation) {
                 window.isElevated = false;
                 showStep2();
-            } else if (data.success || data.verified) {
+            } else if (isSuccess) {
                 closeAllModals();
             } else if (data.message || data.error) {
                 const step1Msg = step1 ? step1.querySelector('.msg') : null;
@@ -148,9 +158,11 @@ export function enterSudoStep(modalId, actionFn) {
             }
         }).catch(() => {
             if (step1Actions) setModalActionsLoading(step1Actions, false);
+            window.isElevated = false;
             showStep2();
         });
-    } else {
-        showStep2();
+        return;
     }
+
+    showStep2();
 }

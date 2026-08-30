@@ -74,6 +74,9 @@ export function setupProfileEvents(onSuccessReload) {
                 location.reload();
                 return { success: true };
             }
+            if (res.data?.requireElevation || res.status === 401) {
+                return { requireElevation: true, message: res.data?.message };
+            }
             return { success: false, message: res.data?.message || '修改失败' };
         };
 
@@ -81,7 +84,6 @@ export function setupProfileEvents(onSuccessReload) {
     }
 
     document.getElementById('usernameStep1Form')?.addEventListener('submit', handleUsernameStep1Submit);
-    document.getElementById('continueUsernameBtn')?.addEventListener('click', handleUsernameStep1Submit);
 
     // ── Change Email ──
     document.getElementById('showEmailFormBtn')?.addEventListener('click', () => {
@@ -141,6 +143,9 @@ export function setupProfileEvents(onSuccessReload) {
                 if (onSuccessReload) onSuccessReload();
                 return { success: true };
             }
+            if (res.data?.requireElevation || res.status === 401) {
+                return { requireElevation: true, message: res.data?.message };
+            }
             return { success: false, message: res.data?.message || '修改失败' };
         };
 
@@ -148,7 +153,6 @@ export function setupProfileEvents(onSuccessReload) {
     }
 
     document.getElementById('emailStep1Form')?.addEventListener('submit', handleEmailStep1Submit);
-    document.getElementById('continueEmailBtn')?.addEventListener('click', handleEmailStep1Submit);
 
     // ── Change Password ──
     document.getElementById('showPasswordFormBtn')?.addEventListener('click', () => {
@@ -207,7 +211,7 @@ export function setupProfileEvents(onSuccessReload) {
         }
 
         const actionFn = async (pwd) => {
-            if (newPassword === pwd) {
+            if (pwd && newPassword === pwd) {
                 return { success: false, message: t('msg_pwd_same') || '新密码不能与当前密码相同' };
             }
 
@@ -220,6 +224,9 @@ export function setupProfileEvents(onSuccessReload) {
                 alert(t('msg_pwd_changed') || '密码修改成功');
                 return { success: true };
             }
+            if (res.data?.requireElevation || res.status === 401) {
+                return { requireElevation: true, message: res.data?.message };
+            }
             return { success: false, message: res.data?.message || '修改失败' };
         };
 
@@ -227,7 +234,6 @@ export function setupProfileEvents(onSuccessReload) {
     }
 
     document.getElementById('newPasswordForm')?.addEventListener('submit', handlePasswordStep1Submit);
-    document.getElementById('continuePasswordBtn')?.addEventListener('click', handlePasswordStep1Submit);
 
     // ── Logout ──
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {

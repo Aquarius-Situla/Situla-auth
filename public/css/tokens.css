@@ -7,8 +7,10 @@
     /* Backgrounds */
     --bg-page: #ffffff;
     --bg-page-admin: #f5f5f7;
+    --bg-bar: #f5f5f7;
     --bg-card: #ffffff;
     --bg-secondary: #f5f5f7;
+    --bg-icon-box: #f0f0f5;
     --bg-input: #ffffff;
     --bg-input-focus: #f5f8ff;
     --bg-totp-filled: #f0f6ff;
@@ -104,8 +106,10 @@
         /* Backgrounds */
         --bg-page: #000000;
         --bg-page-admin: #000000;
+        --bg-bar: #1c1c1e;
         --bg-card: #1c1c1e;
-        --bg-secondary: #1c1c1e;
+        --bg-secondary: #2c2c2e;
+        --bg-icon-box: #2c2c2e;
         --bg-input: #1c1c1e;
         --bg-input-focus: #0d2040;
         --bg-totp-filled: #0d2040;
