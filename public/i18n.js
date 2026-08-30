@@ -36,7 +36,7 @@ const translations = {
         "fido2_subtitle_nfc": "请将安全密钥靠近手机 NFC 感应区域",
         "fido2_waiting": "正在等待安全密钥...",
         "fido2_btn_retry": "重试",
-        "fido2_canceled": "操作已取消",
+        "fido2_canceled": "操作已取消或未检测到安全密钥，请点击下方重试",
         "fido2_verify_failed": "验证失败，请重试",
 
         // admin.html
@@ -214,7 +214,7 @@ const translations = {
         "fido2_subtitle_nfc": "Hold your security key near the NFC area on your phone",
         "fido2_waiting": "Waiting for security key...",
         "fido2_btn_retry": "Retry",
-        "fido2_canceled": "Operation canceled",
+        "fido2_canceled": "Operation canceled or no key detected. Click retry below.",
         "fido2_verify_failed": "Verification failed, please try again",
 
         // admin.html
