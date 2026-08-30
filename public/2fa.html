@@ -138,12 +138,12 @@
                 border-color: #0a84ff;
                 background: #0d2040;
             }
-            #rcInput {
+            #rcInput, #fido2RcInput {
                 background: #1c1c1e !important;
                 border-color: #3a3a3c !important;
                 color: #ffffff !important;
             }
-            #rcInput:focus {
+            #rcInput:focus, #fido2RcInput:focus {
                 border-color: #0a84ff !important;
                 box-shadow: 0 0 0 3px rgba(10,132,255,0.22) !important;
             }
@@ -228,16 +228,37 @@
                     <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">请插入并触摸你的安全密钥</p>
                 </div>
 
-                <div id="fido2Section">
-                    <div class="fido2-spinner" id="fido2Spinner"></div>
-                    <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_waiting">正在等待安全密钥...</div>
+                <div id="fido2KeySection">
+                    <div id="fido2Section">
+                        <div class="fido2-spinner" id="fido2Spinner" style="display:none;"></div>
+                        <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_prompt">请点击下方按钮开始安全密钥验证</div>
+                    </div>
+                </div>
+
+                <!-- FIDO2 Recovery Code section (hidden by default) -->
+                <div id="fido2RcSection" style="display:none;">
+                    <input type="text" id="fido2RcInput"
+                        style="width:100%; padding:14px; border:1.5px solid #d2d2d7; border-radius:10px;
+                               font-size:16px; text-align:center; letter-spacing:2px; outline:none;
+                               font-family:monospace; transition:border-color 0.18s, box-shadow 0.18s;"
+                        data-i18n-placeholder="rc_placeholder"
+                        placeholder="XXXXX-XXXXX"
+                        autocomplete="off" spellcheck="false"
+                    >
+                </div>
+
+                <!-- Toggle recovery code link -->
+                <div style="text-align:center; margin-top:14px;">
+                    <a id="toggleFido2RcLink" href="#" style="font-size:13px; color:#0071e3; text-decoration:none;" data-i18n="fido2_link_rc">
+                        使用恢复码登录
+                    </a>
                 </div>
 
                 <div id="fido2Error" style="color:#ff3b30; font-size:13px; text-align:center; min-height:18px; margin-top:16px;"></div>
 
-                <div class="button-row" style="margin-top:24px; justify-content:center;">
+                <div class="button-row fido2-buttons" style="margin-top:20px; justify-content:center;">
                     <button type="button" class="login-btn back-btn" id="fido2BackBtn" data-i18n="btn_back">返回</button>
-                    <button type="button" class="login-btn btn-primary active" id="fido2RetryBtn" data-i18n="fido2_btn_retry">重试</button>
+                    <button type="button" class="login-btn btn-primary active" id="fido2PrimaryBtn" data-i18n="fido2_btn_start">验证安全密钥</button>
                 </div>
             </div>
 

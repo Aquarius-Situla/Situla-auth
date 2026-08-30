@@ -1,4 +1,4 @@
-        const { startAuthentication } = SimpleWebAuthnBrowser;
+        const { startAuthentication } = window.SimpleWebAuthnBrowser || SimpleWebAuthnBrowser || {};
 
         /* ── Trusted-redirect resolution ── */
         let _trustedRootsPromise = null;
@@ -165,17 +165,66 @@
            FIDO2 MODE
         ════════════════════════════════════════ */
         function initFido2Mode() {
-            const errMsg    = document.getElementById('fido2Error');
-            const spinner   = document.getElementById('fido2Spinner');
-            const statusHint = document.getElementById('fido2StatusHint');
-            const subtitle  = document.getElementById('fido2Subtitle');
+            const errMsg         = document.getElementById('fido2Error');
+            const spinner        = document.getElementById('fido2Spinner');
+            const statusHint     = document.getElementById('fido2StatusHint');
+            const subtitle       = document.getElementById('fido2Subtitle');
+            const primaryBtn     = document.getElementById('fido2PrimaryBtn');
+            const keySection     = document.getElementById('fido2KeySection');
+            const rcSection      = document.getElementById('fido2RcSection');
+            const rcInput        = document.getElementById('fido2RcInput');
+            const toggleRcLink   = document.getElementById('toggleFido2RcLink');
+            let usingRc          = false;
 
             // Detect mobile for NFC-aware hint
             const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+            const defaultSubtitleKey = isMobile ? 'fido2_subtitle_nfc' : 'fido2_subtitle_usb';
             if (subtitle) {
-                subtitle.textContent = isMobile
-                    ? t('fido2_subtitle_nfc')
-                    : t('fido2_subtitle_usb');
+                subtitle.setAttribute('data-i18n', defaultSubtitleKey);
+                subtitle.textContent = t(defaultSubtitleKey);
+            }
+
+            // Upper-case recovery code input
+            if (rcInput) {
+                rcInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+                rcInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handlePrimaryAction();
+                    }
+                });
+            }
+
+            // Toggle recovery code vs key
+            if (toggleRcLink) {
+                toggleRcLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    usingRc = !usingRc;
+                    if (keySection) keySection.style.display = usingRc ? 'none' : '';
+                    if (rcSection) rcSection.style.display = usingRc ? '' : 'none';
+
+                    if (subtitle) {
+                        const subKey = usingRc ? 'totp_subtitle_rc' : defaultSubtitleKey;
+                        subtitle.setAttribute('data-i18n', subKey);
+                        subtitle.textContent = t(subKey);
+                    }
+
+                    const linkKey = usingRc ? 'fido2_link_key' : 'fido2_link_rc';
+                    toggleRcLink.setAttribute('data-i18n', linkKey);
+                    toggleRcLink.textContent = t(linkKey);
+
+                    const btnKey = usingRc ? 'btn_continue' : 'fido2_btn_start';
+                    primaryBtn.setAttribute('data-i18n', btnKey);
+                    primaryBtn.textContent = t(btnKey);
+                    primaryBtn.disabled = false;
+
+                    errMsg.textContent = '';
+                    if (usingRc && rcInput) {
+                        rcInput.focus();
+                    }
+                });
             }
 
             document.getElementById('fido2BackBtn').addEventListener('click', () => {
@@ -184,16 +233,63 @@
                 window.location.href = '/';
             });
 
-            document.getElementById('fido2RetryBtn').addEventListener('click', () => {
-                errMsg.textContent = '';
-                triggerFido2();
+            primaryBtn.addEventListener('click', () => {
+                handlePrimaryAction();
             });
 
-            async function triggerFido2() {
-                spinner.style.display = '';
-                statusHint.textContent = t('fido2_waiting');
+            async function handlePrimaryAction() {
+                if (usingRc) {
+                    await submitRecoveryCode();
+                } else {
+                    await triggerFido2();
+                }
+            }
+
+            async function submitRecoveryCode() {
+                const totp = rcInput ? rcInput.value.trim() : '';
+                if (!totp) {
+                    if (rcInput) rcInput.focus();
+                    return;
+                }
+
                 errMsg.textContent = '';
-                document.getElementById('fido2RetryBtn').disabled = true;
+                primaryBtn.disabled = true;
+                primaryBtn.textContent = t('msg_verifying');
+
+                try {
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tempToken: storedToken, totp })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        sessionStorage.removeItem('tempToken');
+                        sessionStorage.removeItem('twoFaMethod');
+                        if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
+                        const rd = new URLSearchParams(window.location.search).get('rd');
+                        const target = (await safeRedirectUrl(rd)) || '/admin';
+                        window.location.href = target;
+                    } else {
+                        errMsg.textContent = data.message || t('msg_verify_failed');
+                        primaryBtn.textContent = t('btn_continue');
+                        primaryBtn.disabled = false;
+                        if (rcInput) rcInput.focus();
+                    }
+                } catch (err) {
+                    errMsg.textContent = t('msg_network_error');
+                    primaryBtn.textContent = t('btn_continue');
+                    primaryBtn.disabled = false;
+                }
+            }
+
+            async function triggerFido2() {
+                if (spinner) spinner.style.display = '';
+                if (statusHint) statusHint.textContent = t('fido2_waiting');
+                errMsg.textContent = '';
+                primaryBtn.disabled = true;
+                primaryBtn.textContent = t('msg_verifying');
 
                 try {
                     // Step 1: Get challenge from server (passes tempToken)
@@ -222,7 +318,7 @@
                     if (verifyData.verified) {
                         sessionStorage.removeItem('tempToken');
                         sessionStorage.removeItem('twoFaMethod');
-                        spinner.style.display = 'none';
+                        if (spinner) spinner.style.display = 'none';
                         const rd = new URLSearchParams(window.location.search).get('rd');
                         const target = (await safeRedirectUrl(rd)) || '/admin';
                         window.location.href = target;
@@ -231,16 +327,16 @@
                     }
                 } catch (err) {
                     console.error('[FIDO2 Auth Error]:', err);
-                    spinner.style.display = 'none';
+                    if (spinner) spinner.style.display = 'none';
+                    if (statusHint) statusHint.textContent = t('fido2_prompt');
                     if (err.name === 'NotAllowedError') {
                         errMsg.textContent = t('fido2_canceled');
                     } else {
                         errMsg.textContent = err.message || t('fido2_verify_failed');
                     }
-                    document.getElementById('fido2RetryBtn').disabled = false;
+                    primaryBtn.disabled = false;
+                    primaryBtn.setAttribute('data-i18n', 'fido2_btn_retry');
+                    primaryBtn.textContent = t('fido2_btn_retry');
                 }
             }
-
-            // Auto-trigger on page load
-            triggerFido2();
         }
