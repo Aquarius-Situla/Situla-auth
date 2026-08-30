@@ -298,11 +298,19 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ tempToken: storedToken })
                     });
-                    if (!challengeRes.ok) {
-                        const err = await challengeRes.json();
-                        throw new Error(err.message || err.error || t('msg_network_error'));
+                    let options = {};
+                    try {
+                        options = await challengeRes.json();
+                    } catch (e) {
+                        if (challengeRes.status === 401) {
+                            throw new Error('登录会话已过期，请返回重新输入账号密码');
+                        }
+                        throw new Error(t('msg_network_error') || '服务连接异常，请重试');
                     }
-                    const options = await challengeRes.json();
+
+                    if (!challengeRes.ok) {
+                        throw new Error(options.message || options.error || (challengeRes.status === 401 ? '登录会话已过期，请重新登录' : t('msg_network_error')));
+                    }
                     console.log('[FIDO2 2FA Options]:', options);
 
                     // Step 2: Prompt browser/OS for authenticator
@@ -315,7 +323,13 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ tempToken: storedToken, ...assertionResponse })
                     });
-                    const verifyData = await verifyRes.json();
+
+                    let verifyData = {};
+                    try {
+                        verifyData = await verifyRes.json();
+                    } catch (e) {
+                        throw new Error(t('msg_network_error') || '验证响应异常，请重试');
+                    }
 
                     if (verifyData.verified) {
                         sessionStorage.removeItem('tempToken');
