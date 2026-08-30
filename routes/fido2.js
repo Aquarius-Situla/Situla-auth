@@ -15,34 +15,10 @@ const { authenticateJWT } = require('../middleware/auth');
 
 const FIDO2_MIN_KEYS = 2;
 
-function getRpId(req) {
-    const configured = req.app.get('RP_ID');
-    const rawHost = (req.headers['x-forwarded-host'] || req.get('host') || req.hostname || '').split(':')[0].trim().toLowerCase();
-    if (configured && configured !== 'auth.example.com') {
-        const confLower = configured.toLowerCase();
-        if (rawHost === confLower || rawHost.endsWith('.' + confLower)) {
-            return configured;
-        }
-    }
-    if (rawHost && rawHost !== '127.0.0.1') {
-        return rawHost;
-    }
-    return configured || 'localhost';
-}
-
-function getOrigin(req) {
-    const originHeader = req.get('origin');
-    if (originHeader) return originHeader;
-    const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    if (host) return `${proto}://${host}`;
-    return req.app.get('ORIGIN') || `https://${getRpId(req)}`;
-}
-
 /* ── GET /api/fido2/register-options ── */
 router.get('/register-options', authenticateJWT, async (req, res) => {
     try {
-        const RP_ID = getRpId(req);
+        const RP_ID = req.app.get('RP_ID');
         const RP_NAME = req.app.get('RP_NAME');
         const options = await WebAuthnService.getFido2RegisterOptions(req.user, RP_ID, RP_NAME);
         res.json(options);
@@ -56,8 +32,8 @@ router.post('/register-verify', authenticateJWT, async (req, res) => {
     if (!(await AuthService.verifyElevationOrPassword(req, res))) return;
 
     try {
-        const RP_ID = getRpId(req);
-        const ORIGIN = getOrigin(req);
+        const RP_ID = req.app.get('RP_ID');
+        const ORIGIN = req.app.get('ORIGIN');
         const result = await WebAuthnService.verifyFido2Registration(req.user, req.body, ORIGIN, RP_ID);
         res.json(result);
     } catch (e) {
@@ -144,7 +120,7 @@ router.post('/challenge', (req, res) => {
     const challengeLimiter = req.app.get('challengeLimiter') || req.app.get('loginLimiter');
     return challengeLimiter(req, res, async () => {
         const JWT_SECRET = req.app.get('JWT_SECRET');
-        const RP_ID = getRpId(req);
+        const RP_ID = req.app.get('RP_ID');
         const { tempToken } = req.body;
         if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
 
@@ -163,8 +139,8 @@ router.post('/verify', (req, res) => {
     const loginLimiter = req.app.get('loginLimiter');
     return loginLimiter(req, res, async () => {
         const JWT_SECRET = req.app.get('JWT_SECRET');
-        const RP_ID = getRpId(req);
-        const ORIGIN = getOrigin(req);
+        const RP_ID = req.app.get('RP_ID');
+        const ORIGIN = req.app.get('ORIGIN');
         const { tempToken, ...assertionResponse } = req.body;
         if (!tempToken) return res.status(400).json({ error: 'Missing tempToken' });
 

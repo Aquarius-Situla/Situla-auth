@@ -10,34 +10,10 @@ const WebAuthnService = require('../services/webauthnService');
 const AuthService = require('../services/authService');
 const { authenticateJWT } = require('../middleware/auth');
 
-function getRpId(req) {
-    const configured = req.app.get('RP_ID');
-    const rawHost = (req.headers['x-forwarded-host'] || req.get('host') || req.hostname || '').split(':')[0].trim().toLowerCase();
-    if (configured && configured !== 'auth.example.com') {
-        const confLower = configured.toLowerCase();
-        if (rawHost === confLower || rawHost.endsWith('.' + confLower)) {
-            return configured;
-        }
-    }
-    if (rawHost && rawHost !== '127.0.0.1') {
-        return rawHost;
-    }
-    return configured || 'localhost';
-}
-
-function getOrigin(req) {
-    const originHeader = req.get('origin');
-    if (originHeader) return originHeader;
-    const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    if (host) return `${proto}://${host}`;
-    return req.app.get('ORIGIN') || `https://${getRpId(req)}`;
-}
-
 /* ── GET /api/webauthn/register-options ── */
 router.get('/register-options', authenticateJWT, async (req, res) => {
     try {
-        const RP_ID = getRpId(req);
+        const RP_ID = req.app.get('RP_ID');
         const RP_NAME = req.app.get('RP_NAME');
         const options = await WebAuthnService.getPasskeyRegisterOptions(req.user, RP_ID, RP_NAME);
         res.json(options);
@@ -51,8 +27,8 @@ router.post('/register-verify', authenticateJWT, async (req, res) => {
     if (!(await AuthService.verifyElevationOrPassword(req, res))) return;
 
     try {
-        const RP_ID = getRpId(req);
-        const ORIGIN = getOrigin(req);
+        const RP_ID = req.app.get('RP_ID');
+        const ORIGIN = req.app.get('ORIGIN');
         const result = await WebAuthnService.verifyPasskeyRegistration(req.user, req.body, ORIGIN, RP_ID);
         res.json(result);
     } catch (error) {
