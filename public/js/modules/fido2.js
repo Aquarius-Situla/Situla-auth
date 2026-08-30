@@ -201,11 +201,18 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
         const modal = document.getElementById('fido2Modal');
         if (modal) modal.style.display = 'flex';
         const step1 = document.getElementById('fido2Step1');
+        const step2 = document.getElementById('fido2Step2');
         if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
         const nameInp = document.getElementById('fido2DeviceName');
         if (nameInp) nameInp.value = '';
         const msg1 = document.getElementById('fido2Msg1');
-        if (msg1) msg1.textContent = '';
+        if (msg1) {
+            msg1.textContent = '';
+            msg1.className = 'msg';
+        }
+        const actions1 = step1 ? step1.querySelector('.modal-actions') : null;
+        if (actions1) setModalActionsLoading(actions1, false);
     });
 
     document.getElementById('cancelFido2Btn1')?.addEventListener('click', closeAllModals);

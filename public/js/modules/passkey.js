@@ -1,9 +1,9 @@
-﻿/**
+/**
  * public/js/modules/passkey.js
  * Passkey WebAuthn registration and list management (pixel-perfect DOM and CSS).
  */
 
-import { t, escapeHTML, fmtDate, closeAllModals } from './ui.js';
+import { t, escapeHTML, fmtDate, closeAllModals, setModalActionsLoading } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function renderPasskeys(keys) {
@@ -108,11 +108,18 @@ export function setupPasskeyEvents(onSuccessReload) {
             const modal = document.getElementById('passkeyModal');
             if (modal) modal.style.display = 'flex';
             const step1 = document.getElementById('passkeyStep1');
+            const step2 = document.getElementById('passkeyStep2');
             if (step1) step1.style.display = 'block';
+            if (step2) step2.style.display = 'none';
             const nameInput = document.getElementById('passkeyDeviceName');
             if (nameInput) nameInput.value = '';
             const msg1 = document.getElementById('passkeyMsg1');
-            if (msg1) msg1.textContent = '';
+            if (msg1) {
+                msg1.textContent = '';
+                msg1.className = 'msg';
+            }
+            const actions1 = step1 ? step1.querySelector('.modal-actions') : null;
+            if (actions1) setModalActionsLoading(actions1, false);
         });
     }
 

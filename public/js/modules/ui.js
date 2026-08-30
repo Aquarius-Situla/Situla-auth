@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/ui.js
  * UI helpers, loaders, modal controllers, formatters, and clipboard utilities.
  */
@@ -33,14 +33,27 @@ export function renderInlineLoader(textKey = 'status_updating') {
 
 export function setModalActionsLoading(actionsContainer, isLoading, textKey = 'status_updating') {
     if (!actionsContainer) return;
+    let loader = actionsContainer.querySelector('.apple-inline-updating');
+    const buttons = actionsContainer.querySelectorAll('button');
+
     if (isLoading) {
-        actionsContainer.dataset.originalHtml = actionsContainer.innerHTML;
-        actionsContainer.innerHTML = renderInlineLoader(textKey);
-    } else if (actionsContainer.dataset.originalHtml) {
-        actionsContainer.innerHTML = actionsContainer.dataset.originalHtml;
-        delete actionsContainer.dataset.originalHtml;
-        actionsContainer.querySelectorAll('.modal-btn-secondary, [id^="cancel"]').forEach(b => {
-            b.addEventListener('click', closeAllModals);
+        buttons.forEach(b => {
+            b.style.display = 'none';
+        });
+        if (!loader) {
+            loader = document.createElement('div');
+            actionsContainer.appendChild(loader);
+        }
+        const text = t(textKey) || '正在更新...';
+        loader.className = 'apple-inline-updating';
+        loader.innerHTML = `<div class="apple-spinner-sm"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><span>${text}</span>`;
+        loader.style.display = 'flex';
+    } else {
+        if (loader) {
+            loader.style.display = 'none';
+        }
+        buttons.forEach(b => {
+            b.style.display = '';
         });
     }
 }
