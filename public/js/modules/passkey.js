@@ -153,10 +153,13 @@ export function setupPasskeyEvents(onSuccessReload) {
                     });
 
                     if (verOk && verData.verified) {
-                        if (onSuccessReload) onSuccessReload();
+                        if (onSuccessReload) await onSuccessReload();
                         return { success: true };
                     } else {
-                        return { success: false, message: verData.error || verData.message || t('msg_passkey_failed') || '验证失败' };
+                        if (verData?.requireElevation) {
+                            return { requireElevation: true, message: verData.message };
+                        }
+                        return { success: false, message: verData?.error || verData?.message || t('msg_passkey_failed') || '验证失败' };
                     }
                 } catch (e) {
                     return { success: false, message: (t('msg_passkey_canceled') || '已取消') + ': ' + (e.message || '') };

@@ -245,10 +245,13 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                 });
 
                 if (verOk && verData.verified) {
-                    if (onSuccessReload) onSuccessReload();
+                    if (onSuccessReload) await onSuccessReload();
                     return { success: true };
                 } else {
-                    return { success: false, message: verData.error || t('fido2_verify_failed') || '验证失败' };
+                    if (verData?.requireElevation) {
+                        return { requireElevation: true, message: verData.message };
+                    }
+                    return { success: false, message: verData?.message || verData?.error || t('fido2_verify_failed') || '验证失败' };
                 }
             } catch (e) {
                 return { success: false, message: (t('fido2_canceled') || '已取消') + ': ' + (e.message || '') };
