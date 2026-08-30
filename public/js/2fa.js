@@ -204,7 +204,7 @@
                     });
                     if (!challengeRes.ok) {
                         const err = await challengeRes.json();
-                        throw new Error(err.error || t('msg_network_error'));
+                        throw new Error(err.message || err.error || t('msg_network_error'));
                     }
                     const options = await challengeRes.json();
 
@@ -227,9 +227,10 @@
                         const target = (await safeRedirectUrl(rd)) || '/admin';
                         window.location.href = target;
                     } else {
-                        throw new Error(t('fido2_verify_failed'));
+                        throw new Error(verifyData.error || verifyData.message || t('fido2_verify_failed'));
                     }
                 } catch (err) {
+                    console.error('[FIDO2 Auth Error]:', err);
                     spinner.style.display = 'none';
                     if (err.name === 'NotAllowedError') {
                         errMsg.textContent = t('fido2_canceled');

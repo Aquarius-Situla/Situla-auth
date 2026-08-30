@@ -1,4 +1,4 @@
-﻿/**
+/**
  * routes/auth.js
  * Login, logout, passkey authentication, and password verification.
  */
@@ -87,8 +87,8 @@ router.post('/login', (req, res) => {
 
 /* ── Passkey Authentication ── */
 router.get('/webauthn/login-options', (req, res) => {
-    const loginLimiter = req.app.get('loginLimiter');
-    return loginLimiter(req, res, async () => {
+    const challengeLimiter = req.app.get('challengeLimiter') || req.app.get('loginLimiter');
+    return challengeLimiter(req, res, async () => {
         try {
             const RP_ID = req.app.get('RP_ID');
             const JWT_SECRET = req.app.get('JWT_SECRET');

@@ -81,19 +81,28 @@ app.set('ALL_TRUST_ROOTS', ALL_TRUST_ROOTS);
 // Limiters
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 20,
+    skipSuccessfulRequests: true,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { success: false, message: 'Too many attempts, please try again in 15 minutes.' }
+    message: { success: false, message: '尝试次数过多，请 15 分钟后再试。' }
+});
+const challengeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: '请求过于频繁，请稍后再试。' }
 });
 const sudoLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: '操作过于频繁，请稍后再试。' }
 });
 app.set('loginLimiter', loginLimiter);
+app.set('challengeLimiter', challengeLimiter);
 app.set('sudoLimiter', sudoLimiter);
 
 // Pre-generated dummy hash for timing-safe login

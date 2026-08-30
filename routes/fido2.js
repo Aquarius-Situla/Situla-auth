@@ -117,8 +117,8 @@ router.post('/enable', authenticateJWT, async (req, res) => {
 
 /* ── POST /api/fido2/challenge (2FA login step 1) ── */
 router.post('/challenge', (req, res) => {
-    const loginLimiter = req.app.get('loginLimiter');
-    return loginLimiter(req, res, async () => {
+    const challengeLimiter = req.app.get('challengeLimiter') || req.app.get('loginLimiter');
+    return challengeLimiter(req, res, async () => {
         const JWT_SECRET = req.app.get('JWT_SECRET');
         const RP_ID = req.app.get('RP_ID');
         const { tempToken } = req.body;
