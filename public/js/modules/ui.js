@@ -26,6 +26,25 @@ export function fmtDate(iso) {
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
 }
 
+export function renderTransportBadges(transports = []) {
+    if (!Array.isArray(transports) || transports.length === 0) return '';
+    return transports.map(tr => {
+        if (tr === 'usb') {
+            return `<span class="transport-badge" title="${t('transport_usb') || 'USB'}" aria-label="USB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="19" r="2"/><line x1="12" y1="17" x2="12" y2="4"/><polyline points="9 7 12 4 15 7"/><circle cx="6" cy="9" r="1.5"/><path d="M6 10.5v2.5a2 2 0 0 0 2 2h4"/><rect x="16.5" y="7.5" width="3" height="3"/><path d="M18 10.5v1.5a2 2 0 0 1-2 2h-4"/></svg></span>`;
+        }
+        if (tr === 'nfc') {
+            return `<span class="transport-badge" title="${t('transport_nfc') || 'NFC'}" aria-label="NFC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5a8 8 0 0 1 0 7"/><path d="M10 6a12 12 0 0 1 0 12"/><path d="M14 3.5a16 16 0 0 1 0 17"/><path d="M18 1a20 20 0 0 1 0 22"/></svg></span>`;
+        }
+        if (tr === 'ble') {
+            return `<span class="transport-badge" title="${t('transport_ble') || 'Bluetooth'}" aria-label="Bluetooth"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg></span>`;
+        }
+        if (tr === 'internal') {
+            return `<span class="transport-badge" title="${t('transport_internal') || '内置生物识别'}" aria-label="内置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>`;
+        }
+        return '';
+    }).join('');
+}
+
 export function renderInlineLoader(textKey = 'status_updating') {
     const text = t(textKey) || '正在更新...';
     return `<div class="apple-inline-updating"><div class="apple-spinner-sm"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><span>${text}</span></div>`;

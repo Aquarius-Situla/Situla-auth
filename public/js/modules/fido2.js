@@ -3,7 +3,7 @@
  * FIDO2 Hardware Key Management and 2FA Multi-State UI Coordinator.
  */
 
-import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals } from './ui.js';
+import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals, renderTransportBadges } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function set2faBadge(method, fido2Count = 0) {
@@ -88,14 +88,7 @@ export function renderFido2Keys(keys) {
     }
 
     list.innerHTML = keys.map(k => {
-        const transports = k.transports || [];
-        const badges = transports.map(tr => {
-            if (tr === 'usb') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_usb') || 'USB'}</span>`;
-            if (tr === 'nfc') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_nfc') || 'NFC'}</span>`;
-            if (tr === 'ble') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_ble') || 'BLE'}</span>`;
-            if (tr === 'internal') return `<span class="badge" style="background:#e5e5ea;color:#1c1c1e;margin-left:4px;">${t('transport_internal') || '内置'}</span>`;
-            return '';
-        }).join('');
+        const badges = renderTransportBadges(k.transports || []);
 
         return `
         <div class="passkey-item" id="fido2-${k.id}">

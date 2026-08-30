@@ -116,6 +116,29 @@
             color: #0057b8;
         }
 
+        /* Transport mini-badge */
+        .transport-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            background: #e5e5ea;
+            color: #1c1c1e;
+            margin-left: 5px;
+            vertical-align: -3px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .transport-badge svg {
+            width: 12px;
+            height: 12px;
+            display: block;
+        }
+        .transport-badge:hover {
+            background: #d1d1d6;
+        }
+
         /* Buttons */
         .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .btn-outline {
@@ -468,6 +491,8 @@
             .badge-error { background: #3b1111; color: #ff453a; }
             .badge-enabled { background: #0d3318; color: #30d158; }
             .badge-count { background: #0d2a4a; color: #0a84ff; }
+            .transport-badge { background: #2c2c2e; color: #aeaeb2; }
+            .transport-badge:hover { background: #3a3a3c; color: #ffffff; }
             .qr-container { background: #2c2c2e; }
             .secret-key { color: #ebebf5; }
             .secret-label { color: #636366; }

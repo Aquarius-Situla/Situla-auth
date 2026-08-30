@@ -3,7 +3,7 @@
  * Passkey WebAuthn registration and list management (pixel-perfect DOM and CSS).
  */
 
-import { t, escapeHTML, fmtDate, closeAllModals, setModalActionsLoading } from './ui.js';
+import { t, escapeHTML, fmtDate, closeAllModals, setModalActionsLoading, renderTransportBadges } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function renderPasskeys(keys) {
@@ -25,7 +25,10 @@ export function renderPasskeys(keys) {
         badge.className = 'badge badge-count';
     }
 
-    list.innerHTML = keys.map(k => `
+    list.innerHTML = keys.map(k => {
+        const badges = renderTransportBadges(k.transports || []);
+
+        return `
         <div class="passkey-item" id="pk-${k.id}">
             <div class="passkey-icon">
                 <svg viewBox="0 0 825 825" width="22" height="22" preserveAspectRatio="xMidYMid meet">
@@ -37,7 +40,7 @@ export function renderPasskeys(keys) {
                 </svg>
             </div>
             <div class="passkey-info">
-                <span class="passkey-name" id="pk-name-${k.id}">${escapeHTML(k.name || t('default_pk_name') || '通行密钥')}</span>
+                <span class="passkey-name" id="pk-name-${k.id}">${escapeHTML(k.name || t('default_pk_name') || '通行密钥')}${badges}</span>
                 <span class="passkey-date">${fmtDate(k.created_at)}</span>
             </div>
             <div class="passkey-actions">
