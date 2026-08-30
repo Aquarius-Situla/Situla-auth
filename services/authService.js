@@ -87,6 +87,7 @@ class AuthService {
         const token = jwt.sign({
             id: user.id,
             user: user.username,
+            username: user.username,
             email: user.email || '',
             token_version: tokenVersion,
             auth_method: authMethod,

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * middleware/auth.js
  * Authentication and authorization middlewares delegating to domain services.
  */
@@ -22,6 +22,12 @@ function authenticateJWT(req, res, next) {
         const currentVersion = AuthService.tokenVersionCache.get(decoded.id) || 0;
         if (decoded.token_version !== currentVersion) return fail('Session expired');
         if (decoded.jti && AuthService.revokedTokensCache.has(decoded.jti)) return fail('Session revoked');
+        if (!decoded.username && decoded.user) {
+            decoded.username = decoded.user;
+        }
+        if (!decoded.user && decoded.username) {
+            decoded.user = decoded.username;
+        }
         req.user = decoded;
         next();
     } catch {

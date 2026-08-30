@@ -43,11 +43,13 @@ class WebAuthnService {
 
     // ── Registration: Passkey ───────────────────────────────────────────────
     static async getPasskeyRegisterOptions(user, rpId, rpName) {
+        const userName = (user && (user.username || user.user)) ? String(user.username || user.user) : 'User';
         const options = await generateRegistrationOptions({
             rpName,
             rpID: rpId,
             userID: Buffer.from(user.id.toString()),
-            userName: user.username,
+            userName: userName,
+            userDisplayName: userName,
             attestationType: 'none',
             authenticatorSelection: {
                 residentKey: 'preferred',
@@ -106,11 +108,13 @@ class WebAuthnService {
             throw new Error(`最多只能添加 ${FIDO2_MAX_KEYS} 把硬件密钥`);
         }
 
+        const userName = (user && (user.username || user.user)) ? String(user.username || user.user) : 'User';
         const options = await generateRegistrationOptions({
             rpName,
             rpID: rpId,
             userID: Buffer.from(user.id.toString()),
-            userName: user.username,
+            userName: userName,
+            userDisplayName: userName,
             attestationType: 'none',
             authenticatorSelection: {
                 authenticatorAttachment: 'cross-platform',
