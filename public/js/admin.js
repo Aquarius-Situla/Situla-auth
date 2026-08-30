@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/admin.js
  * Situla Auth 2.0 Admin Dashboard - Modern ESM Controller (Pixel-Perfect Architecture)
  */
@@ -65,14 +65,14 @@ function setupGlobalModalClosers() {
 }
 
 function initDashboard() {
-    setupGlobalModalClosers();
-    setupProfileEvents(loadStatus);
-    setupPasskeyEvents(loadStatus);
-    setupFido2Events(loadStatus, openTotpSetup);
-    setupTotpEvents(loadStatus);
-    setupRecoveryEvents(loadStatus);
-    setupOidcEvents();
-    setupLogsEvents();
+    try { setupGlobalModalClosers(); } catch (e) { console.error('[Admin] setupGlobalModalClosers failed:', e); }
+    try { setupProfileEvents(loadStatus); } catch (e) { console.error('[Admin] setupProfileEvents failed:', e); }
+    try { setupPasskeyEvents(loadStatus); } catch (e) { console.error('[Admin] setupPasskeyEvents failed:', e); }
+    try { setupFido2Events(loadStatus, openTotpSetup); } catch (e) { console.error('[Admin] setupFido2Events failed:', e); }
+    try { setupTotpEvents(loadStatus); } catch (e) { console.error('[Admin] setupTotpEvents failed:', e); }
+    try { setupRecoveryEvents(loadStatus); } catch (e) { console.error('[Admin] setupRecoveryEvents failed:', e); }
+    try { setupOidcEvents(); } catch (e) { console.error('[Admin] setupOidcEvents failed:', e); }
+    try { setupLogsEvents(); } catch (e) { console.error('[Admin] setupLogsEvents failed:', e); }
 
     loadStatus();
 }
