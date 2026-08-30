@@ -218,7 +218,8 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
     document.getElementById('cancelFido2Btn1')?.addEventListener('click', closeAllModals);
     document.getElementById('cancelFido2Btn2')?.addEventListener('click', closeAllModals);
 
-    document.getElementById('continueFido2Btn')?.addEventListener('click', () => {
+    function handleFido2Step1Submit(e) {
+        if (e) e.preventDefault();
         const keyName = document.getElementById('fido2DeviceName')?.value?.trim() || t('default_fido2_key_name') || '安全密钥';
         const msg1 = document.getElementById('fido2Msg1');
         if (msg1) msg1.textContent = '';
@@ -259,7 +260,10 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
         };
 
         enterSudoStep('fido2Modal', actionFn);
-    });
+    }
+
+    document.getElementById('fido2Step1Form')?.addEventListener('submit', handleFido2Step1Submit);
+    document.getElementById('continueFido2Btn')?.addEventListener('click', handleFido2Step1Submit);
 
     // Enable FIDO2
     document.getElementById('enableFido2Btn')?.addEventListener('click', async () => {

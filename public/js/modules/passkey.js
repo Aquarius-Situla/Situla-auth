@@ -141,47 +141,48 @@ export function setupPasskeyEvents(onSuccessReload) {
     document.getElementById('cancelPasskeyBtn1')?.addEventListener('click', closeAllModals);
     document.getElementById('cancelPasskeyBtn2')?.addEventListener('click', closeAllModals);
 
-    const continueBtn = document.getElementById('continuePasskeyBtn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-            const passkeyName = document.getElementById('passkeyDeviceName')?.value?.trim() || t('default_pk_name') || '通行密钥';
-            const msg1 = document.getElementById('passkeyMsg1');
-            if (msg1) msg1.textContent = '';
+    function handlePasskeyStep1Submit(e) {
+        if (e) e.preventDefault();
+        const passkeyName = document.getElementById('passkeyDeviceName')?.value?.trim() || t('default_pk_name') || '通行密钥';
+        const msg1 = document.getElementById('passkeyMsg1');
+        if (msg1) msg1.textContent = '';
 
-            const actionFn = async (pwd) => {
-                const { ok: optOk, data: options } = await fetchApi('/api/webauthn/register-options');
-                if (!optOk) {
-                    return { success: false, message: options?.error || options?.message || '获取配置失败' };
-                }
+        const actionFn = async (pwd) => {
+            const { ok: optOk, data: options } = await fetchApi('/api/webauthn/register-options');
+            if (!optOk) {
+                return { success: false, message: options?.error || options?.message || '获取配置失败' };
+            }
 
-                try {
-                    const { startRegistration } = window.SimpleWebAuthnBrowser || {};
-                    if (!startRegistration) throw new Error('WebAuthn library not loaded');
+            try {
+                const { startRegistration } = window.SimpleWebAuthnBrowser || {};
+                if (!startRegistration) throw new Error('WebAuthn library not loaded');
 
-                    const attResp = await startRegistration(options);
-                    attResp._passkeyName = passkeyName;
-                    attResp.currentPassword = pwd;
+                const attResp = await startRegistration(options);
+                attResp._passkeyName = passkeyName;
+                attResp.currentPassword = pwd;
 
-                    const { ok: verOk, data: verData } = await fetchApi('/api/webauthn/register-verify', {
-                        method: 'POST',
-                        body: JSON.stringify(attResp)
-                    });
+                const { ok: verOk, data: verData } = await fetchApi('/api/webauthn/register-verify', {
+                    method: 'POST',
+                    body: JSON.stringify(attResp)
+                });
 
-                    if (verOk && verData.verified) {
-                        if (onSuccessReload) await onSuccessReload();
-                        return { success: true };
-                    } else {
-                        if (verData?.requireElevation) {
-                            return { requireElevation: true, message: verData.message };
-                        }
-                        return { success: false, message: verData?.error || verData?.message || t('msg_passkey_failed') || '验证失败' };
+                if (verOk && verData.verified) {
+                    if (onSuccessReload) await onSuccessReload();
+                    return { success: true };
+                } else {
+                    if (verData?.requireElevation) {
+                        return { requireElevation: true, message: verData.message };
                     }
-                } catch (e) {
-                    return { success: false, message: (t('msg_passkey_canceled') || '已取消') + ': ' + (e.message || '') };
+                    return { success: false, message: verData?.error || verData?.message || t('msg_passkey_failed') || '验证失败' };
                 }
-            };
+            } catch (e) {
+                return { success: false, message: (t('msg_passkey_canceled') || '已取消') + ': ' + (e.message || '') };
+            }
+        };
 
-            enterSudoStep('passkeyModal', actionFn);
-        });
+        enterSudoStep('passkeyModal', actionFn);
     }
+
+    document.getElementById('passkeyStep1Form')?.addEventListener('submit', handlePasskeyStep1Submit);
+    document.getElementById('continuePasskeyBtn')?.addEventListener('click', handlePasskeyStep1Submit);
 }

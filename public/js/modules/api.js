@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/api.js
  * API communication, fetch wrapper, and Sudo elevation orchestrator.
  */
@@ -95,9 +95,21 @@ export function enterSudoStep(modalId, actionFn) {
         if (step1) step1.style.display = 'none';
         if (step2) step2.style.display = 'block';
         modal.style.display = 'flex';
+
+        // Auto-populate hidden username field for Bitwarden & browser password managers
+        const hiddenUser = form ? form.querySelector('.sudo-hidden-username') : null;
+        if (hiddenUser) {
+            hiddenUser.value = window.currentUsername || document.getElementById('usernameDisplay')?.textContent?.trim() || '';
+        }
+
         if (pwdInp) {
             pwdInp.value = '';
-            setTimeout(() => pwdInp.focus(), 60);
+            setTimeout(() => {
+                pwdInp.focus();
+                try {
+                    pwdInp.dispatchEvent(new Event('focus', { bubbles: true }));
+                } catch (e) {}
+            }, 60);
         }
         if (msg) {
             msg.textContent = '';

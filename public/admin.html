@@ -30,7 +30,7 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全管理</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=80">
+    <link rel="stylesheet" href="/css/style.css?v=81">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
@@ -576,7 +576,7 @@
     </style>
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js?v=80"></script>
+    <script src="/i18n.js?v=81"></script>
 </head>
 <body data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -989,19 +989,22 @@ fill="currentColor" stroke="none">
         <!-- Passkey Modal (2-step) -->
         <div class="modal-overlay" id="passkeyModal" style="display: none;">
             <div class="modal-card">
-                <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="825.000000pt" height="825.000000pt" viewBox="0 0 825.000000 825.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,825.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M3396 7389 c-509 -44 -957 -406 -1146 -927 -72 -196 -100 -364 -100 -587 0 -474 192 -934 521 -1250 142 -137 255 -215 410 -282 89 -38 104 -43 244 -75 260 -59 579 6 817 166 29 20 56 36 60 36 15 0 308 279 308 293 0 2 25 41 56 87 69 104 175 319 209 425 37 119 74 287 86 400 16 139 6 384 -21 518 -36 186 -115 393 -202 532 -101 159 -256 334 -370 415 -27 18 -48 38 -48 43 0 6 -2 8 -6 5 -3 -3 -42 15 -87 41 -148 85 -328 144 -472 156 -140 11 -172 12 -259 4z"/><path d="M6305 4921 c-211 -50 -378 -153 -542 -334 -139 -152 -235 -331 -278 -517 -23 -99 -31 -302 -16 -413 35 -263 164 -517 351 -690 69 -64 181 -145 233 -168 l27 -12 0 -837 0 -836 110 -110 c61 -61 110 -108 110 -106 0 2 12 -6 27 -18 25 -19 38 -21 214 -20 l187 2 88 91 c122 126 207 218 287 309 54 63 67 84 67 111 0 41 -12 58 -185 246 -77 84 -141 156 -143 160 -2 7 179 210 340 379 78 82 79 84 77 130 -3 46 -6 50 -169 215 -91 93 -169 175 -173 183 -13 24 -57 64 -70 65 -13 0 27 18 52 22 74 13 257 134 358 236 197 200 298 440 310 737 12 308 -60 537 -248 785 -137 181 -346 322 -559 379 -120 32 -342 37 -455 11z m336 -578 c65 -29 111 -73 145 -140 25 -50 29 -69 29 -138 -1 -110 -16 -154 -76 -219 -68 -75 -137 -108 -227 -108 -71 -1 -142 16 -142 33 0 6 -4 8 -9 5 -5 -3 -29 10 -55 29 -47 37 -90 99 -107 157 -14 50 -13 148 4 196 18 52 58 112 74 112 6 0 15 5 19 12 5 7 3 8 -6 3 -9 -5 -11 -4 -6 3 4 7 13 12 21 12 7 0 16 7 19 16 3 8 10 13 15 10 5 -4 11 -1 13 4 14 42 205 51 289 13z"/><path d="M3210 3630 c-36 -5 -87 -11 -115 -14 -27 -2 -61 -6 -75 -9 -14 -4 -84 -18 -156 -32 -135 -26 -321 -76 -459 -122 -44 -15 -82 -28 -85 -28 -5 -2 -13 -5 -120 -50 -222 -94 -519 -273 -700 -424 -93 -77 -251 -234 -325 -321 -303 -361 -495 -809 -495 -1154 0 -185 46 -302 157 -406 35 -33 83 -70 106 -81 23 -12 44 -24 47 -28 3 -3 12 -8 20 -10 8 -2 44 -13 80 -25 l65 -21 2262 -3 c2154 -2 2262 -1 2265 15 3 10 -1 30 -9 45 -7 15 -15 35 -16 45 -2 10 -10 32 -18 48 -11 25 -14 159 -17 737 l-3 706 -89 81 c-83 76 -200 211 -183 211 5 0 3 4 -3 8 -40 27 -139 225 -165 330 -15 60 -17 62 -179 142 -58 29 -108 58 -112 64 -4 6 -8 8 -8 4 0 -3 -42 12 -92 34 -268 116 -561 199 -863 244 -128 18 -612 28 -715 14z"/></g></svg></div>
+                <div class="modal-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="100%" height="100%" fill="currentColor"><path d="M18 10a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm0 17c5.33 0 16 2.67 16 8v3H2v-3c0-5.33 10.67-8 16-8zm19.5-17a6.5 6.5 0 0 0-6.19 8.54L23.46 26.4a1.5 1.5 0 0 0-.46 1.06V32a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5v-1.5h1.5a1.5 1.5 0 0 0 1.5-1.5v-1.5h1.5a1.5 1.5 0 0 0 1.06-.44l1.94-1.94A6.5 6.5 0 1 0 37.5 10zm0 3a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/></svg></div>
                 <div id="passkeyStep1">
-                    <h3>添加通行密钥</h3>
-                    <p class="modal-desc">通行密钥允许您使用面容、指纹或设备密码安全地登录。</p>
-                    <input type="text" id="passkeyDeviceName" name="deviceName" data-bwignore="true" class="modal-input" placeholder="给这把通行密钥起个名字" autocomplete="off" maxlength="64">
-                    <div class="msg" id="passkeyMsg1" style="font-size: 14px; margin-top: 8px;"></div>
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn1" data-i18n="btn_cancel">取消</button>
-                        <button class="modal-btn modal-btn-primary" id="continuePasskeyBtn" data-i18n="btn_continue">继续</button>
-                    </div>
+                    <form id="passkeyStep1Form" style="margin: 0; width: 100%;">
+                        <h3 data-i18n="passkey_add_title">添加通行密钥</h3>
+                        <p class="modal-desc" data-i18n="passkey_add_desc">通行密钥允许您使用面容、指纹或设备密码安全地登录。</p>
+                        <input type="text" id="passkeyDeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="passkey_name_placeholder" placeholder="给这把通行密钥起个名字" autocomplete="off" maxlength="64">
+                        <div class="msg" id="passkeyMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                        <div class="modal-actions">
+                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn1" data-i18n="btn_cancel">取消</button>
+                            <button type="submit" class="modal-btn modal-btn-primary" id="continuePasskeyBtn" data-i18n="btn_continue">继续</button>
+                        </div>
+                    </form>
                 </div>
                 <div id="passkeyStep2" style="display: none;">
                     <form id="passkeySudoForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="passkeyConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1020,17 +1023,20 @@ fill="currentColor" stroke="none">
             <div class="modal-card">
                 <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 2340.000000 2340.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,2340.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M4983 21898 c-11 -24 -50 -82 -86 -130 -171 -229 -176 -271 -177 -1433 0 -908 3 -947 76 -1034 70 -84 163 -95 469 -57 458 57 1031 76 1709 57 460 -12 522 -17 856 -58 357 -43 447 -12 495 172 18 72 23 1805 5 1955 -20 167 -59 262 -164 405 -37 50 -74 107 -84 127 -29 63 -3068 59 -3099 -4z m2617 -425 c227 -78 312 -245 297 -592 -12 -285 -94 -413 -310 -479 -75 -23 -1922 -31 -2051 -9 -261 45 -366 200 -366 537 0 343 98 499 350 555 125 27 1996 16 2080 -12z"/><path d="M5913 18410 c-1834 -103 -2481 -529 -2640 -1740 -21 -162 -34 -9161 -14 -9680 50 -1262 590 -1791 2009 -1965 612 -75 1665 -89 2262 -30 1576 156 2120 578 2271 1765 17 128 26 9310 10 9650 -41 875 -312 1364 -916 1660 -365 178 -772 263 -1585 331 -168 14 -1191 20 -1397 9z m897 -4844 c1310 -176 2034 -1676 1370 -2837 -745 -1302 -2711 -1219 -3359 141 -645 1357 490 2897 1989 2696z"/><path d="M6327 13204 c-1487 -231 -1815 -2232 -473 -2884 1146 -557 2415 400 2182 1645 -152 815 -908 1364 -1709 1239z"/><path d="M16325 15783 c-1832 -107 -2479 -570 -2565 -1832 -21 -298 -8 -7291 13 -7430 182 -1187 877 -1604 2755 -1651 2703 -69 3549 390 3613 1960 19 478 6 7118 -14 7269 -157 1153 -798 1584 -2496 1681 -160 9 -1167 12 -1306 3z m748 -1398 c427 -90 614 -623 335 -951 -328 -385 -941 -229 -1044 266 -83 397 304 771 709 685z m38 -3015 c1390 -138 2130 -1712 1350 -2871 -772 -1147 -2551 -1034 -3182 203 -655 1285 393 2810 1832 2668z"/><path d="M16735 11014 c-823 -123 -1380 -843 -1286 -1664 117 -1023 1245 -1600 2191 -1123 949 479 1048 1858 181 2508 -265 200 -762 327 -1086 279z m625 -501 c40 -28 66 -63 103 -138 231 -467 238 -1151 16 -1642 -121 -269 -296 -233 -183 37 217 520 226 984 28 1482 -89 225 -74 338 36 261z m-439 -341 c229 -260 190 -1171 -54 -1298 -94 -50 -113 53 -47 261 96 302 95 515 -4 830 -46 145 -51 178 -36 216 25 59 85 55 141 -9z m-496 -324 c137 -161 99 -631 -54 -671 -69 -18 -97 54 -76 193 18 121 19 214 3 341 -22 177 37 241 127 137z"/><path d="M4915 4171 c-111 -27 -166 -103 -185 -254 -13 -107 -13 -1628 0 -1803 17 -224 54 -331 167 -482 36 -48 75 -106 86 -129 31 -64 3070 -68 3099 -5 10 20 47 77 84 127 103 140 135 215 159 375 23 146 22 1899 0 1985 -48 185 -133 214 -492 172 -352 -43 -399 -46 -859 -58 -675 -19 -1253 0 -1708 56 -200 25 -295 29 -351 16z"/><path d="M15380 4091 c-187 -57 -190 -74 -190 -1126 0 -1095 4 -1125 165 -1340 29 -38 63 -91 76 -117 23 -48 23 -48 1520 -48 1497 0 1497 0 1509 31 7 17 48 80 91 141 159 224 154 175 154 1303 0 1034 2 1002 -67 1081 -78 89 -143 96 -503 55 -390 -44 -554 -51 -1180 -51 -653 0 -818 8 -1252 60 -166 21 -279 24 -323 11z"/></g></svg></div>
                 <div id="fido2Step1">
-                    <h3>添加 FIDO2 安全密钥</h3>
-                    <p class="modal-desc">使用硬件 USB 密钥或 NFC 设备进行超强安全验证。</p>
-                    <input type="text" id="fido2DeviceName" name="deviceName" data-bwignore="true" class="modal-input" placeholder="给这把安全密钥起个名字" autocomplete="off" maxlength="40">
-                    <div class="msg" id="fido2Msg1" style="font-size: 14px; margin-top: 8px;"></div>
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-secondary" id="cancelFido2Btn1" data-i18n="btn_cancel">取消</button>
-                        <button class="modal-btn modal-btn-primary" id="continueFido2Btn" data-i18n="btn_continue">继续</button>
-                    </div>
+                    <form id="fido2Step1Form" style="margin: 0; width: 100%;">
+                        <h3 data-i18n="fido2_add_title">添加 FIDO2 安全密钥</h3>
+                        <p class="modal-desc" data-i18n="fido2_add_desc">使用硬件 USB 密钥或 NFC 设备进行超强安全验证。</p>
+                        <input type="text" id="fido2DeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="fido2_name_placeholder" placeholder="给这把安全密钥起个名字" autocomplete="off" maxlength="40">
+                        <div class="msg" id="fido2Msg1" style="font-size: 14px; margin-top: 8px;"></div>
+                        <div class="modal-actions">
+                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelFido2Btn1" data-i18n="btn_cancel">取消</button>
+                            <button type="submit" class="modal-btn modal-btn-primary" id="continueFido2Btn" data-i18n="btn_continue">继续</button>
+                        </div>
+                    </form>
                 </div>
                 <div id="fido2Step2" style="display: none;">
                     <form id="fido2SudoForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="fido2ConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1060,6 +1066,7 @@ fill="currentColor" stroke="none">
                 </div>
                 <div id="usernameStep2" style="display: none;">
                     <form id="usernameForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="usernameConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1089,6 +1096,7 @@ fill="currentColor" stroke="none">
                 </div>
                 <div id="emailStep2" style="display: none;">
                     <form id="emailForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="emailConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1122,6 +1130,7 @@ fill="currentColor" stroke="none">
                 </div>
                 <div id="passwordStep2" style="display: none;">
                     <form id="passwordSudoForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="passwordConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1152,6 +1161,7 @@ fill="currentColor" stroke="none">
                 </div>
                 <div id="oidcStep2" style="display: none;">
                     <form id="oidcForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="oidcConfirmPwd" autocomplete="current-password" placeholder="密码">
@@ -1179,6 +1189,7 @@ fill="currentColor" stroke="none">
                 <div class="modal-icon" id="sudoModalIcon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%"><path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z"/></svg></div>
                 <div id="sudoStep1">
                     <form id="sudoForm" style="margin: 0; width: 100%;">
+                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
                         <h3 id="sudoModalTitle" data-i18n="sudo_title">确认你的密码</h3>
                         <p class="modal-desc" id="sudoModalDesc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
                         <input type="password" name="password" class="modal-input" id="sudoPassword" autocomplete="current-password" placeholder="密码">
