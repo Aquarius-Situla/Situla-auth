@@ -89,17 +89,22 @@ class WebAuthnService {
             throw new Error('Verification failed');
         }
 
-        const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
+        const regInfo = verification.registrationInfo || {};
+        const cred = regInfo.credential || {};
         const name = (body._passkeyName || '通行密钥').trim().slice(0, 40);
-        const transports = JSON.stringify(body.response?.transports || []);
+        const transports = JSON.stringify(body.response?.transports || cred.transports || []);
 
-        const credIdBase64 = body.id || (typeof credentialID === 'string'
-            ? credentialID
-            : Buffer.from(credentialID).toString('base64url'));
+        const credId = body.id || cred.id || regInfo.credentialID || body.rawId;
+        const credIdBase64 = typeof credId === 'string'
+            ? credId
+            : Buffer.from(credId).toString('base64url');
 
-        const pubKeyBase64 = typeof credentialPublicKey === 'string'
-            ? credentialPublicKey
-            : Buffer.from(credentialPublicKey).toString('base64url');
+        const rawPubKey = cred.publicKey || regInfo.credentialPublicKey;
+        const pubKeyBase64 = typeof rawPubKey === 'string'
+            ? rawPubKey
+            : Buffer.from(rawPubKey || []).toString('base64url');
+
+        const counter = cred.counter ?? regInfo.counter ?? 0;
 
         await db.run(
             'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at, type, transports) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -171,17 +176,22 @@ class WebAuthnService {
             throw new Error('验证失败');
         }
 
-        const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
+        const regInfo = verification.registrationInfo || {};
+        const cred = regInfo.credential || {};
         const name = (body._keyName || body._fido2KeyName || body.name || '安全密钥').trim().slice(0, 40);
-        const transports = JSON.stringify(body.response?.transports || []);
+        const transports = JSON.stringify(body.response?.transports || cred.transports || []);
 
-        const credIdBase64 = body.id || (typeof credentialID === 'string'
-            ? credentialID
-            : Buffer.from(credentialID).toString('base64url'));
+        const credId = body.id || cred.id || regInfo.credentialID || body.rawId;
+        const credIdBase64 = typeof credId === 'string'
+            ? credId
+            : Buffer.from(credId).toString('base64url');
 
-        const pubKeyBase64 = typeof credentialPublicKey === 'string'
-            ? credentialPublicKey
-            : Buffer.from(credentialPublicKey).toString('base64url');
+        const rawPubKey = cred.publicKey || regInfo.credentialPublicKey;
+        const pubKeyBase64 = typeof rawPubKey === 'string'
+            ? rawPubKey
+            : Buffer.from(rawPubKey || []).toString('base64url');
+
+        const counter = cred.counter ?? regInfo.counter ?? 0;
 
         await db.run(
             'INSERT INTO passkeys (user_id, credential_id, public_key, counter, name, created_at, type, transports) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -268,16 +278,16 @@ class WebAuthnService {
         const allowCredentials = [];
         const seenIds = new Set();
         for (const k of keys) {
-            if (!k.credential_id) continue;
+            if (!k.credential_id || k.credential_id.trim() === '') continue;
             const cleanId = WebAuthnService.normalizeCredentialId(k.credential_id);
-            if (cleanId && !seenIds.has(cleanId)) {
+            if (cleanId && cleanId.trim() !== '' && !seenIds.has(cleanId)) {
                 seenIds.add(cleanId);
                 allowCredentials.push({
                     id: cleanId,
                     type: 'public-key'
                 });
             }
-            if (k.credential_id && k.credential_id !== cleanId && !seenIds.has(k.credential_id)) {
+            if (k.credential_id && k.credential_id.trim() !== '' && k.credential_id !== cleanId && !seenIds.has(k.credential_id)) {
                 seenIds.add(k.credential_id);
                 allowCredentials.push({
                     id: k.credential_id,
