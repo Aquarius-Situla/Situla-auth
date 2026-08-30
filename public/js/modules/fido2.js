@@ -52,7 +52,7 @@ export function set2faBadge(method, fido2Count = 0) {
         const addBtnRow = document.getElementById('fido2AddBtnRow');
         const enableBtn = document.getElementById('enableFido2Btn');
         const disableBtn = document.getElementById('disableFido2Btn');
-        if (addBtnRow) addBtnRow.style.display = 'none';
+        if (addBtnRow) addBtnRow.style.display = fido2Count >= 10 ? 'none' : 'flex';
         if (enableBtn) enableBtn.style.display = 'none';
         if (disableBtn) disableBtn.style.display = 'block';
     } else if (!method && fido2Count > 0) {
@@ -156,6 +156,8 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                         alert(t('fido2_min_warning') || '安全密钥不足 2 把，FIDO2 2FA 已自动降级停用。');
                     }
                     if (onSuccessReload) onSuccessReload();
+                } else {
+                    alert(data?.message || t('msg_delete_failed') || '删除失败');
                 }
             }
         });

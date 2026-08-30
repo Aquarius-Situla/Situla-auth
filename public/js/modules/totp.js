@@ -103,30 +103,23 @@ export function setupTotpEvents(onSuccessReload) {
     });
 
     // Disable 2FA (Both TOTP and FIDO2)
-    async function disable2faCommon() {
-        if (!confirm(t('alert_disable_2fa') || '确定要停用双重认证吗？')) return;
+    function disable2faCommon() {
+        const actionFn = async (pwd) => {
+            const { ok, data } = await fetchApi('/api/totp/disable', {
+                method: 'POST',
+                body: JSON.stringify({ currentPassword: pwd })
+            });
 
-        const currentPassword = prompt('请输入当前密码以确认操作：');
-        if (currentPassword === null) return;
+            if (ok && data?.success) {
+                set2faBadge(null);
+                if (onSuccessReload) await onSuccessReload();
+                return { success: true };
+            } else {
+                return { success: false, message: data?.message || t('msg_verify_failed') || '停用失败，请检查密码' };
+            }
+        };
 
-        let totpToken = '';
-        const isTotp = document.getElementById('totpEnabledUI')?.style.display === 'flex';
-        if (isTotp) {
-            totpToken = prompt('请输入 Authenticator 中的当前 6 位验证码：') || '';
-            if (totpToken === null) return;
-        }
-
-        const { ok, data } = await fetchApi('/api/totp/disable', {
-            method: 'POST',
-            body: JSON.stringify({ currentPassword, totpToken })
-        });
-
-        if (ok && data.success) {
-            set2faBadge(null);
-            if (onSuccessReload) onSuccessReload();
-        } else {
-            alert(data?.message || '停用失败，请检查密码和验证码是否正确');
-        }
+        enterSudoStep('sudoModal', actionFn);
     }
 
     document.getElementById('disable2faBtn')?.addEventListener('click', disable2faCommon);

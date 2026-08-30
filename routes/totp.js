@@ -1,4 +1,4 @@
-﻿/**
+/**
  * routes/totp.js
  * TOTP (Time-based OTP) setup, verification, and disable.
  */
@@ -41,10 +41,10 @@ router.post('/disable', authenticateJWT, async (req, res) => {
     if (!(await AuthService.verifyElevationOrPassword(req, res, currentPassword))) return;
 
     try {
-        const user = await db.get('SELECT totp_secret FROM users WHERE id = ?', [req.user.id]);
+        const user = await db.get('SELECT totp_secret, two_fa_method FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
 
-        if (user.totp_secret) {
+        if (user.two_fa_method === 'totp' && user.totp_secret && totpToken) {
             const valid = TotpService.verifyToken(user.totp_secret, totpToken);
             if (!valid) {
                 return res.status(401).json({ success: false, message: '验证码错误，请输入当前的 6 位验证码' });
