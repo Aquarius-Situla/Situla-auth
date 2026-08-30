@@ -34,7 +34,9 @@ router.post('/register-verify', authenticateJWT, async (req, res) => {
     try {
         const RP_ID = req.app.get('RP_ID');
         const ORIGIN = req.app.get('ORIGIN');
+        console.log(`[FIDO2 Register] User ${req.user.id} registering key: "${req.body.name || req.body._keyName}", id: "${req.body.id}", RP_ID: "${RP_ID}", ORIGIN: "${ORIGIN}"`);
         const result = await WebAuthnService.verifyFido2Registration(req.user, req.body, ORIGIN, RP_ID);
+        console.log(`[FIDO2 Register Success] Key "${req.body.id}" registered successfully.`);
         res.json(result);
     } catch (e) {
         console.error('[FIDO2 Register Error]:', e.message);
@@ -127,8 +129,10 @@ router.post('/challenge', (req, res) => {
         try {
             const decoded = jwt.verify(tempToken, JWT_SECRET, { algorithms: ['HS256'] });
             const options = await WebAuthnService.getFido2AuthOptions(decoded.temp_id, RP_ID);
+            console.log(`[FIDO2 Challenge] Generated challenge for user ${decoded.temp_id}, RP_ID: "${options.rpId}", allowCredentials:`, options.allowCredentials?.map(c => c.id));
             res.json(options);
         } catch (e) {
+            console.error('[FIDO2 Challenge Error]:', e.message);
             return res.status(401).json({ error: 'Invalid or expired session' });
         }
     });

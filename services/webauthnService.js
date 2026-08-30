@@ -93,9 +93,9 @@ class WebAuthnService {
         const name = (body._passkeyName || '通行密钥').trim().slice(0, 40);
         const transports = JSON.stringify(body.response?.transports || []);
 
-        const credIdBase64 = typeof credentialID === 'string'
+        const credIdBase64 = body.id || (typeof credentialID === 'string'
             ? credentialID
-            : Buffer.from(credentialID).toString('base64url');
+            : Buffer.from(credentialID).toString('base64url'));
 
         const pubKeyBase64 = typeof credentialPublicKey === 'string'
             ? credentialPublicKey
@@ -175,9 +175,9 @@ class WebAuthnService {
         const name = (body._keyName || body._fido2KeyName || body.name || '安全密钥').trim().slice(0, 40);
         const transports = JSON.stringify(body.response?.transports || []);
 
-        const credIdBase64 = typeof credentialID === 'string'
+        const credIdBase64 = body.id || (typeof credentialID === 'string'
             ? credentialID
-            : Buffer.from(credentialID).toString('base64url');
+            : Buffer.from(credentialID).toString('base64url'));
 
         const pubKeyBase64 = typeof credentialPublicKey === 'string'
             ? credentialPublicKey

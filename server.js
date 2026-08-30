@@ -27,15 +27,18 @@ const AuthService = require('./services/authService');
 const { authenticateJWT, tokenVersionCache, revokedTokensCache } = require('./middleware/auth');
 
 // ── Configuration ──────────────────────────────────────────────────────────
-const RP_ID         = process.env.RP_ID || 'auth.example.com';
+const RAW_RP_ID     = (process.env.RP_ID || 'auth.example.com').trim();
+const RP_ID         = RAW_RP_ID.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
 const RP_NAME       = 'Situla Auth';
-const ORIGIN        = `https://${RP_ID}`;
+const ORIGIN        = process.env.ORIGIN || (process.env.NODE_ENV === 'production' || RP_ID !== 'localhost' ? `https://${RP_ID}` : `http://${RP_ID}`);
 const COOKIE_NAME   = process.env.COOKIE_NAME || 'situla_session';
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || '.example.com';
 const JWT_SECRET    = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || DEFAULT_ENC_KEY;
 const ADMIN_USER    = process.env.ADMIN_USER || 'akadmin';
 const ADMIN_PASS_RAW = (process.env.ADMIN_PASS || 'akadmin').replace(/^['"]|['"]$/g, '');
+
+console.log(`[WebAuthn Init] Effective RP_ID: "${RP_ID}", ORIGIN: "${ORIGIN}"`);
 
 // Enforce production secret hygiene
 assertProductionKeySecurity(JWT_SECRET, ENCRYPTION_KEY);

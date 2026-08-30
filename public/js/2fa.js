@@ -303,9 +303,11 @@
                         throw new Error(err.message || err.error || t('msg_network_error'));
                     }
                     const options = await challengeRes.json();
+                    console.log('[FIDO2 2FA Options]:', options);
 
                     // Step 2: Prompt browser/OS for authenticator
                     const assertionResponse = await startAuthentication(options);
+                    console.log('[FIDO2 2FA Assertion Response]:', assertionResponse);
 
                     // Step 3: Verify with server
                     const verifyRes = await fetch('/api/fido2/verify', {
@@ -326,7 +328,7 @@
                         throw new Error(verifyData.error || verifyData.message || t('fido2_verify_failed'));
                     }
                 } catch (err) {
-                    console.error('[FIDO2 Auth Error]:', err);
+                    console.error('[FIDO2 Auth Error]:', { name: err.name, message: err.message, code: err.code, cause: err.cause });
                     if (spinner) spinner.style.display = 'none';
                     if (statusHint) statusHint.textContent = t('fido2_prompt');
                     if (err.name === 'NotAllowedError') {
