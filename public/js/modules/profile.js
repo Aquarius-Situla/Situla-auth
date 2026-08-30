@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/profile.js
  * User profile management (username, email, password, and logout).
  */
@@ -104,20 +104,26 @@ export function setupProfileEvents(onSuccessReload) {
         const modal = document.getElementById('passwordModal');
         if (modal) modal.style.display = 'flex';
         const step1 = document.getElementById('passwordStep1');
+        const step2 = document.getElementById('passwordStep2');
         if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
         const p1 = document.getElementById('newPassword');
         const p2 = document.getElementById('confirmPassword');
         if (p1) p1.value = '';
         if (p2) p2.value = '';
         const msg1 = document.getElementById('passwordMsg1');
-        if (msg1) msg1.textContent = '';
+        if (msg1) {
+            msg1.textContent = '';
+            msg1.className = 'msg';
+        }
         setTimeout(() => p1?.focus(), 60);
     });
 
     document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);
     document.getElementById('cancelPasswordBtn2')?.addEventListener('click', closeAllModals);
 
-    document.getElementById('continuePasswordBtn')?.addEventListener('click', () => {
+    function handlePasswordStep1Submit(e) {
+        if (e) e.preventDefault();
         const newPassword = document.getElementById('newPassword')?.value || '';
         const confirmPassword = document.getElementById('confirmPassword')?.value || '';
         const msg1 = document.getElementById('passwordMsg1');
@@ -128,6 +134,15 @@ export function setupProfileEvents(onSuccessReload) {
                 msg1.textContent = t('msg_enter_new_pwd') || '请输入新密码';
                 msg1.className = 'msg msg-err';
             }
+            document.getElementById('newPassword')?.focus();
+            return;
+        }
+        if (newPassword.length < 6) {
+            if (msg1) {
+                msg1.textContent = t('msg_pwd_too_short') || '密码长度至少为 6 位';
+                msg1.className = 'msg msg-err';
+            }
+            document.getElementById('newPassword')?.focus();
             return;
         }
         if (newPassword !== confirmPassword) {
@@ -135,6 +150,7 @@ export function setupProfileEvents(onSuccessReload) {
                 msg1.textContent = t('msg_pwd_mismatch') || '两次输入的密码不一致';
                 msg1.className = 'msg msg-err';
             }
+            document.getElementById('confirmPassword')?.focus();
             return;
         }
 
@@ -156,7 +172,10 @@ export function setupProfileEvents(onSuccessReload) {
         };
 
         enterSudoStep('passwordModal', actionFn);
-    });
+    }
+
+    document.getElementById('newPasswordForm')?.addEventListener('submit', handlePasswordStep1Submit);
+    document.getElementById('continuePasswordBtn')?.addEventListener('click', handlePasswordStep1Submit);
 
     // ── Logout ──
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
