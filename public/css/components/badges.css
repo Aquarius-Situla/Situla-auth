@@ -1,0 +1,71 @@
+/*
+ * Situla Auth 2.0 - Status Badges & Transport Mini-Badges
+ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.badge-enabled {
+    background: var(--badge-enabled-bg);
+    color: var(--badge-enabled-text);
+}
+
+.badge-disabled {
+    background: var(--badge-disabled-bg);
+    color: var(--badge-disabled-text);
+}
+
+.badge-error {
+    background: var(--badge-error-bg);
+    color: var(--badge-error-text);
+}
+
+.badge-count {
+    background: var(--badge-count-bg);
+    color: var(--badge-count-text);
+}
+
+.badge-warn {
+    background: var(--badge-warn-bg);
+    color: var(--badge-warn-text);
+}
+
+.badge svg {
+    width: 11px;
+    height: 11px;
+}
+
+/* WebAuthn Transport Mini-Badge */
+.transport-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--transport-badge-bg);
+    color: var(--transport-badge-text);
+    margin-left: 5px;
+    vertical-align: -3px;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.transport-badge svg {
+    width: 12px;
+    height: 12px;
+    display: block;
+}
+
+@media (hover: hover) {
+    .transport-badge:hover {
+        background: var(--transport-badge-hover);
+    }
+}

@@ -1,0 +1,235 @@
+/*
+ * Situla Auth 2.0 - Button System & Interactive Feedback
+ */
+
+/* General Button Rows */
+.button-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+    width: 100%;
+    align-items: center;
+}
+
+.btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.action-btn-container {
+    display: flex;
+    gap: 10px;
+}
+
+.or-divider {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Login Action Buttons */
+.login-btn {
+    flex: 1;
+    padding: 0 10px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: background var(--duration-normal), opacity var(--duration-normal);
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.2;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Button Loading State */
+.login-btn.loading,
+.btn-solid.loading,
+.btn-primary.loading {
+    cursor: wait;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Primary Button */
+.btn-primary {
+    background: var(--color-primary);
+    color: #ffffff;
+    opacity: 0.5;
+}
+
+.btn-primary.active {
+    opacity: 1;
+}
+
+.btn-primary.active:active {
+    background: var(--color-primary-active);
+}
+
+/* Passkey Button */
+.passkey-btn {
+    background: var(--btn-passkey-bg);
+    color: #ffffff;
+}
+
+.passkey-btn:active {
+    background: var(--btn-passkey-active);
+}
+
+/* Back Button */
+.back-btn {
+    background: var(--btn-back-bg);
+    color: var(--btn-back-text);
+    border: 1px solid var(--btn-back-border);
+}
+
+.back-btn:active {
+    background: var(--btn-back-active);
+}
+
+/* Admin / Generic Action Buttons */
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 9px 18px;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-solid {
+    background: var(--color-primary);
+    border: none;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 10px 22px;
+    transition: background var(--duration-fast);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 9px 18px;
+    transition: background var(--duration-fast), color var(--duration-fast);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Passkey & FIDO2 List Action Mini-Buttons */
+.pk-btn {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.pk-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.pk-rename,
+.fido2-rename {
+    background: var(--pk-rename-bg);
+    color: var(--pk-rename-text);
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.pk-delete,
+.fido2-delete {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Hover effects only on pointer/hover devices */
+@media (hover: hover) {
+    .btn-primary.active:hover { background: var(--color-primary-hover); }
+    .passkey-btn:hover { background: var(--btn-passkey-hover); }
+    .back-btn:hover { background: var(--btn-back-hover); }
+    .btn-outline:hover { background: var(--color-primary); color: #ffffff; }
+    .btn-solid:hover { background: var(--color-primary-hover); }
+    .btn-danger:hover { background: var(--color-danger); color: #ffffff; }
+    .pk-rename:hover, .fido2-rename:hover { background: var(--pk-rename-hover); }
+    .pk-delete:hover, .fido2-delete:hover { background: var(--color-danger); color: #ffffff; }
+}
+
+/* Active touch states */
+.btn-outline:active { background: var(--color-primary-light); color: var(--color-primary); }
+.btn-solid:active { background: var(--color-primary-active); }
+.btn-danger:active { background: var(--color-danger-light); color: var(--color-danger); }
+.pk-rename:active, .fido2-rename:active { background: var(--pk-rename-active); }
+.pk-delete:active, .fido2-delete:active { background: var(--color-danger-active); color: #ffffff; }
+
+/* Responsive button layouts */
+@media (max-width: 500px) {
+    .button-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .or-divider {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+    .login-btn {
+        width: 100%;
+        flex: none;
+    }
+    .totp-buttons,
+    .fido2-buttons {
+        flex-direction: column;
+    }
+    .totp-buttons #verifyBtn { order: 1; }
+    .totp-buttons #backBtn  { order: 2; }
+}
+
+@media (min-width: 501px) {
+    .or-divider {
+        display: none;
+    }
+}
