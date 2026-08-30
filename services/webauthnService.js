@@ -151,7 +151,7 @@ class WebAuthnService {
         }
 
         const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
-        const name = (body._keyName || '安全密钥').trim().slice(0, 40);
+        const name = (body._keyName || body._fido2KeyName || body.name || '安全密钥').trim().slice(0, 40);
         const transports = JSON.stringify(body.response?.transports || []);
 
         await db.run(

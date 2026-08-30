@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/fido2.js
  * FIDO2 Hardware Key Management and 2FA Multi-State UI Coordinator.
  */
@@ -29,6 +29,19 @@ export function set2faBadge(method, fido2Count = 0) {
         }
         if (desc) desc.textContent = t('section_2fa_desc_totp') || '使用身份验证器 App 生成的动态验证码进行验证。';
         if (totpEnabledUI) totpEnabledUI.style.display = 'flex';
+
+        if (fido2Count > 0) {
+            if (fido2EnabledUI) fido2EnabledUI.style.display = 'block';
+            const addBtnRow = document.getElementById('fido2AddBtnRow');
+            const enableBtn = document.getElementById('enableFido2Btn');
+            const disableBtn = document.getElementById('disableFido2Btn');
+            if (addBtnRow) addBtnRow.style.display = 'flex';
+            if (enableBtn) {
+                enableBtn.style.display = fido2Count >= 2 ? 'block' : 'none';
+                enableBtn.textContent = t('btn_switch_to_fido2') || '切换为 FIDO2 2FA';
+            }
+            if (disableBtn) disableBtn.style.display = 'none';
+        }
     } else if (method === 'fido2') {
         if (badge) {
             badge.className = 'badge badge-enabled';
@@ -94,13 +107,13 @@ export function renderFido2Keys(keys) {
                 <span class="passkey-date">${fmtDate(k.created_at)}</span>
             </div>
             <div class="passkey-actions">
-                <button class="pk-btn fido2-rename" data-action="rename" data-id="${k.id}" title="重命名">
+                <button class="pk-btn pk-rename fido2-rename" data-action="rename" data-id="${k.id}" title="重命名">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                 </button>
-                <button class="pk-btn fido2-delete" data-action="delete" data-id="${k.id}" title="删除">
+                <button class="pk-btn pk-delete fido2-delete" data-action="delete" data-id="${k.id}" title="删除">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -212,7 +225,9 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
                 if (!startRegistration) throw new Error('WebAuthn library not loaded');
 
                 const attResp = await startRegistration(options);
+                attResp._keyName = keyName;
                 attResp._fido2KeyName = keyName;
+                attResp.name = keyName;
                 attResp.currentPassword = pwd;
 
                 const { ok: verOk, data: verData } = await fetchApi('/api/fido2/register-verify', {
