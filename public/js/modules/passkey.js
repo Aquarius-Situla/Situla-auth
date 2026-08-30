@@ -59,8 +59,8 @@ export function renderPasskeys(keys) {
                     </svg>
                 </button>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 export async function deletePasskey(id) {
