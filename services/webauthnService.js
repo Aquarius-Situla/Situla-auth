@@ -138,6 +138,7 @@ class WebAuthnService {
             attestationType: 'none',
             authenticatorSelection: {
                 authenticatorAttachment: 'cross-platform',
+                residentKey: 'preferred',
                 userVerification: 'preferred'
             }
         });
