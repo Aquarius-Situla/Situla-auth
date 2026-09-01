@@ -234,7 +234,8 @@ db.ready().then(async () => {
     const existing = await db.get('SELECT id FROM users ORDER BY id ASC LIMIT 1');
     if (!existing) {
         const hashed = await bcrypt.hash(ADMIN_PASS_RAW, 12);
-        await db.run('INSERT INTO users (username, password) VALUES (?, ?)', [ADMIN_USER, hashed]);
+        const nowIso = new Date().toISOString();
+        await db.run('INSERT INTO users (username, password, password_updated_at) VALUES (?, ?, ?)', [ADMIN_USER, hashed, nowIso]);
         console.log(`[Seed] Initial admin user "${ADMIN_USER}" created.`);
     }
 

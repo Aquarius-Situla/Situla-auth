@@ -41,7 +41,8 @@ class DatabaseClient {
                     email TEXT DEFAULT '',
                     token_version INTEGER DEFAULT 0,
                     totp_pending_secret TEXT DEFAULT '',
-                    two_fa_method TEXT DEFAULT NULL
+                    two_fa_method TEXT DEFAULT NULL,
+                    password_updated_at TEXT DEFAULT ''
                 )`);
 
                 this.db.run(`CREATE TABLE IF NOT EXISTS passkeys (
@@ -120,6 +121,7 @@ class DatabaseClient {
             `ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0`,
             `ALTER TABLE users ADD COLUMN totp_pending_secret TEXT DEFAULT ''`,
             `ALTER TABLE users ADD COLUMN two_fa_method TEXT DEFAULT NULL`,
+            `ALTER TABLE users ADD COLUMN password_updated_at TEXT DEFAULT ''`,
             `ALTER TABLE passkeys ADD COLUMN name TEXT DEFAULT '通行密钥'`,
             `ALTER TABLE passkeys ADD COLUMN created_at TEXT DEFAULT ''`,
             `ALTER TABLE passkeys ADD COLUMN type TEXT DEFAULT 'passkey'`,

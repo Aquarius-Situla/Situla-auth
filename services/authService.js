@@ -67,7 +67,8 @@ class AuthService {
         // Legacy SHA-256 migration
         if (sha256(plaintext) === storedHash) {
             const newHash = await bcrypt.hash(plaintext, SALT_ROUNDS);
-            await db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, userId]);
+            const nowIso = new Date().toISOString();
+            await db.run('UPDATE users SET password = ?, password_updated_at = ? WHERE id = ?', [newHash, nowIso, userId]);
             console.log(`[AuthService] Migrated user ${userId} password from SHA-256 to bcrypt.`);
             return true;
         }
