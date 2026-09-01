@@ -30,12 +30,12 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全管理</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=89">
+    <link rel="stylesheet" href="/css/style.css?v=90">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js?v=89"></script>
+    <script src="/i18n.js?v=90"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -57,36 +57,33 @@
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
                         <h3 data-i18n="section_username_title">修改用户名</h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
+                        <p class="desc" id="usernameDisplay" style="margin-bottom:0;">-</p>
                     </div>
                     <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
                 </div>
-                
-                </div>
+            </div>
 
             <!-- Change email -->
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
                         <h3 data-i18n="section_email_title">绑定邮箱</h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_email_desc">用于单点登录 (SSO) 时识别身份。</p>
+                        <p class="desc" id="emailDisplay" style="margin-bottom:0;">-</p>
                     </div>
                     <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
                 </div>
-                
-                </div>
+            </div>
 
             <!-- Change password -->
             <div class="section">
                 <div class="section-header" style="margin-bottom:0;">
                     <div>
                         <h3 data-i18n="section_password_title">修改密码</h3>
-                        <p class="desc" style="margin-bottom:0;" data-i18n="section_password_desc">支持任意特殊字符，包括 &amp; # @ * 等。</p>
+                        <p class="desc" id="passwordUpdatedDisplay" style="margin-bottom:0;">-</p>
                     </div>
                     <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
                 </div>
-                
-                </div>
+            </div>
         </div>
 
         <div class="settings-group">
@@ -664,6 +661,6 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=89"></script>
+    <script type="module" src="/js/admin.js?v=90"></script>
 </body>
 </html>

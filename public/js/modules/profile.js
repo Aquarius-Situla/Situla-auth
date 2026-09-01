@@ -222,6 +222,7 @@ export function setupProfileEvents(onSuccessReload) {
 
             if (res.ok && res.data?.success) {
                 alert(t('msg_pwd_changed') || '密码修改成功');
+                if (onSuccessReload) onSuccessReload();
                 return { success: true };
             }
             if (res.data?.requireElevation || res.status === 401) {

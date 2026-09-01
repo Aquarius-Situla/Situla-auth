@@ -35,6 +35,19 @@ describe('GET /api/status', () => {
         expect(res.body).toHaveProperty('passkeys');
         expect(res.body).toHaveProperty('fido2Keys');
         expect(res.body).toHaveProperty('recoveryCodesRemaining');
+        expect(res.body).toHaveProperty('passwordUpdatedAt');
+    });
+
+    test('email is masked in non-elevated state', async () => {
+        const res = await request(app)
+            .get('/api/status')
+            .set('Cookie', sessionCookie);
+        expect(res.status).toBe(200);
+        // Should be masked: test@example.com → tes*****@example.com
+        expect(res.body.email).toMatch(/\*{5}/);
+        expect(res.body.email).toContain('@example.com');
+        // fullEmail should NOT be present when not elevated
+        expect(res.body.fullEmail).toBeUndefined();
     });
 });
 

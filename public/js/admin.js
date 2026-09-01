@@ -3,7 +3,7 @@
  * Situla Auth 2.0 Admin Dashboard - Modern ESM Controller (Pixel-Perfect Architecture)
  */
 
-import { closeAllModals } from './modules/ui.js';
+import { closeAllModals, fmtDate, t } from './modules/ui.js';
 import { fetchApi } from './modules/api.js';
 import { renderPasskeys, setupPasskeyEvents } from './modules/passkey.js';
 import { set2faBadge, renderFido2Keys, setupFido2Events } from './modules/fido2.js';
@@ -27,8 +27,21 @@ export async function loadStatus() {
 
         const userDisplay = document.getElementById('usernameDisplay');
         const emailDisplay = document.getElementById('emailDisplay');
+        const pwdDisplay = document.getElementById('passwordUpdatedDisplay');
+        // Username is safe to display as-is (already in JWT, not additional exposure)
         if (userDisplay && data.username) userDisplay.textContent = data.username;
-        if (emailDisplay) emailDisplay.textContent = data.email || (window.t ? window.t('status_email_not_set') : '未绑定');
+        // Email: data.email is always masked by server; data.fullEmail is only present when elevated
+        if (emailDisplay) {
+            const emailText = (data.elevated && data.fullEmail) ? data.fullEmail : data.email;
+            emailDisplay.textContent = emailText || t('status_email_not_set');
+        }
+        if (pwdDisplay) {
+            if (data.passwordUpdatedAt) {
+                pwdDisplay.textContent = t('status_pwd_last_updated', fmtDate(data.passwordUpdatedAt));
+            } else {
+                pwdDisplay.textContent = t('status_pwd_never_updated');
+            }
+        }
 
         set2faBadge(data.twoFaMethod, data.fido2Count || 0);
         renderPasskeys(data.passkeys);

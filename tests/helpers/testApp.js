@@ -1,4 +1,4 @@
-﻿/**
+/**
  * tests/helpers/testApp.js
  * Creates an isolated Express app with an in-memory SQLite DB for testing.
  */
@@ -26,9 +26,10 @@ async function seedTestUser() {
     await db.ready();
     await db.run('DELETE FROM users');
     const hash = await bcrypt.hash('TestPassword123!', 10);
+    const nowIso = new Date().toISOString();
     const result = await db.run(
-        'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
-        ['testuser', hash, 'test@example.com']
+        'INSERT INTO users (username, password, email, password_updated_at) VALUES (?, ?, ?, ?)',
+        ['testuser', hash, 'test@example.com', nowIso]
     );
     AuthService.tokenVersionCache.set(result.lastID, 0);
     return result.lastID;

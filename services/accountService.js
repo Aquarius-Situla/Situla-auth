@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Situla Auth 2.0 - Account Domain Service
  */
 'use strict';
@@ -9,15 +9,36 @@ const WebAuthnService = require('./webauthnService');
 const RecoveryService = require('./recoveryService');
 
 class AccountService {
+    /**
+     * Masks an email address for display in non-elevated state.
+     * Keeps the first 3 characters of the local part (or 1 if shorter),
+     * replaces the rest with '*****', and preserves the full domain.
+     * e.g. john@example.com  → joh*****@example.com
+     *      ab@x.com          → a*****@x.com
+     *      (not set)         → ''
+     */
+    static _maskEmail(email) {
+        if (!email) return '';
+        const atIdx = email.lastIndexOf('@');
+        if (atIdx <= 0) return email; // malformed, return as-is
+        const local = email.slice(0, atIdx);
+        const domain = email.slice(atIdx); // includes '@'
+        const keep = local.length >= 3 ? 3 : 1;
+        return local.slice(0, keep) + '*****' + domain;
+    }
+
     static async getAccountStatus(userId, username, isElevated) {
-        const user = await db.get('SELECT totp_secret, email, two_fa_method FROM users WHERE id = ?', [userId]);
+        const user = await db.get('SELECT totp_secret, email, two_fa_method, password_updated_at FROM users WHERE id = ?', [userId]);
         const passkeys = await WebAuthnService.getKeysByType(userId, 'passkey');
         const fido2Keys = await WebAuthnService.getKeysByType(userId, 'fido2');
         const rcStatus = await RecoveryService.getStatus(userId);
 
-        return {
+        const rawEmail = user ? (user.email || '') : '';
+        const result = {
             username,
-            email: user ? (user.email || '') : '',
+            // Always return masked email; fullEmail only returned when elevated
+            email: AccountService._maskEmail(rawEmail),
+            passwordUpdatedAt: user ? (user.password_updated_at || '') : '',
             hasTOTP: !!(user && user.totp_secret),
             twoFaMethod: user ? user.two_fa_method : null,
             passkeyCount: passkeys.length,
@@ -27,6 +48,13 @@ class AccountService {
             recoveryCodesRemaining: rcStatus.remaining,
             elevated: isElevated
         };
+
+        // Only expose full email when the session is elevated (user has verified password)
+        if (isElevated) {
+            result.fullEmail = rawEmail;
+        }
+
+        return result;
     }
 
     static async changeUsername(userId, newUsername) {
@@ -54,7 +82,8 @@ class AccountService {
         }
 
         const newHash = await AuthService.hashPassword(newPassword);
-        await db.run('UPDATE users SET password = ? WHERE id = ?', [newHash, userId]);
+        const nowIso = new Date().toISOString();
+        await db.run('UPDATE users SET password = ?, password_updated_at = ? WHERE id = ?', [newHash, nowIso, userId]);
         return true;
     }
 
