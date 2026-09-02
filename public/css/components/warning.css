@@ -1,0 +1,174 @@
+/*
+ * Situla Auth 2.0 - Untrusted Redirect Warning Page Styles
+ */
+
+.warning-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+}
+
+.warning-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.15);
+}
+
+.warning-icon-box svg {
+    width: 34px;
+    height: 34px;
+}
+
+.warning-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-primary);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-card);
+    text-align: left;
+}
+
+.warning-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.warning-card-desc {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0 0 10px 0;
+}
+
+.warning-card-desc:last-child {
+    margin-bottom: 0;
+}
+
+/* Code snippet container */
+.code-snippet-wrap {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px 0;
+}
+
+.code-snippet-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    word-break: break-all;
+    user-select: all;
+}
+
+.btn-mini-copy {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    transition: all var(--duration-fast);
+}
+
+.btn-mini-copy:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-mini-copy.copied {
+    border-color: var(--color-success);
+    color: var(--color-success);
+    background: var(--color-success-light);
+}
+
+/* URL Display Box */
+.url-display-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.url-display-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    word-break: break-all;
+    max-height: 80px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.warning-action-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-secondary-action {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all var(--duration-fast);
+    text-decoration: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.btn-secondary-action:hover {
+    background: var(--bg-secondary);
+    border-color: var(--text-muted);
+}
+
+.btn-secondary-action:active {
+    opacity: 0.85;
+}
+
+.btn-primary-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    width: 100%;
+}

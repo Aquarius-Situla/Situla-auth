@@ -200,8 +200,23 @@ const translations = {
         "btn_switch_to_fido2": "使用安全密钥",
         "msg_2fa_enabled": "双重认证已成功启用！",
         "btn_confirm_add_pk": "确认并添加",
-        "placeholder_fido2_key_name": "安全密钥名称（如：YubiKey 5C）"
-},
+        "placeholder_fido2_key_name": "安全密钥名称（如：YubiKey 5C）",
+        "warning_doc_title": "安全提示",
+        "warning_nav_title": "安全提示",
+        "warning_title": "非受信任的重定向目标",
+        "warning_subtitle": "检测到外部跳转请求，已为您拦截自动重定向",
+        "warning_risk_title": "安全防护说明",
+        "warning_risk_desc": "您正尝试跳转至未在当前认证中心信任列表中的外部域名。为保障您的凭据与会话安全，系统已拦截自动重定向。",
+        "warning_admin_title": "如何将此域名加入信任列表（管理员）",
+        "warning_admin_desc": "如果您是站点管理员并确认该域名安全，可在服务器的 .env 文件中将其加入 TRUSTED_DOMAINS：",
+        "warning_admin_hint": "保存配置后，在服务器终端执行 sudo docker compose restart 即可即时生效。",
+        "warning_target_title": "目标网址",
+        "warning_target_desc": "若您已知悉潜在风险并确定继续访问，请复制下方网址并在浏览器新标签页中手动打开：",
+        "warning_btn_copy_url": "复制网址",
+        "warning_btn_go_admin": "返回管理中心",
+        "warning_btn_go_login": "返回登录页",
+        "warning_no_url": "未指定重定向目标网址"
+    },
     "en": {
         "admin_doc_title": "Account Security Settings",
         "admin_title": "Security Settings",
@@ -398,8 +413,23 @@ const translations = {
         "btn_switch_to_fido2": "Use Security Key",
         "msg_2fa_enabled": "Two-factor authentication successfully enabled!",
         "btn_confirm_add_pk": "Confirm & Add",
-        "placeholder_fido2_key_name": "Security key name (e.g. YubiKey 5C)"
-}
+        "placeholder_fido2_key_name": "Security key name (e.g. YubiKey 5C)",
+        "warning_doc_title": "Security Alert",
+        "warning_nav_title": "Security Alert",
+        "warning_title": "Untrusted Redirect Target",
+        "warning_subtitle": "External redirect detected. Automatic redirection has been blocked.",
+        "warning_risk_title": "Security Notice",
+        "warning_risk_desc": "You are attempting to redirect to an external domain that is not included in the authentication trust list. For your credential and session security, automatic redirection is blocked.",
+        "warning_admin_title": "How to Trust This Domain (Admins)",
+        "warning_admin_desc": "If you are an administrator and trust this domain, add it to TRUSTED_DOMAINS in your .env file:",
+        "warning_admin_hint": "Save the configuration and run sudo docker compose restart to apply immediately.",
+        "warning_target_title": "Destination URL",
+        "warning_target_desc": "If you understand the risks and still wish to proceed, copy the URL below and open it manually in a new tab:",
+        "warning_btn_copy_url": "Copy URL",
+        "warning_btn_go_admin": "Go to Admin Dashboard",
+        "warning_btn_go_login": "Return to Login",
+        "warning_no_url": "No redirect target specified"
+    }
 };
 
 let currentLang = 'zh';

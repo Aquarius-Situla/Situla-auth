@@ -145,7 +145,11 @@
                         sessionStorage.removeItem('twoFaMethod');
                         if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
                         const rd = new URLSearchParams(window.location.search).get('rd');
-                        const target = (await safeRedirectUrl(rd)) || '/admin';
+                        let target = '/admin';
+                        if (rd) {
+                            const safeTarget = await safeRedirectUrl(rd);
+                            target = safeTarget || ('/warning.html?rd=' + encodeURIComponent(rd));
+                        }
                         window.location.href = target;
                     } else {
                         errMsg.textContent = data.message || t('msg_verify_failed');
@@ -278,7 +282,11 @@
                         sessionStorage.removeItem('twoFaMethod');
                         if (data.usedRecoveryCode) sessionStorage.setItem('rcWarning', '1');
                         const rd = new URLSearchParams(window.location.search).get('rd');
-                        const target = (await safeRedirectUrl(rd)) || '/admin';
+                        let target = '/admin';
+                        if (rd) {
+                            const safeTarget = await safeRedirectUrl(rd);
+                            target = safeTarget || ('/warning.html?rd=' + encodeURIComponent(rd));
+                        }
                         window.location.href = target;
                     } else {
                         errMsg.textContent = data.message || t('msg_verify_failed');
@@ -345,7 +353,11 @@
                         sessionStorage.removeItem('twoFaMethod');
                         if (spinner) spinner.style.display = 'none';
                         const rd = new URLSearchParams(window.location.search).get('rd');
-                        const target = (await safeRedirectUrl(rd)) || '/admin';
+                        let target = '/admin';
+                        if (rd) {
+                            const safeTarget = await safeRedirectUrl(rd);
+                            target = safeTarget || ('/warning.html?rd=' + encodeURIComponent(rd));
+                        }
                         window.location.href = target;
                     } else {
                         throw new Error(verifyData.error || verifyData.message || t('fido2_verify_failed'));

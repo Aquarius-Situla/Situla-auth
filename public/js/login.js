@@ -176,7 +176,11 @@
                 if (data.success) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    const target = (await safeRedirectUrl(rd)) || '/admin';
+                    let target = '/admin';
+                    if (rd) {
+                        const safeTarget = await safeRedirectUrl(rd);
+                        target = safeTarget || ('/warning.html?rd=' + encodeURIComponent(rd));
+                    }
                     setTimeout(() => {
                         window.location.href = target;
                     }, 300);
@@ -219,7 +223,11 @@
                 if (verificationJSON && verificationJSON.verified) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const rd = urlParams.get('rd');
-                    const target = (await safeRedirectUrl(rd)) || '/admin';
+                    let target = '/admin';
+                    if (rd) {
+                        const safeTarget = await safeRedirectUrl(rd);
+                        target = safeTarget || ('/warning.html?rd=' + encodeURIComponent(rd));
+                    }
                     window.location.href = target;
                 } else {
                     console.error('[Situla-Auth Passkey Login Verification Failed]:', verificationJSON);

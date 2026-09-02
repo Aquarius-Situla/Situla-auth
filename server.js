@@ -154,7 +154,7 @@ app.get(['/', '/index.html'], (req, res, next) => {
                 const rd = req.query.rd;
                 if (!rd) return res.redirect(302, '/admin');
                 if (isTrustedRedirect(rd)) return res.redirect(302, rd);
-                return res.redirect(302, '/admin');
+                return res.redirect(302, `/warning.html?rd=${encodeURIComponent(rd)}`);
             }
         } catch (e) {}
     }
