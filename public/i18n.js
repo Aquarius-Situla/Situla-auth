@@ -211,10 +211,10 @@ const translations = {
         "warning_admin_desc": "如果您是站点管理员并确认该域名安全，可在服务器的 .env 文件中将其加入 TRUSTED_DOMAINS：",
         "warning_admin_hint": "保存配置后，在服务器终端执行 sudo docker compose restart 即可即时生效。",
         "warning_target_title": "目标网址",
-        "warning_target_desc": "若您已知悉潜在风险并确定继续访问，请复制下方网址并在浏览器新标签页中手动打开：",
+        "warning_target_desc": "若您已知悉潜在风险并确定继续访问，请复制上方网址并在浏览器新标签页中手动打开。",
         "warning_btn_copy_url": "复制网址",
-        "warning_btn_go_admin": "返回管理中心",
-        "warning_btn_go_login": "返回登录页",
+        "warning_btn_go_admin": "返回管理面板",
+        "warning_btn_go_login": "返回管理面板",
         "warning_no_url": "未指定重定向目标网址"
     },
     "en": {
@@ -426,8 +426,8 @@ const translations = {
         "warning_target_title": "Destination URL",
         "warning_target_desc": "If you understand the risks and still wish to proceed, copy the URL below and open it manually in a new tab:",
         "warning_btn_copy_url": "Copy URL",
-        "warning_btn_go_admin": "Go to Admin Dashboard",
-        "warning_btn_go_login": "Return to Login",
+        "warning_btn_go_admin": "Return to Admin Panel",
+        "warning_btn_go_login": "Return to Admin Panel",
         "warning_no_url": "No redirect target specified"
     }
 };

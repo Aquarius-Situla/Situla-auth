@@ -1,139 +1,149 @@
 /*
  * Situla Auth 2.0 - Untrusted Redirect Warning Page Styles
+ * Authentic Apple Human Interface Guidelines Design
  */
 
 .warning-container {
-    max-width: 520px;
+    width: 100%;
+    max-width: 440px;
     margin: 0 auto;
-    padding: 0 16px 40px;
+    padding: 24px 16px 36px;
+    box-sizing: border-box;
 }
 
-.warning-icon-box {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: var(--color-warning-light);
-    color: var(--color-warning);
+/* Apple Hero Icon */
+.warning-hero-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 16px;
-    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.15);
+    color: var(--color-warning);
+    margin-bottom: 12px;
 }
 
-.warning-icon-box svg {
-    width: 34px;
-    height: 34px;
+.warning-hero-icon svg,
+.warning-hero-icon img {
+    width: 52px;
+    height: 52px;
+    color: var(--color-warning);
 }
 
-.warning-card {
+/* Unified Apple Card */
+.warning-unified-card {
     background: var(--bg-card);
     border-radius: var(--radius-xl);
     border: 1px solid var(--border-primary);
-    padding: 18px 20px;
-    margin-bottom: 16px;
     box-shadow: var(--shadow-card);
+    overflow: hidden;
     text-align: left;
+    margin-bottom: 20px;
 }
 
-.warning-card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
+.warning-card-section {
+    padding: 16px 18px;
+}
+
+.warning-card-section:not(:last-child) {
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.warning-section-header {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 6px;
 }
 
-.warning-card-desc {
-    font-size: 13.5px;
-    line-height: 1.55;
+.warning-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.warning-desc-text {
+    font-size: 13px;
+    line-height: 1.5;
     color: var(--text-secondary);
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
 }
 
-.warning-card-desc:last-child {
-    margin-bottom: 0;
+.warning-hint-text {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-tertiary);
+    margin: 6px 0 0 0;
 }
 
-/* Code snippet container */
-.code-snippet-wrap {
+/* Modern Pill / Input Box */
+.warning-pill-box {
     background: var(--bg-secondary);
     border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
-    padding: 10px 14px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin: 8px 0;
+    gap: 8px;
+    margin: 8px 0 6px;
+    transition: border-color var(--duration-fast);
 }
 
-.code-snippet-text {
+.warning-pill-box:hover {
+    border-color: var(--border-primary);
+}
+
+.warning-pill-text {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--text-primary);
-    word-break: break-all;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     user-select: all;
+    flex: 1;
+    min-width: 0;
 }
 
-.btn-mini-copy {
+.warning-pill-text::-webkit-scrollbar {
+    display: none;
+}
+
+/* Pill Copy Button */
+.btn-pill-copy {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     color: var(--text-secondary);
     border-radius: 6px;
-    padding: 5px 10px;
+    padding: 4px 9px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     flex-shrink: 0;
     transition: all var(--duration-fast);
+    outline: none;
 }
 
-.btn-mini-copy:hover {
+.btn-pill-copy:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
 }
 
-.btn-mini-copy.copied {
+.btn-pill-copy.copied {
     border-color: var(--color-success);
     color: var(--color-success);
     background: var(--color-success-light);
 }
 
-/* URL Display Box */
-.url-display-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-secondary);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.url-display-text {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 13px;
-    line-height: 1.4;
-    color: var(--text-primary);
-    word-break: break-all;
-    max-height: 80px;
-    overflow-y: auto;
-    flex: 1;
-}
-
+/* Bottom Action Row */
 .warning-action-row {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 24px;
+    width: 100%;
 }
 
 .btn-secondary-action {
@@ -171,4 +181,20 @@
     text-decoration: none;
     box-sizing: border-box;
     width: 100%;
+}
+
+/* Responsive tweaks for mobile */
+@media (max-width: 480px) {
+    .warning-container {
+        padding: 16px 12px 28px;
+        max-width: 100%;
+    }
+    .warning-card-section {
+        padding: 14px 15px;
+    }
+    .warning-hero-icon svg,
+    .warning-hero-icon img {
+        width: 46px;
+        height: 46px;
+    }
 }

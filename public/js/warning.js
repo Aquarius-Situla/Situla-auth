@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyUrlCardBtnText = document.getElementById('copyUrlCardBtnText');
     const copyMainActionBtn = document.getElementById('copyMainActionBtn');
     const copyMainActionBtnText = document.getElementById('copyMainActionBtnText');
-    const navDashboardBtn = document.getElementById('navDashboardBtn');
 
     let cleanTargetUrl = '';
     let targetHostname = '';
@@ -27,15 +26,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const parsed = new URL(cleanTargetUrl, window.location.origin);
             targetHostname = parsed.hostname.toLowerCase();
         } catch {
-            targetHostname = cleanTargetUrl;
+            targetHostname = cleanTargetUrl.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
         }
     }
 
-    // Populate Target URL Box
+    // Derive suggested root domain for .env (strip leading www. if present for cleaner rule)
+    function deriveSuggestedRule(hostname) {
+        if (!hostname) return 'example.com,*.example.com';
+        const clean = hostname.replace(/^www\./i, '');
+        if (clean === 'localhost' || !clean.includes('.')) {
+            return clean;
+        }
+        return `${clean},*.${clean}`;
+    }
+
+    // Populate Target URL Box & Env Snippet
     if (cleanTargetUrl) {
         if (targetUrlDisplay) targetUrlDisplay.textContent = cleanTargetUrl;
         if (envSnippetText && targetHostname) {
-            envSnippetText.textContent = `TRUSTED_DOMAINS=${targetHostname},*.${targetHostname}`;
+            const rule = deriveSuggestedRule(targetHostname);
+            envSnippetText.textContent = `TRUSTED_DOMAINS=${rule}`;
         }
     } else {
         const noUrlMsg = typeof t === 'function' ? t('warning_no_url') : '未指定重定向目标网址';
@@ -45,27 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (copyMainActionBtn) copyMainActionBtn.disabled = true;
     }
 
-    // Determine login status for navigation button
-    fetch('/api/status')
-        .then(r => r.json())
-        .then(data => {
-            if (!data || !data.user) {
-                if (navDashboardBtn) {
-                    navDashboardBtn.href = '/';
-                    const loginText = typeof t === 'function' ? t('warning_btn_go_login') : '返回登录页';
-                    navDashboardBtn.textContent = loginText;
-                }
-            }
-        })
-        .catch(() => {
-            if (navDashboardBtn) {
-                navDashboardBtn.href = '/';
-                const loginText = typeof t === 'function' ? t('warning_btn_go_login') : '返回登录页';
-                navDashboardBtn.textContent = loginText;
-            }
-        });
-
-    // Copy helper
+    // Copy helper with visual feedback
     function copyToClipboard(text, btnElement, textElement) {
         if (!text) return;
         const copiedText = typeof t === 'function' ? t('btn_copied') : '已复制';
@@ -73,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function feedback() {
             if (btnElement) btnElement.classList.add('copied');
-            if (textElement) textElement.textContent = `✓ ${copiedText}`;
+            if (textElement) textElement.textContent = copiedText;
             setTimeout(() => {
                 if (btnElement) btnElement.classList.remove('copied');
                 if (textElement) textElement.textContent = originalText;
