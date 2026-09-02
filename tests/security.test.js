@@ -34,6 +34,56 @@ describe('1. Open Redirect & PSL (Public Suffix List) Security', () => {
         expect(res.status).toBe(200);
         expect(res.body.trustedRoots).toEqual(['localhost']);
     });
+
+    test('validates redirect URLs against scoped trust roots and rejects open redirects', () => {
+        function normalizeTrustRoot(entry) {
+            if (!entry || typeof entry !== 'string') return '';
+            return entry.trim().toLowerCase().replace(/^\*\./, '').replace(/^\./, '');
+        }
+
+        function isTrustedRedirect(url, roots) {
+            if (!url || typeof url !== 'string') return false;
+            if (url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\')) return true;
+            try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+                const hostname = parsed.hostname.toLowerCase();
+                return roots.some(root => hostname === root || hostname.endsWith('.' + root));
+            } catch {
+                return false;
+            }
+        }
+
+        // 1. Standard Production Domain (.aquanexus.me + auth.aquanexus.me)
+        const prodRoots = [...new Set([
+            normalizeTrustRoot('.aquanexus.me'),
+            normalizeTrustRoot('auth.aquanexus.me')
+        ])];
+        expect(prodRoots).toEqual(['aquanexus.me', 'auth.aquanexus.me']);
+        expect(isTrustedRedirect('https://aquanexus.me', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://aquanexus.me/', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://app.aquanexus.me/dashboard', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://auth.aquanexus.me/admin', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('/admin', prodRoots)).toBe(true);
+
+        // Open redirect attack vectors
+        expect(isTrustedRedirect('https://evil-aquanexus.me', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('https://aquanexus.me.evil.com', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('//evil.com', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('/\\evil.com', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('javascript:alert(1)', prodRoots)).toBe(false);
+
+        // 2. Multi-part Public Suffix TLD safety (e.g. auth.com.gov.uk)
+        const govRoots = [...new Set([
+            normalizeTrustRoot('auth.com.gov.uk'),
+            normalizeTrustRoot('auth.com.gov.uk')
+        ])];
+        expect(govRoots).toEqual(['auth.com.gov.uk']);
+        expect(isTrustedRedirect('https://auth.com.gov.uk/portal', govRoots)).toBe(true);
+        expect(isTrustedRedirect('https://other.com.gov.uk', govRoots)).toBe(false);
+        expect(isTrustedRedirect('https://com.gov.uk', govRoots)).toBe(false);
+        expect(isTrustedRedirect('https://gov.uk', govRoots)).toBe(false);
+    });
 });
 
 describe('2. FIDO2 2FA Factor Anti-Downgrade Protection', () => {

@@ -43,10 +43,19 @@ console.log(`[WebAuthn Init] Effective RP_ID: "${RP_ID}", ORIGIN: "${ORIGIN}"`);
 // Enforce production secret hygiene
 assertProductionKeySecurity(JWT_SECRET, ENCRYPTION_KEY);
 
-// Trusted Redirects Resolution (Strict domain whitelisting, avoiding naive PSL slicing)
-const EXTRA_TRUST_ROOTS = (process.env.TRUSTED_DOMAINS || '')
-    .split(',').map(d => d.trim().toLowerCase().replace(/^\*\./, '')).filter(Boolean);
-const ALL_TRUST_ROOTS = [...new Set([RP_ID.toLowerCase(), ...EXTRA_TRUST_ROOTS])];
+// Trusted Redirects Resolution (Scoped domain whitelisting: COOKIE_DOMAIN, RP_ID, TRUSTED_DOMAINS)
+function normalizeTrustRoot(entry) {
+    if (!entry || typeof entry !== 'string') return '';
+    return entry.trim().toLowerCase().replace(/^\*\./, '').replace(/^\./, '');
+}
+
+const ALL_TRUST_ROOTS = [...new Set([
+    normalizeTrustRoot(COOKIE_DOMAIN),
+    normalizeTrustRoot(RP_ID),
+    ...(process.env.TRUSTED_DOMAINS || '')
+        .split(',')
+        .map(normalizeTrustRoot)
+].filter(Boolean))];
 
 function isTrustedRedirect(url) {
     if (!url || typeof url !== 'string') return false;
