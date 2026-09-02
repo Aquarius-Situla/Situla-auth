@@ -65,7 +65,8 @@ body.login-page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Bottom gray bar */
@@ -84,6 +85,7 @@ body.login-page {
     padding: 32px 20px;
     text-align: center;
     box-sizing: border-box;
+    margin: auto 0;
 }
 
 /* Admin container variation */

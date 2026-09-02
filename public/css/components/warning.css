@@ -6,7 +6,7 @@
 .warning-container {
     width: 100%;
     max-width: 480px;
-    margin: 0 auto;
+    margin: auto 0;
     padding: 32px 20px 48px;
     box-sizing: border-box;
 }
@@ -229,8 +229,9 @@
 /* Responsive adjustments for mobile */
 @media (max-width: 520px) {
     .warning-container {
-        padding: 20px 16px 36px;
+        padding: 24px 16px 36px;
         max-width: 100%;
+        margin: 0 auto;
     }
     .warning-card-section {
         padding: 15px 16px;

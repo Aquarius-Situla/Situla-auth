@@ -5,6 +5,11 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure viewport starts at the top
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTop = 0;
+    window.scrollTo(0, 0);
+
     const urlParams = new URLSearchParams(window.location.search);
     const rawRd = urlParams.get('rd');
 
