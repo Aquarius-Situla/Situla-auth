@@ -95,6 +95,8 @@
             "btn_passkey": "使用通行密钥登录",
             "btn_saved": "我已保存",
             "oidc_add": "＋ 添加授权应用",
+            "btn_generate_npm": "＋ 生成防护配置",
+            "btn_back_edit": "返回修改",
             "npm_btn_copy": "复制配置",
             "npm_btn_copied": "✓ 已复制",
 
@@ -184,6 +186,10 @@
             "logs_modal_desc": "显示最近最多 20 条登录记录。",
 
             // Nginx Proxy Manager Generator
+            "npm_modal_title_step1": "生成反向代理防护配置",
+            "npm_modal_desc_step1": "输入要保护的域名与放行路径，自动生成可直接复制至 NPM 的 Nginx 配置代码。",
+            "npm_modal_title_step2": "Nginx 配置代码已生成",
+            "npm_modal_desc_step2": "请在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡粘贴此配置。",
             "npm_domain_label": "受保护域名",
             "npm_domain_placeholder": "例如: app.example.com",
             "npm_bypass_label": "放行路径（绕过认证）",

@@ -1,10 +1,10 @@
 /**
  * public/js/modules/npm-generator.js
  * Nginx Proxy Manager Forward-Auth Configuration Generator
- * Produces production-grade Nginx snippets aligned with /opt/npm configurations.
+ * 2-Step Modal Interaction with Top-Right Pill Copy Button.
  */
 
-import { t } from './ui.js';
+import { t, closeAllModals } from './ui.js';
 
 export function generateNginxSnippet() {
     const domainInput = document.getElementById('npmProtectedDomain');
@@ -198,47 +198,83 @@ export function generateNginxSnippet() {
     return lines.join('\n');
 }
 
-export function updateNpmCodeDisplay() {
-    const codeEl = document.getElementById('npmConfigCode');
-    if (!codeEl) return;
-    codeEl.textContent = generateNginxSnippet();
-}
-
 export function setupNpmGenerator() {
+    const openBtn = document.getElementById('openNpmModalBtn');
+    const modal = document.getElementById('npmModal');
+    const step1 = document.getElementById('npmStep1');
+    const step2 = document.getElementById('npmStep2');
+
     const domainInput = document.getElementById('npmProtectedDomain');
     const bypassInput = document.getElementById('npmBypassPaths');
     const onionInput = document.getElementById('npmOnionLocation');
     const ssoSelect = document.getElementById('npmSsoMode');
-    const copyBtn = document.getElementById('copyNpmConfigBtn');
 
-    // Restore previously saved onion location if present
-    try {
-        const savedOnion = localStorage.getItem('situla_last_onion');
-        if (savedOnion && onionInput && !onionInput.value) {
-            onionInput.value = savedOnion;
-        }
-    } catch (e) {}
+    const cancelBtn = document.getElementById('cancelNpmModalBtn');
+    const continueBtn = document.getElementById('continueNpmModalBtn');
+    const backBtn = document.getElementById('backNpmModalBtn');
+    const finishBtn = document.getElementById('finishNpmModalBtn');
 
-    // Attach real-time input listeners
-    const triggerUpdate = () => {
-        updateNpmCodeDisplay();
+    const copyBtn = document.getElementById('npmCopyBtn');
+    const copyText = document.getElementById('npmCopyBtnText');
+    const outputCode = document.getElementById('npmConfigOutput');
+
+    // Open Modal (Step 1)
+    openBtn?.addEventListener('click', () => {
+        closeAllModals();
+        if (modal) modal.style.display = 'flex';
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+
+        // Pre-fill last onion if available
+        try {
+            const savedOnion = localStorage.getItem('situla_last_onion');
+            if (savedOnion && onionInput && !onionInput.value) {
+                onionInput.value = savedOnion;
+            }
+        } catch (e) {}
+
+        domainInput?.focus();
+    });
+
+    // Close Modal
+    const closeModal = () => {
+        if (modal) modal.style.display = 'none';
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+    };
+
+    cancelBtn?.addEventListener('click', closeModal);
+    finishBtn?.addEventListener('click', closeModal);
+
+    // Step 1 -> Step 2
+    continueBtn?.addEventListener('click', () => {
+        // Persist onion address if present
         if (onionInput) {
             try {
                 const val = onionInput.value.trim();
                 if (val) localStorage.setItem('situla_last_onion', val);
             } catch (e) {}
         }
-    };
 
-    domainInput?.addEventListener('input', triggerUpdate);
-    bypassInput?.addEventListener('input', triggerUpdate);
-    onionInput?.addEventListener('input', triggerUpdate);
-    ssoSelect?.addEventListener('change', triggerUpdate);
+        // Render generated code into Step 2
+        if (outputCode) {
+            outputCode.textContent = generateNginxSnippet();
+        }
 
-    // One-click copy handler
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = 'block';
+    });
+
+    // Step 2 -> Step 1 (Back to edit)
+    backBtn?.addEventListener('click', () => {
+        if (step2) step2.style.display = 'none';
+        if (step1) step1.style.display = 'block';
+    });
+
+    // Top-right Pill Copy Button
     if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
-            const code = generateNginxSnippet();
+            const code = outputCode?.textContent || generateNginxSnippet();
             let copied = false;
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                 try {
@@ -264,14 +300,11 @@ export function setupNpmGenerator() {
             }
 
             if (copied) {
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = t('npm_btn_copied') || '✓ 已复制';
-                copyBtn.classList.add('btn-solid');
-                copyBtn.classList.remove('btn-outline');
+                copyBtn.classList.add('copied');
+                if (copyText) copyText.textContent = t('btn_copied') || '已复制';
                 setTimeout(() => {
-                    copyBtn.textContent = t('npm_btn_copy') || originalText;
-                    copyBtn.classList.remove('btn-solid');
-                    copyBtn.classList.add('btn-outline');
+                    copyBtn.classList.remove('copied');
+                    if (copyText) copyText.textContent = t('btn_copy') || '复制';
                 }, 2000);
             }
         });
@@ -279,9 +312,8 @@ export function setupNpmGenerator() {
 
     // Re-render when language changes
     window.addEventListener('i18n:localeChanged', () => {
-        updateNpmCodeDisplay();
+        if (outputCode && step2 && step2.style.display !== 'none') {
+            outputCode.textContent = generateNginxSnippet();
+        }
     });
-
-    // Initial render
-    updateNpmCodeDisplay();
 }

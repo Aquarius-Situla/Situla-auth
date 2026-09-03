@@ -3,23 +3,27 @@
  * Apple Human Interface Guidelines aligned component styling.
  */
 
-.npm-generator-container {
-    margin-top: 14px;
+/* Modal Card Sizing for NPM Generator */
+#npmModal .modal-card {
+    max-width: 560px;
+    width: 92%;
+    text-align: left;
 }
 
-.npm-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+#npmModal .modal-icon {
     margin-bottom: 12px;
 }
 
-@media (max-width: 600px) {
-    .npm-grid {
-        grid-template-columns: 1fr;
-    }
+#npmModal h3 {
+    text-align: center;
 }
 
+#npmModal .modal-desc {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+/* Form Controls */
 .npm-form-group {
     display: flex;
     flex-direction: column;
@@ -66,7 +70,7 @@
 }
 
 .npm-textarea {
-    min-height: 72px;
+    min-height: 64px;
     resize: vertical;
     font-family: var(--font-mono);
     font-size: 13px;
@@ -83,8 +87,8 @@
     padding-right: 36px;
 }
 
-/* Code Snippet Card */
-.npm-code-card {
+/* Step 2: Code Snippet Card with Top-Right Pill Copy Button */
+.npm-code-box-wrapper {
     background: var(--bg-secondary);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
@@ -93,7 +97,7 @@
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
-.npm-code-header {
+.npm-code-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -102,25 +106,57 @@
     border-bottom: 1px solid var(--border-subtle);
 }
 
-.npm-code-title {
+.npm-code-badge {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.npm-copy-btn {
-    padding: 5px 12px;
+/* Pill Copy Button (referencing warning.html / Domain Redirection style) */
+.btn-pill-copy {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 5px 10px;
     font-size: 12px;
-    border-radius: var(--radius-sm);
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--duration-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
+    outline: none;
+    height: 28px;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
-.npm-code-pre {
+.btn-pill-copy:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.btn-pill-copy:active {
+    background: var(--bg-secondary);
+    transform: scale(0.96);
+}
+
+.btn-pill-copy.copied {
+    border-color: var(--color-success) !important;
+    color: var(--color-success) !important;
+    background: var(--color-success-light) !important;
+}
+
+.npm-code-content {
     margin: 0;
     padding: 14px;
     font-family: var(--font-mono);

@@ -30,14 +30,14 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=92">
+    <link rel="stylesheet" href="/css/style.css?v=93">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n/locales/zh-CN.js?v=92"></script>
-    <script src="/i18n/locales/en-US.js?v=92"></script>
-    <script src="/i18n/i18n.js?v=92"></script>
+    <script src="/i18n/locales/zh-CN.js?v=93"></script>
+    <script src="/i18n/locales/en-US.js?v=93"></script>
+    <script src="/i18n/i18n.js?v=93"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -290,49 +290,8 @@
                 </div>
                 <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
 
-                <div class="npm-generator-container">
-                    <div class="npm-grid">
-                        <div class="npm-form-group">
-                            <label class="npm-label" for="npmProtectedDomain" data-i18n="npm_domain_label">受保护域名</label>
-                            <input type="text" id="npmProtectedDomain" class="npm-input" data-i18n-placeholder="npm_domain_placeholder" placeholder="例如: app.example.com" autocomplete="off" spellcheck="false">
-                        </div>
-                        <div class="npm-form-group">
-                            <label class="npm-label" for="npmOnionLocation" data-i18n="npm_onion_label">洋葱服务地址 (Onion-Location)</label>
-                            <input type="text" id="npmOnionLocation" class="npm-input" data-i18n-placeholder="npm_onion_placeholder" placeholder="例如: http://xxxxxx.onion（可选）" autocomplete="off" spellcheck="false">
-                        </div>
-                    </div>
-
-                    <div class="npm-grid">
-                        <div class="npm-form-group">
-                            <label class="npm-label" for="npmBypassPaths" data-i18n="npm_bypass_label">放行路径（绕过认证）</label>
-                            <textarea id="npmBypassPaths" class="npm-textarea" data-i18n-placeholder="npm_bypass_placeholder" placeholder="例如: /api/ 或换行输入多个路径" spellcheck="false"></textarea>
-                        </div>
-                        <div class="npm-form-group">
-                            <label class="npm-label" for="npmSsoMode" data-i18n="npm_sso_label">单点登录凭证传递 (SSO)</label>
-                            <select id="npmSsoMode" class="npm-select">
-                                <option value="user" data-i18n="npm_sso_user" selected>传递用户名 (Remote-User)</option>
-                                <option value="email" data-i18n="npm_sso_email">传递邮箱 (Remote-Email)</option>
-                                <option value="both" data-i18n="npm_sso_both">传递用户名与邮箱</option>
-                                <option value="none" data-i18n="npm_sso_none">仅访问拦截（不传递身份头）</option>
-                            </select>
-                            <div class="npm-tip">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                </svg>
-                                <span data-i18n="npm_tip_guide">在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡，将上述配置粘贴至代码框中保存即可。</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="npm-code-card">
-                        <div class="npm-code-header">
-                            <span class="npm-code-title" data-i18n="npm_code_header">Nginx 配置代码（粘贴至 NPM Advanced 选项卡）</span>
-                            <button type="button" class="btn-outline npm-copy-btn" id="copyNpmConfigBtn" data-i18n="npm_btn_copy">复制配置</button>
-                        </div>
-                        <pre class="npm-code-pre"><code id="npmConfigCode"></code></pre>
-                    </div>
+                <div class="action-btn-container" style="margin-top: 15px;">
+                    <button class="btn-outline" id="openNpmModalBtn" data-i18n="btn_generate_npm">＋ 生成防护配置</button>
                 </div>
             </div>
         </div>
@@ -703,6 +662,78 @@ fill="currentColor" stroke="none">
             </div>
         </div>
 
+        <!-- NPM Generator Modal (2-step) -->
+        <div class="modal-overlay" id="npmModal" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    </svg>
+                </div>
+
+                <!-- Step 1: Input form -->
+                <div id="npmStep1">
+                    <h3 data-i18n="npm_modal_title_step1">生成反向代理防护配置</h3>
+                    <p class="modal-desc" data-i18n="npm_modal_desc_step1">输入要保护的域名与放行路径，自动生成可直接复制至 NPM 的 Nginx 配置代码。</p>
+
+                    <div class="npm-form-group">
+                        <label class="npm-label" for="npmProtectedDomain" data-i18n="npm_domain_label">受保护域名</label>
+                        <input type="text" id="npmProtectedDomain" class="npm-input" data-i18n-placeholder="npm_domain_placeholder" placeholder="例如: app.example.com" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div class="npm-form-group">
+                        <label class="npm-label" for="npmBypassPaths" data-i18n="npm_bypass_label">放行路径（绕过认证）</label>
+                        <textarea id="npmBypassPaths" class="npm-textarea" data-i18n-placeholder="npm_bypass_placeholder" placeholder="例如: /api/ 或换行输入多个路径" spellcheck="false"></textarea>
+                    </div>
+
+                    <div class="npm-form-group">
+                        <label class="npm-label" for="npmOnionLocation" data-i18n="npm_onion_label">洋葱服务地址 (Onion-Location)</label>
+                        <input type="text" id="npmOnionLocation" class="npm-input" data-i18n-placeholder="npm_onion_placeholder" placeholder="例如: http://xxxxxx.onion（可选）" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <div class="npm-form-group">
+                        <label class="npm-label" for="npmSsoMode" data-i18n="npm_sso_label">单点登录凭证传递 (SSO)</label>
+                        <select id="npmSsoMode" class="npm-select">
+                            <option value="user" data-i18n="npm_sso_user" selected>传递用户名 (Remote-User)</option>
+                            <option value="email" data-i18n="npm_sso_email">传递邮箱 (Remote-Email)</option>
+                            <option value="both" data-i18n="npm_sso_both">传递用户名与邮箱</option>
+                            <option value="none" data-i18n="npm_sso_none">仅访问拦截（不传递身份头）</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 20px;">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelNpmModalBtn" data-i18n="btn_cancel">取消</button>
+                        <button type="button" class="modal-btn modal-btn-primary" id="continueNpmModalBtn" data-i18n="btn_continue">继续</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Output display with top-right pill copy button -->
+                <div id="npmStep2" style="display: none;">
+                    <h3 data-i18n="npm_modal_title_step2">Nginx 配置代码已生成</h3>
+                    <p class="modal-desc" data-i18n="npm_modal_desc_step2">请在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡粘贴此配置。</p>
+
+                    <div class="npm-code-box-wrapper">
+                        <div class="npm-code-toolbar">
+                            <span class="npm-code-badge">Advanced Configuration</span>
+                            <button type="button" class="btn-pill-copy" id="npmCopyBtn">
+                                <img src="/assets/icons/copy.svg" width="13" height="13" alt="Copy" class="user-icon">
+                                <span id="npmCopyBtnText" data-i18n="btn_copy">复制</span>
+                            </button>
+                        </div>
+                        <pre class="npm-code-content"><code id="npmConfigOutput"></code></pre>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 20px;">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="backNpmModalBtn" data-i18n="btn_back_edit">返回修改</button>
+                        <button type="button" class="modal-btn modal-btn-primary" id="finishNpmModalBtn" data-i18n="btn_saved">完成</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sudo Modal (Direct password confirmation for Recovery Codes) -->
         <div class="modal-overlay" id="sudoModal" style="display: none;">
             <div class="modal-card">
@@ -724,6 +755,6 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=92"></script>
+    <script type="module" src="/js/admin.js?v=93"></script>
 </body>
 </html>

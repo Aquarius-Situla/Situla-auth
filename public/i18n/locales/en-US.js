@@ -95,6 +95,8 @@
             "btn_passkey": "Sign in with a passkey",
             "btn_saved": "Done",
             "oidc_add": "+ Add Application",
+            "btn_generate_npm": "+ Generate Config",
+            "btn_back_edit": "Back",
             "npm_btn_copy": "Copy Configuration",
             "npm_btn_copied": "✓ Copied",
 
@@ -184,6 +186,10 @@
             "logs_modal_desc": "Showing up to 20 most recent sign-in events.",
 
             // Nginx Proxy Manager Generator
+            "npm_modal_title_step1": "Generate Nginx Proxy Config",
+            "npm_modal_desc_step1": "Enter the domain and bypassed routes to generate Nginx configuration for NPM.",
+            "npm_modal_title_step2": "Nginx Configuration Ready",
+            "npm_modal_desc_step2": "In Nginx Proxy Manager, edit the Proxy Host and paste this configuration into the Advanced tab.",
             "npm_domain_label": "Protected Domain",
             "npm_domain_placeholder": "e.g. app.example.com",
             "npm_bypass_label": "Bypassed Paths (Skip Auth)",
