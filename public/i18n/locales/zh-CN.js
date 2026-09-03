@@ -70,6 +70,8 @@
             "btn_save_username": "保存用户名",
             "btn_save_email": "保存邮箱",
             "btn_save_password": "保存密码",
+            "btn_show_password": "显示密码",
+            "btn_hide_password": "隐藏密码",
             "btn_logout": "退出登录",
             "btn_logout_all": "在所有设备上退出登录",
             "btn_copy": "复制",

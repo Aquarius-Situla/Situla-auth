@@ -70,6 +70,8 @@
             "btn_save_username": "Save Username",
             "btn_save_email": "Save Email",
             "btn_save_password": "Save Password",
+            "btn_show_password": "Show password",
+            "btn_hide_password": "Hide password",
             "btn_logout": "Sign Out",
             "btn_logout_all": "Sign Out of All Devices",
             "btn_copy": "Copy",

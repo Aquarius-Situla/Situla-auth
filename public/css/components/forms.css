@@ -19,12 +19,12 @@ form {
     border-radius: var(--radius-lg);
     background: var(--bg-input);
     position: relative;
-    transition: box-shadow var(--duration-normal) ease, border-color var(--duration-normal) ease;
+    transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
 
 .input-card.focused {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-focus);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }
 
 .input-group {
@@ -111,6 +111,42 @@ input:focus {
 }
 #password {
     border-radius: 0 0 10px 10px;
+    padding-right: 46px;
+}
+
+/* Password Visibility Toggle Button */
+.pwd-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px;
+    margin: 0;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--duration-fast), background var(--duration-fast);
+    -webkit-tap-highlight-color: transparent;
+    z-index: 2;
+}
+
+.pwd-toggle-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.pwd-toggle-btn:active {
+    color: var(--color-primary);
+}
+
+.pwd-toggle-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary);
 }
 
 /* Input divider line */
@@ -133,11 +169,11 @@ input:focus {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     transition:
-        max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.30s ease 0.05s,
-        transform 0.30s ease 0.05s;
+        max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.25s ease 0.05s,
+        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) 0.05s;
 }
 .reveal-group.show {
     max-height: 80px;
