@@ -97,9 +97,10 @@
         document.documentElement.lang = resolved.startsWith('zh') ? 'zh-CN' : resolved.split('-')[0];
         applyTranslations();
 
-        // Dispatch custom event for reactive listeners
+        // Dispatch custom events for reactive listeners (both canonical and backward-compatible)
         try {
-            window.dispatchEvent(new CustomEvent('situla:languagechange', { detail: { language: resolved } }));
+            window.dispatchEvent(new CustomEvent('situla:languagechange', { detail: { language: resolved, locale: resolved } }));
+            window.dispatchEvent(new CustomEvent('i18n:localeChanged', { detail: { language: resolved, locale: resolved } }));
         } catch (e) {}
     }
 
@@ -203,6 +204,8 @@
         register: registerLocale,
         setLanguage,
         getLanguage: () => currentLang,
+        getLocale: () => currentLang,
+        get currentLocale() { return currentLang; },
         getAvailableLanguages,
         applyTranslations,
         resolveLocaleCode
@@ -212,6 +215,7 @@
     global.t = t;
     global.setLanguage = setLanguage;
     global.getLanguage = () => currentLang;
+    global.getLocale = () => currentLang;
     global.i18n = i18nEngine;
 
     if (typeof module !== 'undefined' && module.exports) {

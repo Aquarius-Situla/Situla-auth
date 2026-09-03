@@ -43,11 +43,17 @@ describe('GET /api/status', () => {
             .get('/api/status')
             .set('Cookie', sessionCookie);
         expect(res.status).toBe(200);
-        // Should be masked: test@example.com → tes*****@example.com
+        // Should be masked: test@example.com → t*****@example.com
         expect(res.body.email).toMatch(/\*{5}/);
         expect(res.body.email).toContain('@example.com');
         // fullEmail should NOT be present when not elevated
         expect(res.body.fullEmail).toBeUndefined();
+
+        // Edge case tests for AccountService._maskEmail
+        const AccountService = require('../services/accountService');
+        expect(AccountService._maskEmail('bob@example.com')).toBe('b*****@example.com');
+        expect(AccountService._maskEmail('ab@example.com')).toBe('a*****@example.com');
+        expect(AccountService._maskEmail('alice@example.com')).toBe('al*****@example.com');
     });
 });
 

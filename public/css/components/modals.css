@@ -28,6 +28,7 @@
     animation: scaleUp var(--duration-slow) var(--ease-apple);
     text-align: center;
     box-sizing: border-box;
+    outline: none;
 }
 
 .modal-icon {
@@ -65,7 +66,7 @@
     font-size: 15px;
     color: var(--text-primary);
     outline: none;
-    transition: all var(--duration-normal);
+    transition: border-color var(--duration-fast), box-shadow var(--duration-fast), background var(--duration-fast);
     background: var(--bg-input);
     font-family: inherit;
     margin-bottom: 12px;
@@ -78,7 +79,8 @@ textarea.modal-input {
 
 .modal-input:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px var(--color-primary-focus);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+    background: var(--bg-input);
 }
 
 .modal-input::placeholder {

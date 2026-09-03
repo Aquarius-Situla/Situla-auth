@@ -101,6 +101,7 @@
             }
             try {
                 const rdUrl = new URL(rd, window.location.origin);
+                if (rdUrl.protocol !== 'https:' && rdUrl.protocol !== 'http:') return null;
                 const hostname = rdUrl.hostname.toLowerCase();
                 const roots = await getTrustedRoots();
                 const trusted = roots.some(root =>

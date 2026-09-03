@@ -3,7 +3,7 @@
  * OIDC Application Management (pixel-perfect list and Sudo modal).
  */
 
-import { t, escapeHTML, closeAllModals } from './ui.js';
+import { t, escapeHTML, closeAllModals, openModal } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export async function loadOidcClients() {
@@ -76,21 +76,7 @@ export async function loadOidcClients() {
 
 export function setupOidcEvents() {
     document.getElementById('addOidcBtn')?.addEventListener('click', () => {
-        closeAllModals();
-        const modal = document.getElementById('oidcModal');
-        if (modal) modal.style.display = 'flex';
-        const step1 = document.getElementById('oidcStep1');
-        if (step1) step1.style.display = 'block';
-        const step3 = document.getElementById('oidcStep3');
-        if (step3) step3.style.display = 'none';
-
-        const nameInp = document.getElementById('oidcAppName');
-        const urisInp = document.getElementById('oidcRedirectUris');
-        const msg1 = document.getElementById('oidcMsg1');
-
-        if (nameInp) nameInp.value = '';
-        if (urisInp) urisInp.value = '';
-        if (msg1) msg1.textContent = '';
+        openModal('oidcModal');
     });
 
     document.getElementById('cancelOidcBtn1')?.addEventListener('click', closeAllModals);

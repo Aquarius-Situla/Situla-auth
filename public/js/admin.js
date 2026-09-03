@@ -63,7 +63,7 @@ export async function loadStatus() {
 window.reloadAccountStatus = loadStatus;
 
 function setupGlobalModalClosers() {
-    document.querySelectorAll('.modal-close, .modal-btn-secondary').forEach(b => {
+    document.querySelectorAll('.modal-close, .modal-btn-secondary:not([data-no-close="true"])').forEach(b => {
         b.onclick = () => closeAllModals();
     });
 

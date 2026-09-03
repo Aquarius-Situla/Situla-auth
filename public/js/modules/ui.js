@@ -95,6 +95,44 @@ export function closeAllModals() {
     });
 }
 
+export function openModal(modalId, { step = 1, resetInputs = true } = {}) {
+    closeAllModals();
+    const modal = document.getElementById(modalId);
+    if (!modal) return null;
+
+    modal.style.display = 'flex';
+
+    // Reset step views
+    const step1 = modal.querySelector('[id$="Step1"]');
+    const step2 = modal.querySelector('[id$="Step2"]');
+    const step3 = modal.querySelector('[id$="Step3"]');
+    if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+    if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+    if (step3) step3.style.display = step === 3 ? 'block' : 'none';
+
+    // Clear alert and error messages
+    modal.querySelectorAll('.msg').forEach(m => {
+        m.textContent = '';
+        m.className = 'msg';
+    });
+
+    // Reset inputs cleanly without triggering premature focus or blue halos
+    if (resetInputs) {
+        modal.querySelectorAll('input:not([type="hidden"]):not(.sudo-hidden-username), textarea').forEach(inp => {
+            if (inp.id !== 'npmProtectedDomain') {
+                inp.value = '';
+            }
+        });
+    }
+
+    // Ensure no lingering focus outline on trigger buttons or inputs
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
+
+    return modal;
+}
+
 export function copyToClipboard(text, triggerBtn, successText = '已复制') {
     navigator.clipboard.writeText(text).then(() => {
         if (triggerBtn) {

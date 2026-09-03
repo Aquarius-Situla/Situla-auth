@@ -97,8 +97,6 @@
             "oidc_add": "＋ 添加授权应用",
             "btn_generate_npm": "＋ 生成防护配置",
             "btn_back_edit": "返回修改",
-            "npm_btn_copy": "复制配置",
-            "npm_btn_copied": "✓ 已复制",
 
             // Badges
             "badge_none": "未添加",
@@ -201,8 +199,6 @@
             "npm_sso_user": "传递用户名 (Remote-User)",
             "npm_sso_email": "传递邮箱 (Remote-Email)",
             "npm_sso_both": "传递用户名与邮箱",
-            "npm_code_header": "Nginx 配置代码（粘贴至 NPM Advanced 选项卡）",
-            "npm_tip_guide": "在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡，将上述配置粘贴至代码框中保存即可。",
 
             // Messages & Alerts
             "msg_enter_new_username": "请输入新用户名",

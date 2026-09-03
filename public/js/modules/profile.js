@@ -3,27 +3,13 @@
  * User profile management (username, email, password, and logout).
  */
 
-import { t, closeAllModals } from './ui.js';
+import { t, closeAllModals, openModal } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function setupProfileEvents(onSuccessReload) {
     // ── Change Username ──
     document.getElementById('showUsernameFormBtn')?.addEventListener('click', () => {
-        closeAllModals();
-        const modal = document.getElementById('usernameModal');
-        if (modal) modal.style.display = 'flex';
-        const step1 = document.getElementById('usernameStep1');
-        const step2 = document.getElementById('usernameStep2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const inp = document.getElementById('newUsername');
-        if (inp) inp.value = '';
-        const msg1 = document.getElementById('usernameMsg1');
-        if (msg1) {
-            msg1.textContent = '';
-            msg1.className = 'msg';
-        }
-        setTimeout(() => inp?.focus(), 60);
+        openModal('usernameModal');
     });
 
     document.getElementById('cancelUsernameBtn1')?.addEventListener('click', closeAllModals);
@@ -87,21 +73,7 @@ export function setupProfileEvents(onSuccessReload) {
 
     // ── Change Email ──
     document.getElementById('showEmailFormBtn')?.addEventListener('click', () => {
-        closeAllModals();
-        const modal = document.getElementById('emailModal');
-        if (modal) modal.style.display = 'flex';
-        const step1 = document.getElementById('emailStep1');
-        const step2 = document.getElementById('emailStep2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const inp = document.getElementById('newEmail');
-        if (inp) inp.value = '';
-        const msg1 = document.getElementById('emailMsg1');
-        if (msg1) {
-            msg1.textContent = '';
-            msg1.className = 'msg';
-        }
-        setTimeout(() => inp?.focus(), 60);
+        openModal('emailModal');
     });
 
     document.getElementById('cancelEmailBtn1')?.addEventListener('click', closeAllModals);
@@ -156,23 +128,7 @@ export function setupProfileEvents(onSuccessReload) {
 
     // ── Change Password ──
     document.getElementById('showPasswordFormBtn')?.addEventListener('click', () => {
-        closeAllModals();
-        const modal = document.getElementById('passwordModal');
-        if (modal) modal.style.display = 'flex';
-        const step1 = document.getElementById('passwordStep1');
-        const step2 = document.getElementById('passwordStep2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const p1 = document.getElementById('newPassword');
-        const p2 = document.getElementById('confirmPassword');
-        if (p1) p1.value = '';
-        if (p2) p2.value = '';
-        const msg1 = document.getElementById('passwordMsg1');
-        if (msg1) {
-            msg1.textContent = '';
-            msg1.className = 'msg';
-        }
-        setTimeout(() => p1?.focus(), 60);
+        openModal('passwordModal');
     });
 
     document.getElementById('cancelPasswordBtn1')?.addEventListener('click', closeAllModals);

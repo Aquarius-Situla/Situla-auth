@@ -107,38 +107,6 @@
     display: none;
 }
 
-/* Pill Copy Button */
-.btn-pill-copy {
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    color: var(--text-secondary);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-    transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
-    outline: none;
-    height: 28px;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-}
-
-.btn-pill-copy:active {
-    background: var(--bg-secondary);
-    transform: scale(0.96);
-}
-
-.btn-pill-copy.copied {
-    border-color: var(--color-success) !important;
-    color: var(--color-success) !important;
-    background: var(--color-success-light) !important;
-}
 
 /* Bottom Action Row */
 .warning-action-row {
@@ -209,11 +177,6 @@
 @media (hover: hover) and (pointer: fine) {
     .warning-pill-box:hover {
         border-color: var(--border-primary);
-    }
-    
-    .btn-pill-copy:hover {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
     }
     
     .warning-btn-primary:hover {

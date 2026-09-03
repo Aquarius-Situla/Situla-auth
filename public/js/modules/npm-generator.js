@@ -4,7 +4,7 @@
  * 2-Step Modal Interaction with Top-Right Pill Copy Button.
  */
 
-import { t, closeAllModals } from './ui.js';
+import { t, closeAllModals, openModal } from './ui.js';
 
 export function generateNginxSnippet() {
     const domainInput = document.getElementById('npmProtectedDomain');
@@ -12,17 +12,23 @@ export function generateNginxSnippet() {
     const onionInput = document.getElementById('npmOnionLocation');
     const ssoSelect = document.getElementById('npmSsoMode');
 
-    const domain = (domainInput?.value || '').trim();
+    const domainRaw = (domainInput?.value || '').trim();
+    const cleanDomain = domainRaw.replace(/[^a-zA-Z0-9.-]/g, '');
     const bypassRaw = bypassInput?.value || '';
     const onionRaw = (onionInput?.value || '').trim();
     const ssoMode = ssoSelect?.value || 'user';
 
     const authOrigin = window.location.origin || 'https://auth.yourdomain.com';
-    const isEn = typeof window.i18n !== 'undefined' && 
-                 typeof window.i18n.getLocale === 'function' && 
-                 window.i18n.getLocale() === 'en-US';
+    const isEn = (typeof window.i18n !== 'undefined' && 
+                 (window.i18n.getLocale?.() === 'en-US' || window.i18n.getLanguage?.() === 'en-US')) ||
+                 (document.documentElement.lang && document.documentElement.lang.startsWith('en'));
 
     const lines = [];
+
+    if (cleanDomain) {
+        lines.push(isEn ? `# Target Protected Host: ${cleanDomain}` : `# 受保护目标域名: ${cleanDomain}`);
+        lines.push('');
+    }
 
     // Part 1: Auth Subrequest & 401 Interception
     if (isEn) {
@@ -69,7 +75,9 @@ export function generateNginxSnippet() {
     const bypassPaths = bypassRaw
         .split('\n')
         .map(p => p.trim())
-        .filter(p => p && !p.startsWith('#'));
+        .filter(p => p && !p.startsWith('#'))
+        .map(p => p.replace(/[{}\;"'\r\n]/g, '').trim())
+        .filter(Boolean);
 
     let partIndex = 2;
 
@@ -127,14 +135,20 @@ export function generateNginxSnippet() {
 
     // Onion-Location Injection
     if (onionRaw) {
-        const cleanOnion = onionRaw.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
-        lines.push('');
-        if (isEn) {
-            lines.push('    # Inject Onion-Location response header (Tor Browser will offer redirect)');
-        } else {
-            lines.push('    # 严格注入 Onion-Location 响应头（带 always 确保即使 304 缓存也生效）');
+        const cleanOnion = onionRaw
+            .replace(/^https?:\/\//i, '')
+            .replace(/\/+$/, '')
+            .replace(/[^a-z0-9.-]/gi, '')
+            .toLowerCase();
+        if (cleanOnion) {
+            lines.push('');
+            if (isEn) {
+                lines.push('    # Inject Onion-Location response header (Tor Browser will offer redirect)');
+            } else {
+                lines.push('    # 严格注入 Onion-Location 响应头（带 always 确保即使 304 缓存也生效）');
+            }
+            lines.push(`    add_header Onion-Location "http://${cleanOnion}$request_uri" always;`);
         }
-        lines.push(`    add_header Onion-Location "http://${cleanOnion}$request_uri" always;`);
     }
 
     // SSO Header Forwarding
@@ -220,10 +234,7 @@ export function setupNpmGenerator() {
 
     // Open Modal (Step 1)
     openBtn?.addEventListener('click', () => {
-        closeAllModals();
-        if (modal) modal.style.display = 'flex';
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
+        openModal('npmModal', { resetInputs: false });
 
         // Pre-fill last onion if available
         try {
@@ -232,8 +243,6 @@ export function setupNpmGenerator() {
                 onionInput.value = savedOnion;
             }
         } catch (e) {}
-
-        domainInput?.focus();
     });
 
     // Close Modal
@@ -311,9 +320,11 @@ export function setupNpmGenerator() {
     }
 
     // Re-render when language changes
-    window.addEventListener('i18n:localeChanged', () => {
+    const onLocaleChanged = () => {
         if (outputCode && step2 && step2.style.display !== 'none') {
             outputCode.textContent = generateNginxSnippet();
         }
-    });
+    };
+    window.addEventListener('situla:languagechange', onLocaleChanged);
+    window.addEventListener('i18n:localeChanged', onLocaleChanged);
 }

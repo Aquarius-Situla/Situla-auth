@@ -3,14 +3,13 @@
  * Security Audit & Login Logs modal (pixel-perfect list rendering).
  */
 
-import { t, escapeHTML } from './ui.js';
+import { t, escapeHTML, openModal } from './ui.js';
 import { fetchApi } from './api.js';
 
 export function setupLogsEvents() {
     document.getElementById('viewLoginLogsBtn')?.addEventListener('click', async () => {
-        const modal = document.getElementById('loginLogsModal');
+        openModal('loginLogsModal');
         const listEl = document.getElementById('loginLogsList');
-        if (modal) modal.style.display = 'flex';
         if (listEl) listEl.innerHTML = `<div style="text-align: center; color: #86868b; padding: 20px;">${t('loading') || '加载中...'}</div>`;
 
         try {
@@ -27,7 +26,7 @@ export function setupLogsEvents() {
                     const date = new Date(isoString);
                     let localTime = log.created_at;
                     if (!isNaN(date.getTime())) {
-                        const locale = (window.i18n && window.i18n.currentLocale) ? window.i18n.currentLocale : 'zh-CN';
+                        const locale = window.i18n?.getLanguage?.() || window.i18n?.currentLocale || 'zh-CN';
                         localTime = date.toLocaleString(locale, {
                             year: 'numeric', month: '2-digit', day: '2-digit',
                             hour: '2-digit', minute: '2-digit', second: '2-digit'

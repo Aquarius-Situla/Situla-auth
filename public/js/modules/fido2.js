@@ -3,7 +3,7 @@
  * FIDO2 Hardware Key Management and 2FA Multi-State UI Coordinator.
  */
 
-import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals, renderTransportBadges, formatError } from './ui.js';
+import { t, escapeHTML, fmtDate, renderInlineLoader, closeAllModals, openModal, renderTransportBadges, formatError } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
 export function set2faBadge(method, fido2Count = 0) {
@@ -207,21 +207,8 @@ export function setupFido2Events(onSuccessReload, openTotpSetupFn) {
 
     // Add FIDO2 modal
     document.getElementById('addFido2KeyBtn')?.addEventListener('click', () => {
-        closeAllModals();
-        const modal = document.getElementById('fido2Modal');
-        if (modal) modal.style.display = 'flex';
-        const step1 = document.getElementById('fido2Step1');
-        const step2 = document.getElementById('fido2Step2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const nameInp = document.getElementById('fido2DeviceName');
-        if (nameInp) nameInp.value = '';
-        const msg1 = document.getElementById('fido2Msg1');
-        if (msg1) {
-            msg1.textContent = '';
-            msg1.className = 'msg';
-        }
-        const actions1 = step1 ? step1.querySelector('.modal-actions') : null;
+        const modal = openModal('fido2Modal');
+        const actions1 = modal?.querySelector('#fido2Step1 .modal-actions');
         if (actions1) setModalActionsLoading(actions1, false);
     });
 

@@ -97,8 +97,6 @@
             "oidc_add": "+ Add Application",
             "btn_generate_npm": "+ Generate Config",
             "btn_back_edit": "Back",
-            "npm_btn_copy": "Copy Configuration",
-            "npm_btn_copied": "✓ Copied",
 
             // Badges
             "badge_none": "Not Added",
@@ -201,8 +199,6 @@
             "npm_sso_user": "Forward Username (Remote-User)",
             "npm_sso_email": "Forward Email (Remote-Email)",
             "npm_sso_both": "Forward Username & Email",
-            "npm_code_header": "Nginx Configuration (Paste into NPM Advanced tab)",
-            "npm_tip_guide": "In Nginx Proxy Manager, edit the Proxy Host, switch to the 'Advanced' tab, paste the snippet above into the custom configuration box, and save.",
 
             // Messages & Alerts
             "msg_enter_new_username": "Please enter a new username",

@@ -119,12 +119,9 @@ export function enterSudoStep(modalId, actionFn) {
 
         if (pwdInp) {
             pwdInp.value = '';
-            setTimeout(() => {
-                pwdInp.focus();
-                try {
-                    pwdInp.dispatchEvent(new Event('focus', { bubbles: true }));
-                } catch (e) {}
-            }, 60);
+        }
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
         }
         if (msg) {
             msg.textContent = '';

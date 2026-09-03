@@ -11,11 +11,10 @@ const RecoveryService = require('./recoveryService');
 class AccountService {
     /**
      * Masks an email address for display in non-elevated state.
-     * Keeps the first 3 characters of the local part (or 1 if shorter),
-     * replaces the rest with '*****', and preserves the full domain.
-     * e.g. john@example.com  → joh*****@example.com
-     *      ab@x.com          → a*****@x.com
-     *      (not set)         → ''
+     * Keeps 1 char for local part <= 4 chars (e.g. bob@example.com → b*****@example.com),
+     * keeps 2 chars for local part > 4 chars (e.g. alice@example.com → al*****@example.com),
+     * and preserves the full domain.
+     * (not set) → ''
      */
     static _maskEmail(email) {
         if (!email) return '';
@@ -23,7 +22,7 @@ class AccountService {
         if (atIdx <= 0) return email; // malformed, return as-is
         const local = email.slice(0, atIdx);
         const domain = email.slice(atIdx); // includes '@'
-        const keep = local.length >= 3 ? 3 : 1;
+        const keep = local.length <= 4 ? 1 : 2;
         return local.slice(0, keep) + '*****' + domain;
     }
 

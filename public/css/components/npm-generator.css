@@ -60,7 +60,7 @@
 .npm-textarea:focus,
 .npm-select:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-focus);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
     background: var(--bg-input);
 }
 
@@ -118,43 +118,6 @@
     letter-spacing: 0.5px;
 }
 
-/* Pill Copy Button (referencing warning.html / Domain Redirection style) */
-.btn-pill-copy {
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    color: var(--text-secondary);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-    transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
-    outline: none;
-    height: 28px;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-}
-
-.btn-pill-copy:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-}
-
-.btn-pill-copy:active {
-    background: var(--bg-secondary);
-    transform: scale(0.96);
-}
-
-.btn-pill-copy.copied {
-    border-color: var(--color-success) !important;
-    color: var(--color-success) !important;
-    background: var(--color-success-light) !important;
-}
 
 .npm-code-content {
     margin: 0;

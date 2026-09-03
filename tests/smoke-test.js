@@ -16,7 +16,7 @@
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
-const db = require('../database');
+const db = require('../core/database');
 const { encrypt, decrypt, randomHex } = require('../core/crypto');
 
 let failed = 0;
