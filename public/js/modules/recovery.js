@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/recovery.js
  * Recovery Codes generation, copy, and UI badge management.
  */
@@ -18,7 +18,7 @@ export function updateRcCard(has2FA, remaining = 0) {
         badge.textContent = t('badge_not_gen') || '未生成';
         badge.className = 'badge badge-disabled';
     } else {
-        badge.textContent = t('badge_rc_remaining', remaining) || `剩余 ${remaining} 个`;
+        badge.textContent = t('badge_rc_remaining', remaining) || `剩余 ${remaining} 组`;
         badge.className = remaining <= 2 ? 'badge badge-warn' : 'badge badge-count';
     }
 }
@@ -39,13 +39,13 @@ export function setupRecoveryEvents(onSuccessReload) {
                 if (rcPanel) rcPanel.style.display = 'block';
                 if (rcList) rcList.innerHTML = (data.codes || []).join('<br>');
                 if (rcBadge) {
-                    rcBadge.textContent = '已生成(8)';
+                    rcBadge.textContent = t('badge_rc_remaining', 8) || '剩余 8 组';
                     rcBadge.className = 'badge badge-enabled';
                 }
                 if (onSuccessReload) onSuccessReload();
                 return { success: true };
             }
-            return { success: false, message: data?.message || '生成失败' };
+            return { success: false, message: data?.message || t('msg_operation_failed') || '生成失败' };
         };
 
         enterSudoStep('sudoModal', actionFn);
@@ -57,7 +57,7 @@ export function setupRecoveryEvents(onSuccessReload) {
         const listText = document.getElementById('rcList')?.innerText?.replace(/\n/g, ' ') || '';
         const btn = document.getElementById('copyRcBtn');
         if (listText && btn) {
-            copyToClipboard(listText, btn, '已复制');
+            copyToClipboard(listText, btn, t('btn_copied') || '已复制');
         }
     });
 }

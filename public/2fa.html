@@ -25,7 +25,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js?v=95"></script>
+    <script src="/i18n/locales/zh-CN.js?v=91"></script>
+    <script src="/i18n/locales/en-US.js?v=91"></script>
+    <script src="/i18n/i18n.js?v=91"></script>
 </head>
 <body class="login-page" data-page-title-key="twofa_doc_title">
 
@@ -72,12 +74,12 @@
                         >
                     </div>
 
-                    <p id="totpSubtitle" data-i18n="totp_subtitle_app" style="text-align:center; font-size:14px; margin-top:16px;">请输入身份验证器中显示的 6 位验证码</p>
+                    <p id="totpSubtitle" data-i18n="totp_subtitle_app" style="text-align:center; font-size:14px; margin-top:16px;">输入身份验证器 App 生成的 6 位动态验证码。</p>
 
                     <!-- Toggle link -->
                     <div style="text-align:center; margin-top:14px;">
                         <a id="toggleRcLink" href="#" style="font-size:13px; color:#0071e3; text-decoration:none;" data-i18n="totp_link_rc">
-                            使用恢复码登录
+                            无法使用验证器？使用恢复码登录
                         </a>
                     </div>
 
@@ -97,13 +99,13 @@
                         <div class="fido-icon" role="img" aria-label="FIDO2"></div>
                     </div>
                     <h1 data-i18n="fido2_title">安全密钥</h1>
-                    <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">请插入并触摸你的安全密钥</p>
+                    <p id="fido2Subtitle" data-i18n="fido2_subtitle_usb">插入物理安全密钥并轻触以进行验证。</p>
                 </div>
 
                 <div id="fido2KeySection">
                     <div id="fido2Section">
                         <div class="fido2-spinner" id="fido2Spinner" style="display:none;"></div>
-                        <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_prompt">请点击下方按钮开始安全密钥验证</div>
+                        <div class="fido2-hint" id="fido2StatusHint" data-i18n="fido2_prompt">正在等待安全密钥响应，请触摸密钥...</div>
                     </div>
                 </div>
 

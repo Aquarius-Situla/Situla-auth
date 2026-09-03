@@ -1,4 +1,4 @@
-﻿/**
+/**
  * public/js/modules/logs.js
  * Security Audit & Login Logs modal (pixel-perfect list rendering).
  */
@@ -27,7 +27,8 @@ export function setupLogsEvents() {
                     const date = new Date(isoString);
                     let localTime = log.created_at;
                     if (!isNaN(date.getTime())) {
-                        localTime = date.toLocaleString('zh-CN', {
+                        const locale = (window.i18n && window.i18n.currentLocale) ? window.i18n.currentLocale : 'zh-CN';
+                        localTime = date.toLocaleString(locale, {
                             year: 'numeric', month: '2-digit', day: '2-digit',
                             hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
@@ -35,12 +36,18 @@ export function setupLogsEvents() {
 
                     const div = document.createElement('div');
                     div.className = 'log-item';
-                    let locStr = log.location || '未知位置';
-                    if (locStr === 'Unknown Location' || locStr === 'Unknown') locStr = '未知位置';
-                    if (locStr === 'Local Network') locStr = '局域网';
+                    let locStr = log.location || t('status_loc_unknown') || '未知位置';
+                    if (locStr === 'Unknown Location' || locStr === 'Unknown' || locStr === '未知位置') {
+                        locStr = t('status_loc_unknown') || '未知位置';
+                    }
+                    if (locStr === 'Local Network' || locStr === '局域网') {
+                        locStr = t('status_loc_lan') || '局域网';
+                    }
 
-                    let devStr = log.device || '未知设备';
-                    if (devStr === 'Unknown Device') devStr = '未知设备';
+                    let devStr = log.device || t('status_dev_unknown') || '未知设备';
+                    if (devStr === 'Unknown Device' || devStr === '未知设备') {
+                        devStr = t('status_dev_unknown') || '未知设备';
+                    }
 
                     div.innerHTML = `
                         <div class="log-details">${escapeHTML(locStr)} · ${escapeHTML(devStr)}</div>

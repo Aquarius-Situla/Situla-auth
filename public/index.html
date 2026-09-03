@@ -36,7 +36,9 @@
     
 
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n.js?v=90"></script>
+    <script src="/i18n/locales/zh-CN.js?v=91"></script>
+    <script src="/i18n/locales/en-US.js?v=91"></script>
+    <script src="/i18n/i18n.js?v=91"></script>
 </head>
 <body class="login-page" data-page-title-key="login_doc_title">
 
@@ -54,7 +56,7 @@
             <div class="logo-container">
                 <img src="/assets/icons/user.svg" width="48" height="48" alt="User" class="user-icon" style="margin-bottom:12px;">
                 <h1 data-i18n="login_title">登录</h1>
-                <p id="subtitle" data-i18n="login_subtitle">管理你的账户</p>
+                <p id="subtitle" data-i18n="login_subtitle">使用凭据或通行密钥继续访问。</p>
                 
             </div>
 
@@ -85,7 +87,7 @@
                         <img src="/assets/icons/passkey.svg" width="18" height="18"
                              alt="Passkey"
                              style="margin-right:7px; flex-shrink:0; vertical-align:middle; object-fit:contain;">
-                        <span data-i18n="btn_passkey">通过通行密钥登录</span>
+                        <span data-i18n="btn_passkey">使用通行密钥登录</span>
                     </button>
                 </div>
             </form>
