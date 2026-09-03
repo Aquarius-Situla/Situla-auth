@@ -55,6 +55,8 @@
             "logs_desc": "查看近期登录记录，包含时间、IP 地址、地理位置和设备信息。",
             "oidc_title": "授权应用",
             "oidc_desc": "管理可以通过当前身份验证系统进行单点登录的第三方应用。",
+            "npm_section_title": "反向代理防护",
+            "npm_section_desc": "为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。",
 
             // Buttons & Actions
             "btn_change": "更改",
@@ -93,11 +95,14 @@
             "btn_passkey": "使用通行密钥登录",
             "btn_saved": "我已保存",
             "oidc_add": "＋ 添加授权应用",
+            "npm_btn_copy": "复制配置",
+            "npm_btn_copied": "✓ 已复制",
 
             // Badges
             "badge_none": "未添加",
             "badge_disabled": "未启用",
             "badge_enabled": "已启用",
+            "badge_forward_auth": "Forward-Auth",
             "badge_downgraded": "暂缓生效",
             "badge_2fa_totp": "身份验证器",
             "badge_2fa_fido2": "安全密钥",
@@ -177,6 +182,21 @@
             "confirm_delete_oidc": "确定删除该授权应用？删除后它将无法通过本系统进行单点登录。",
             "logs_modal_title": "近期登录活动",
             "logs_modal_desc": "显示最近最多 20 条登录记录。",
+
+            // Nginx Proxy Manager Generator
+            "npm_domain_label": "受保护域名",
+            "npm_domain_placeholder": "例如: app.example.com",
+            "npm_bypass_label": "放行路径（绕过认证）",
+            "npm_bypass_placeholder": "例如: /api/ 或换行输入多个路径",
+            "npm_onion_label": "洋葱服务地址 (Onion-Location)",
+            "npm_onion_placeholder": "例如: http://xxxxxx.onion（可选）",
+            "npm_sso_label": "单点登录凭证传递 (SSO)",
+            "npm_sso_none": "仅访问拦截（不传递身份头）",
+            "npm_sso_user": "传递用户名 (Remote-User)",
+            "npm_sso_email": "传递邮箱 (Remote-Email)",
+            "npm_sso_both": "传递用户名与邮箱",
+            "npm_code_header": "Nginx 配置代码（粘贴至 NPM Advanced 选项卡）",
+            "npm_tip_guide": "在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡，将上述配置粘贴至代码框中保存即可。",
 
             // Messages & Alerts
             "msg_enter_new_username": "请输入新用户名",

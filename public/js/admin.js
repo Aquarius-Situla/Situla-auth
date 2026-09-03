@@ -12,6 +12,7 @@ import { updateRcCard, setupRecoveryEvents } from './modules/recovery.js';
 import { loadOidcClients, setupOidcEvents } from './modules/oidc.js';
 import { setupProfileEvents } from './modules/profile.js';
 import { setupLogsEvents } from './modules/logs.js';
+import { setupNpmGenerator } from './modules/npm-generator.js';
 
 export async function loadStatus() {
     try {
@@ -85,6 +86,7 @@ function initDashboard() {
     try { setupTotpEvents(loadStatus); } catch (e) { console.error('[Admin] setupTotpEvents failed:', e); }
     try { setupRecoveryEvents(loadStatus); } catch (e) { console.error('[Admin] setupRecoveryEvents failed:', e); }
     try { setupOidcEvents(); } catch (e) { console.error('[Admin] setupOidcEvents failed:', e); }
+    try { setupNpmGenerator(); } catch (e) { console.error('[Admin] setupNpmGenerator failed:', e); }
     try { setupLogsEvents(); } catch (e) { console.error('[Admin] setupLogsEvents failed:', e); }
 
     loadStatus();

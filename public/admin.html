@@ -262,16 +262,77 @@
             </div>
         </div>
         
-        <!-- OIDC Clients card -->
-        <div class="settings-group" id="oidcCard">
-            <div class="section">
-                <h3 data-i18n="oidc_title">授权应用</h3>
+        <!-- Integration group (OIDC Clients & Nginx Proxy Protection) -->
+        <div class="settings-group" id="integrationCard">
+            <!-- OIDC Section -->
+            <div class="section" id="oidcSection">
+                <div class="section-header">
+                    <div>
+                        <h3 data-i18n="oidc_title">授权应用</h3>
+                    </div>
+                </div>
                 <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统进行单点登录的第三方应用。</p>
                 
                 <div id="oidcClientList" class="key-list"></div>
                 
                 <div class="action-btn-container" style="margin-top: 15px;">
                     <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加授权应用</button>
+                </div>
+            </div>
+
+            <!-- Nginx Proxy Protection Section -->
+            <div class="section" id="npmSection">
+                <div class="section-header">
+                    <div>
+                        <h3 data-i18n="npm_section_title">反向代理防护</h3>
+                    </div>
+                    <span class="badge badge-count" data-i18n="badge_forward_auth">Forward-Auth</span>
+                </div>
+                <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
+
+                <div class="npm-generator-container">
+                    <div class="npm-grid">
+                        <div class="npm-form-group">
+                            <label class="npm-label" for="npmProtectedDomain" data-i18n="npm_domain_label">受保护域名</label>
+                            <input type="text" id="npmProtectedDomain" class="npm-input" data-i18n-placeholder="npm_domain_placeholder" placeholder="例如: app.example.com" autocomplete="off" spellcheck="false">
+                        </div>
+                        <div class="npm-form-group">
+                            <label class="npm-label" for="npmOnionLocation" data-i18n="npm_onion_label">洋葱服务地址 (Onion-Location)</label>
+                            <input type="text" id="npmOnionLocation" class="npm-input" data-i18n-placeholder="npm_onion_placeholder" placeholder="例如: http://xxxxxx.onion（可选）" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+
+                    <div class="npm-grid">
+                        <div class="npm-form-group">
+                            <label class="npm-label" for="npmBypassPaths" data-i18n="npm_bypass_label">放行路径（绕过认证）</label>
+                            <textarea id="npmBypassPaths" class="npm-textarea" data-i18n-placeholder="npm_bypass_placeholder" placeholder="例如: /api/ 或换行输入多个路径" spellcheck="false"></textarea>
+                        </div>
+                        <div class="npm-form-group">
+                            <label class="npm-label" for="npmSsoMode" data-i18n="npm_sso_label">单点登录凭证传递 (SSO)</label>
+                            <select id="npmSsoMode" class="npm-select">
+                                <option value="user" data-i18n="npm_sso_user" selected>传递用户名 (Remote-User)</option>
+                                <option value="email" data-i18n="npm_sso_email">传递邮箱 (Remote-Email)</option>
+                                <option value="both" data-i18n="npm_sso_both">传递用户名与邮箱</option>
+                                <option value="none" data-i18n="npm_sso_none">仅访问拦截（不传递身份头）</option>
+                            </select>
+                            <div class="npm-tip">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                <span data-i18n="npm_tip_guide">在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡，将上述配置粘贴至代码框中保存即可。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="npm-code-card">
+                        <div class="npm-code-header">
+                            <span class="npm-code-title" data-i18n="npm_code_header">Nginx 配置代码（粘贴至 NPM Advanced 选项卡）</span>
+                            <button type="button" class="btn-outline npm-copy-btn" id="copyNpmConfigBtn" data-i18n="npm_btn_copy">复制配置</button>
+                        </div>
+                        <pre class="npm-code-pre"><code id="npmConfigCode"></code></pre>
+                    </div>
                 </div>
             </div>
         </div>

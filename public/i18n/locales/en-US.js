@@ -55,6 +55,8 @@
             "logs_desc": "Review recent sign-in events, including time, IP address, approximate location, and device.",
             "oidc_title": "Connected Applications",
             "oidc_desc": "Manage third-party applications authorized to authenticate through this service.",
+            "npm_section_title": "Nginx Proxy Protection",
+            "npm_section_desc": "Quickly generate forward-auth interception and SSO configurations for Nginx Proxy Manager.",
 
             // Buttons & Actions
             "btn_change": "Change",
@@ -93,11 +95,14 @@
             "btn_passkey": "Sign in with a passkey",
             "btn_saved": "Done",
             "oidc_add": "+ Add Application",
+            "npm_btn_copy": "Copy Configuration",
+            "npm_btn_copied": "✓ Copied",
 
             // Badges
             "badge_none": "Not Added",
             "badge_disabled": "Off",
             "badge_enabled": "On",
+            "badge_forward_auth": "Forward-Auth",
             "badge_downgraded": "Paused",
             "badge_2fa_totp": "Authenticator App",
             "badge_2fa_fido2": "Security Key",
@@ -177,6 +182,21 @@
             "confirm_delete_oidc": "Are you sure you want to delete this application? It will no longer be able to authenticate users.",
             "logs_modal_title": "Recent Sign-In Activity",
             "logs_modal_desc": "Showing up to 20 most recent sign-in events.",
+
+            // Nginx Proxy Manager Generator
+            "npm_domain_label": "Protected Domain",
+            "npm_domain_placeholder": "e.g. app.example.com",
+            "npm_bypass_label": "Bypassed Paths (Skip Auth)",
+            "npm_bypass_placeholder": "e.g. /api/ or one path per line",
+            "npm_onion_label": "Onion Location (Tor Hidden Service)",
+            "npm_onion_placeholder": "e.g. http://xxxxxx.onion (optional)",
+            "npm_sso_label": "SSO Credential Forwarding",
+            "npm_sso_none": "Protection only (No user headers)",
+            "npm_sso_user": "Forward Username (Remote-User)",
+            "npm_sso_email": "Forward Email (Remote-Email)",
+            "npm_sso_both": "Forward Username & Email",
+            "npm_code_header": "Nginx Configuration (Paste into NPM Advanced tab)",
+            "npm_tip_guide": "In Nginx Proxy Manager, edit the Proxy Host, switch to the 'Advanced' tab, paste the snippet above into the custom configuration box, and save.",
 
             // Messages & Alerts
             "msg_enter_new_username": "Please enter a new username",
