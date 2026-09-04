@@ -1,141 +1,238 @@
 # 🔐 Situla Auth 2.0
 
-<p>
+<p align="center">
+  <strong>🌐 English | <a href="README_zh.md">简体中文</a></strong>
+</p>
+
+<p align="center">
   <a href="https://github.com/Aquarius-Situla/Situla-auth/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-AGPL%203.0-blue?style=flat&logo=open-source-initiative" alt="License">
   </a>&nbsp;&nbsp;
   <a href="https://nodejs.org/">
-    <img src="https://img.shields.io/badge/Powered_by-Node.js-339933?style=flat&logo=node.js" alt="Node.js">
+    <img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=flat&logo=node.js" alt="Node.js">
   </a>&nbsp;&nbsp;
   <a href="https://www.docker.com/">
     <img src="https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker" alt="Docker">
   </a>&nbsp;&nbsp;
   <a href="https://nginxproxymanager.com/">
     <img src="https://img.shields.io/badge/NPM-Forward_Auth-009639?style=flat&logo=nginx" alt="Nginx Proxy Manager">
+  </a>&nbsp;&nbsp;
+  <a href="https://fidoalliance.org/">
+    <img src="https://img.shields.io/badge/WebAuthn-Passkeys%20%26%20FIDO2-FF6B00?style=flat" alt="WebAuthn">
+  </a>&nbsp;&nbsp;
+  <a href="https://openid.net/developers/how-connect-works/">
+    <img src="https://img.shields.io/badge/OIDC-Provider-F78C40?style=flat&logo=openid" alt="OIDC">
   </a>
 </p>
 
-A lightweight, Apple-style authentication portal supporting Passkeys (WebAuthn), TOTP (2FA), and standard password login. Designed to be deployed with Nginx Proxy Manager as a Forward Auth provider.
+<p align="center">
+  An ultra-lightweight (<strong>&lt;50MB RAM</strong>), Apple-styled personal authentication portal and native OpenID Connect (OIDC) Identity Provider. Features biometric Passkeys (WebAuthn), hardware FIDO2 keys, encrypted TOTP, progressive password reveal, and a built-in interactive Nginx Proxy Manager (NPM) configuration generator.
+</p>
 
 ---
 
-## 💡 Why Situla Auth? (开发目的)
+## 💡 Why Situla Auth?
 
-Mature authentication solutions like **authentik** or **Authelia** are incredibly powerful, but they are also resource-heavy—authentik typically requires **at least 2GB of RAM** to run smoothly. 
+Enterprise identity providers like **authentik** or **Keycloak** offer comprehensive features, but their resource footprints are substantial—typically demanding **2GB+ of RAM** to run reliably.
 
-**Situla Auth** was created for **extremely lightweight servers** (e.g., small VPS instances with 512MB-1GB RAM). It is strictly designed for **single-user personal use** or homelab environments where minimalism and low resource consumption are the highest priorities.
+**Situla Auth** was engineered specifically for **ultra-lightweight servers** (such as small VPS instances with 512MB–1GB RAM), self-hosters, and single-user homelab environments where speed, minimalism, and low resource overhead are essential:
+
+- **Extremely Low Memory**: Runs within **30MB to 50MB of RAM** under production loads.
+- **Zero Heavy Dependencies**: Built on pure Node.js, Express, and an embedded SQLite database with automatic zero-config migrations.
+- **Single-User Security Focus**: Tailored for protecting homelab dashboards, personal services, and private reverse-proxy backends without multi-tenant enterprise bloat.
 
 > [!NOTE]
-> For professional, multi-user, or enterprise scenarios, we highly recommend using mature open-source projects like [authentik](https://goauthentik.io/).
+> For large organizations, multi-tenant businesses, or complex LDAP/SAML directory federations, mature solutions like [authentik](https://goauthentik.io/) remain the recommended path.
 
 ---
 
 ## ✨ Features
 
-- **Passkey (WebAuthn) Passwordless Login**: Log in effortlessly via Face ID, Touch ID, or Windows Hello.
-- **Robust Two-Factor Authentication (2FA)**:
-  - **FIDO2 Security Keys**: Use hardware keys (e.g., YubiKey) as a phishing-resistant second factor.
-  - **TOTP Authenticator Apps**: Support for Google Authenticator, iOS Passwords, etc.
-- **NSA-Grade Defense-in-Depth Security**: 
-  - AES-256-GCM strong encryption for TOTP secrets at rest.
-  - Constant-time password verification to prevent timing-based username enumeration.
-  - Strict algorithmic enforcement for JWT session tokens (HS256).
-- **Recovery Codes**: Bcrypt-hashed one-time backup codes when 2FA devices are unavailable.
-- **Account Management**: Change username, password, manage Passkeys, generate recovery codes.
-- **Apple UI**: Clean, fluid interface following iOS/macOS design language. Seamlessly supports dark and light modes.
-- **Forward Auth**: Acts as an auth shield for Nginx Proxy Manager (`/verify` endpoint).
+### 🔑 Modern Biometrics & Passwordless Auth
+- **Passkey (WebAuthn)**: One-click biometric sign-in via Face ID, Touch ID, Windows Hello, or Android Passkeys without passwords.
+- **FIDO2 Hardware Security Keys**: Phishing-resistant second factor utilizing physical USB/NFC tokens (e.g., YubiKey, Nitrokey) with `residentKey` support.
+- **TOTP Authenticator Apps**: Compatible with Google Authenticator, Apple Passwords, 1Password, Bitwarden, etc.
+- **Emergency Recovery Codes**: Bcrypt-hashed single-use backup codes when physical authenticator devices are inaccessible.
+
+### 🌐 Forward Auth & Built-in NPM Generator
+- **Forward Auth Guard**: Protects reverse-proxied services behind Nginx Proxy Manager (NPM) using the fast `/verify` endpoint.
+- **Interactive NPM Config Generator**: Built directly into the Admin Console. Generate tailored, production-ready Nginx configuration blocks (Standard Web Protection, Username SSO, Email SSO, custom API bypasses, and Onion-Location headers) with one click.
+
+### 🆔 Native OIDC Provider (OpenID Connect)
+- **Standard-Compliant IdP**: Implements Authorization Code Flow with mandatory PKCE (RFC 7636).
+- **Zero-Config Signing**: Auto-generates cryptographic RSA JWKS keys on first startup.
+- **Seamless Integrations**: Natively connects third-party services like Grafana, Gitea, Nextcloud, and Jellyfin.
+- **Visual Client Management**: Register, view, and manage OIDC client credentials straight from the Admin Console.
+
+### 🎨 Apple Human Interface Design
+- **Native Look & Feel**: Tailored with Apple HIG design principles, SF-inspired vector icons, and automatic Light/Dark mode switching.
+- **Micro-Halo System**: Standardized 3px subtle focus ring (`0 0 0 3px rgba(0, 113, 227, 0.15)`) across all inputs and modal dialogs.
+- **Progressive Disclosure Login Card**: Smooth accordion expansion with an integrated password reveal eye toggle button.
+- **Mobile Comfort**: Ergonomic mobile viewport anchoring that prevents abrasive virtual keyboard layout jumps on touchscreens.
+
+### 🔒 Defense-in-Depth Security & Privacy
+- **Sudo Elevation Mode**: Requires re-authentication before modifying sensitive credentials (changing passwords, revoking 2FA, or generating backup keys).
+- **Untrusted Redirect Interceptor**: Integrated `warning.html` security gate halts phishing attempts and unauthorized external redirects outside your trusted root domains.
+- **Timing-Safe Evaluation**: Constant-time bcrypt comparisons to eliminate timing side-channel attacks on usernames.
+- **AES-256-GCM Encryption at Rest**: Encrypts TOTP seeds and sensitive secrets in SQLite using AES-256-GCM with authenticated tags.
+- **Privacy Masking**: Masks user email addresses (`si*****@corp.internal`) in API responses.
+- **Security Audit Logging**: Records login events, timestamps, client IPs, user agents, and security anomalies in a searchable log panel.
+- **Instant Revocation**: Real-time JWT token versioning and JTI revocation cache for instant logout enforcement.
+
+### 🌍 Fully Symmetrical Bilingual i18n
+- **Dynamic Localization**: Instant switching between English (`en-US`) and Simplified Chinese (`zh-CN`).
+- **100% Symmetrical Dictionaries**: Over 240 symmetrically paired translation keys with reactive event dispatching (`i18n:localeChanged`).
+
+---
+
+## 📁 Project Architecture & Directory Structure
+
+```text
+situla-auth/
+├── core/                           # Low-level infrastructure
+│   ├── crypto.js                   # AES-256-GCM encryption, key validation & random generation
+│   └── database.js                 # SQLite engine, auto-migrations & backup interfaces
+├── services/                       # Business logic services
+│   ├── authService.js              # Authentication, bcrypt verification & JWT issuance
+│   ├── accountService.js           # Profile management, email masking & credentials
+│   ├── webauthnService.js          # WebAuthn Passkey registration & assertion (SimpleWebAuthn)
+│   ├── totpService.js              # TOTP secrets, QR codes & AES encryption
+│   ├── recoveryService.js          # Single-use emergency recovery code generation
+│   ├── oidcService.js              # OpenID Connect client registries & metadata
+│   └── auditService.js             # Security audit logs & client telemetry
+├── routes/                         # RESTful API route endpoints
+│   ├── auth.js                     # Login, logout, session status & Sudo elevation
+│   ├── account.js                  # User profile and credential updates
+│   ├── passkey.js                  # Passkey challenge and verification endpoints
+│   ├── fido2.js                    # FIDO2 2FA hardware key challenge endpoints
+│   ├── totp.js                     # TOTP setup, verification & toggle endpoints
+│   ├── recovery.js                 # Emergency recovery codes endpoints
+│   ├── oidc-clients.js             # OIDC client management endpoints
+│   └── logs.js                     # Audit log query endpoints
+├── middleware/                     # Express middlewares
+│   └── auth.js                     # JWT verification, Sudo token check & version cache
+├── public/                         # Frontend client application (Apple HIG)
+│   ├── index.html                  # Portal login page (accordion card, eye toggle, Passkey)
+│   ├── admin.html                  # Admin console (profile, 2FA, NPM generator, OIDC, audit logs)
+│   ├── 2fa.html                    # Dedicated 2FA challenge screen
+│   ├── warning.html                # Untrusted redirect interceptor screen
+│   ├── css/                        # Modular CSS system
+│   │   ├── tokens.css              # Apple HIG design tokens (colors, 3px rings, transitions)
+│   │   ├── base.css / layout.css   # Reset & mobile-first responsive shells
+│   │   └── components/             # Independent component styles (modals, forms, npm-generator...)
+│   ├── js/                         # ES modules & frontend controllers
+│   │   ├── modules/                # Decoupled UI modules (api, fido2, npm-generator, oidc, ui...)
+│   │   └── login.js / admin.js     # Page orchestration scripts
+│   ├── i18n/                       # Localization subsystem
+│   │   ├── i18n.js                 # Bilingual runtime engine & event emitter
+│   │   └── locales/                # Symmetric dictionary packs (en-US, zh-CN)
+│   └── assets/                     # Vector SVGs (branding & UI icons)
+├── tests/                          # Automated testing & CI smoke gates
+│   ├── smoke-test.js               # Container-internal functionality smoke test
+│   └── docker-smoke-test.sh        # Blackbox infrastructure probe gate
+├── deploy.sh                       # Production 1-click deployment & hot-backup pipeline
+├── Dockerfile                      # Minimal multi-stage production Docker image
+├── docker-compose.yml              # Docker Compose deployment & volume mapping
+├── server.js                       # Primary application entry point & route aggregator
+└── oidc.mjs                        # Native OIDC Provider protocol engine
+```
 
 ---
 
 ## 🚀 Quick Start
 
+### Option 1: Automated 1-Click Deployment (Recommended)
+
+Situla Auth ships with an industrial-grade deployment script (`deploy.sh`) that automates environment validation, Docker networking, hot SQLite backup, container rebuilding, and dual-layer smoke testing:
+
 ```bash
-# 1. Clone and enter the directory
-git clone git@github.com:Aquarius-Situla/Situla-auth.git
+# 1. Clone the repository
+git clone https://github.com/Aquarius-Situla/Situla-auth.git
 cd Situla-auth
 
-# 2. One-click deploy (handles Docker, network, .env setup)
+# 2. Run the deployment automation
 bash deploy.sh
 ```
 
----
+The script automatically guides you through the initial configuration on your first launch.
 
-## 🛠️ Manual Setup
+### Option 2: Manual Docker Compose
 
 ```bash
-# Copy and edit the config file
+# 1. Prepare environment configuration
 cp .env.example .env
 nano .env
 
-# Create the data directory (persists the SQLite database)
+# 2. Create the SQLite persistence directory
 mkdir -p data
 
-# Build and start
+# 3. Build and launch the container
 docker compose up -d --build
 ```
 
 ---
 
-## ⚙️ Configuration (`.env`)
+## ⚙️ Configuration Reference (`.env`)
 
-| Variable           | Description                                              | Example                    |
-|--------------------|----------------------------------------------------------|----------------------------|
-| `ADMIN_USER`       | Default login username                                   | `admin`                    |
-| `ADMIN_PASS`       | Default login password                                   | `mysecretpassword`         |
-| `JWT_SECRET`       | Cookie signing secret. **Auto-generated** if left blank. | *(leave blank)*            |
-| `COOKIE_DOMAIN`    | Domain scope for the session cookie                      | `.example.com`             |
-| `RP_ID`            | WebAuthn Relying Party ID (your auth page hostname)      | `auth.example.com`         |
-| `TRUSTED_DOMAINS`  | Extra trusted redirect root domains (comma-separated)    | `a.com,b.org`              |
-| `PORT`             | Internal port (default: `3000`)                          | `3000`                     |
+Configure the following variables in your `.env` file:
 
-> [!NOTE]
-> `JWT_SECRET` is automatically generated and written to `.env` on first startup if not set manually.
+| Variable | Required | Default | Description | Example |
+|---|:---:|---|---|---|
+| `ADMIN_USER` | **Yes** | `admin` | Default administrator username | `admin` |
+| `ADMIN_PASS` | **Yes** | — | Default administrator password | `YourStrongPasswordHere` |
+| `COOKIE_DOMAIN` | **Yes** | `.example.com` | Root domain for the session cookie (starts with `.`) | `.example.com` |
+| `RP_ID` | **Yes** | `auth.example.com` | WebAuthn Relying Party ID (your auth domain hostname) | `auth.example.com` |
+| `TRUSTED_DOMAINS` | No | — | Additional root domains permitted for `?rd=` redirects | `app.example.com,b.org` |
+| `PORT` | No | `3000` | Internal server listen port | `3000` |
+| `JWT_SECRET` | Auto | *(auto-generated)* | 256-bit cookie signing secret. Generated on 1st boot. | *(leave blank)* |
+| `ENCRYPTION_KEY`| Auto | *(auto-generated)* | 256-bit key for AES-GCM TOTP encryption at rest. | *(leave blank)* |
+| `OIDC_JWKS` | Auto | *(auto-generated)* | RSA keypair for OIDC token signatures. | *(leave blank)* |
+| `OIDC_ISSUER` | No | `https://<RP_ID>` | Issuer URL advertised in `.well-known` discovery | `https://auth.example.com` |
+| `OIDC_CLIENTS` | No | `[]` | JSON array of pre-registered OIDC client applications | *(manageable via Admin UI)* |
+| `SMTP_HOST` | No | — | Optional SMTP server for email alerts | `smtp.example.com` |
+| `SMTP_PORT` | No | `465` | SMTP port | `465` |
+| `SMTP_USER` | No | — | SMTP username / address | `noreply@example.com` |
+| `SMTP_PASS` | No | — | SMTP password or app-password | `secret` |
 
----
-
-## 🌐 Trusted Redirect Domains
-
-After login, Situla Auth redirects users back to the service they originally tried to access (via the `?rd=` query parameter). For security, only URLs pointing to a **trusted domain** are allowed; all others fall back to the admin panel.
-
-### Default trust (automatic)
-
-The trust root is derived automatically from your `RP_ID`. The **direct parent domain** of the auth hostname is trusted by default — along with all of its subdomains:
-
-| `RP_ID` value            | Automatically trusted                                   |
-|--------------------------|----------------------------------------------------------|
-| `auth.example.com`       | `example.com` and `*.example.com`                       |
-| `auth.a.example.com`     | `a.example.com` and `*.a.example.com` *(not `example.com`)* |
-| `auth.com`               | `auth.com` and `*.auth.com`                             |
-
-### Custom extra trust (`TRUSTED_DOMAINS`)
-
-To allow redirects to additional domains, add them as a comma-separated list of **root domains** (no wildcards needed — all subdomains of each root are included automatically):
-
-```env
-# .env
-TRUSTED_DOMAINS=a.com,b.a.com
-```
-
-| `TRUSTED_DOMAINS` value | Trusts                                                      | Does NOT trust              |
-|-------------------------|-------------------------------------------------------------|-----------------------------||
-| `a.com`                 | `a.com`, `www.a.com`, `sub.a.com`, …                       | —                           |
-| `b.a.com`               | `b.a.com`, `x.b.a.com`, …                                  | `a.com`, `other.a.com`      |
-| `a.com,b.org`           | Both `a.com` + all subdomains, and `b.org` + all subdomains | —                           |
-
-> [!IMPORTANT]
-> After changing `TRUSTED_DOMAINS`, run `docker compose restart` (no rebuild needed).
+> [!TIP]
+> `JWT_SECRET`, `ENCRYPTION_KEY`, and `OIDC_JWKS` are automatically generated on first startup if left blank. You never need to generate them by hand.
 
 ---
 
+## 🌐 Trusted Redirect Domains (`?rd=`)
 
-## 🛡️ Nginx Proxy Manager Setup
+When navigating to protected services, Situla Auth safely redirects the user back after authentication via the `?rd=` parameter.
 
-To protect your services with Situla Auth, you need to configure Nginx Proxy Manager (NPM). All configurations should be placed in the **Advanced** tab of your Proxy Host.
+1. **Automatic Trust Roots**:
+   - Both `COOKIE_DOMAIN` (e.g., `*.example.com`) and `RP_ID` (e.g., `auth.example.com`) are automatically trusted.
+2. **Additional Trust Roots (`TRUSTED_DOMAINS`)**:
+   - Provide a comma-separated list of roots (e.g., `TRUSTED_DOMAINS=company.internal,partner.org`). All subdomains under these roots are permitted automatically.
+3. **Phishing Interception**:
+   - Any redirection target outside the trusted roots is immediately stopped by the **Untrusted Redirect Interceptor** (`warning.html`), displaying the destination domain and administrative whitelist instructions.
 
-First, you **MUST** include the following base configuration to define the authentication backend and the login redirect behavior:
+---
+
+## 🛡️ Nginx Proxy Manager (NPM) Integration
+
+### Built-in Interactive Generator (Recommended)
+
+Situla Auth features an interactive **Nginx Proxy Manager Config Generator** directly inside the Admin Console:
+
+1. Open your Situla Auth Admin Console (`https://auth.example.com/admin`).
+2. Click **NPM Generator** in the navigation bar.
+3. Select your authentication scheme:
+   - **Simple Web Protection**: Blocks unauthorized visitors without forwarding credentials.
+   - **Username SSO**: Injects `Remote-User` header for applications matching usernames (e.g., FreshRSS, Audiobookshelf).
+   - **Email SSO**: Injects `Remote-Email` header for applications matching emails (e.g., Beszel, Grafana).
+4. Specify bypass paths (e.g., API webhooks or mobile endpoints) and onion links if desired.
+5. Click **Copy Configuration** and paste it directly into your NPM Host's **Advanced** tab!
+
+### Minimal Base Nginx Configuration
+
+If you prefer configuring NPM manually, place the following block in your NPM Proxy Host's **Advanced** tab:
 
 ```nginx
-# 1. Define the internal auth route pointing to Situla Auth
+# 1. Forward Auth validation route
 location /_auth {
     internal;
     proxy_pass http://situla-auth:3000/verify;
@@ -144,199 +241,83 @@ location /_auth {
     proxy_set_header X-Original-URI $request_uri;
 }
 
-# 2. Catch 401 Unauthorized errors and redirect to the login page
+# 2. Redirect unauthenticated visitors to login
 error_page 401 = @error401;
 location @error401 {
-    # Replace auth.example.com with your actual Situla Auth domain
     return 302 https://auth.example.com/?rd=https://$http_host$request_uri;
 }
-```
 
-Then, depending on your goal, configure the `location /` block using one of the three scenarios below:
-
-### Scenario 1: Simple Web Protection (简单的网页保护)
-If you only want to protect a webpage from public access without passing any user identity to the backend:
-
-```nginx
+# 3. Guard the main application
 location / {
-    # Enforce authentication
     auth_request /_auth;
 
-    # Standard proxy passthrough
     proxy_pass $forward_scheme://$server:$port;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-### Scenario 2: Username SSO (用户名 SSO)
-If your backend application (e.g., FreshRSS, Audiobookshelf) supports Single Sign-On via HTTP Headers and matches users by **Username**, you can pass the username dynamically:
-
-```nginx
-location / {
-    # Enforce authentication
-    auth_request /_auth;
-
-    # Extract the username from Situla Auth
-    auth_request_set $auth_user $upstream_http_x_remote_user;
-    
-    # Forward the username to the backend
-    proxy_set_header Remote-User $auth_user;
-    proxy_set_header X-Remote-User $auth_user;
-
-    # Standard proxy passthrough
-    proxy_pass $forward_scheme://$server:$port;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-### Scenario 3: Email SSO (邮箱 SSO)
-If your backend application (e.g., Beszel, PocketBase, Grafana) matches users by **Email Address**, ensure the user has bound an email in their Situla Auth account settings, then pass the email dynamically:
-
-```nginx
-location / {
-    # Enforce authentication
-    auth_request /_auth;
-
-    # Extract the email from Situla Auth
-    auth_request_set $auth_email $upstream_http_x_remote_email;
-    
-    # Forward the email to the backend
-    proxy_set_header Remote-User $auth_email;
-    proxy_set_header X-Remote-User $auth_email;
-
-    # Standard proxy passthrough
-    proxy_pass $forward_scheme://$server:$port;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-### Bypassing Specific Paths (e.g., API or Agents)
-If your backend has endpoints that must be accessed by automated agents or external APIs without human authentication (for example, the **Beszel Agent** reporting to the hub via `/api/beszel/agent-connect`), you can bypass SSO for those specific paths by adding a dedicated `location` block *before* the main `location /` block:
-
-```nginx
-location /api/beszel/agent-connect {
-    # No auth_request here, so this path bypasses SSO
-    proxy_pass $forward_scheme://$server:$port;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    
-    # Required if the path uses WebSockets (e.g., Beszel Agent)
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_read_timeout 360s;
-    proxy_send_timeout 360s;
 }
 ```
 
 > [!IMPORTANT]
-> Both `situla-auth` and your NPM container must be on the same Docker network (e.g., `npm_default`) to resolve internal hostnames like `http://situla-auth:3000`.
-
----
-
-## 🔄 Development & Updates
-
-### Applying changes
-
-| What changed                                | Command needed                     |
-|---------------------------------------------|------------------------------------|
-| `.env` config only                          | `docker compose restart`           |
-| Backend code (`server.js`, `database.js`)   | `docker compose up -d --build`     |
-| Frontend files (`public/` — HTML/CSS/JS)    | `docker compose up -d --build`     |
-| New npm dependency (`package.json`)         | `docker compose up -d --build`     |
-
-> [!WARNING]
-> Static files in `public/` are baked into the Docker image at build time.  
-> A plain `restart` only restarts the Node process — it does **not** pick up changes to source files.  
-> Always use `--build` after modifying any source code or frontend assets.
-
-### 💾 Data Persistence
-
-The SQLite database is stored at `./data/database.sqlite` on the host and mounted into the container as a volume. It survives image rebuilds automatically.
-
----
-
-## 📄 License
-
-This project is open-sourced under the **AGPL-3.0 License**.
+> Ensure both your `situla-auth` container and Nginx Proxy Manager container share the same Docker network (e.g., `npm_default`) so NPM can reach `http://situla-auth:3000`.
 
 ---
 
 ## 🔐 OIDC Provider (OpenID Connect)
 
-Situla Auth can act as a native **OpenID Connect Identity Provider**, allowing any OIDC-compatible application (Grafana, Gitea, Nextcloud, Jellyfin, etc.) to use it as a login source — no Nginx header injection required.
+Situla Auth includes a built-in OpenID Connect Identity Provider supporting the Authorization Code Flow with PKCE.
 
-### Discovery Endpoint
-
-Once deployed, the OIDC metadata is available at:
+### Discovery Metadata
+Available upon deployment at:
 ```
 https://<your-auth-domain>/oidc/.well-known/openid-configuration
 ```
 
-### Configuration (`.env`)
-
-Add the following variables to your `.env` file:
-
-```env
-# Required: your auth domain (no trailing slash)
-# OIDC_ISSUER is auto-derived from RP_ID if not set.
-OIDC_ISSUER=https://auth.example.com
-
-# Required: JSON array of registered client applications
-# Fields per client: client_id, client_secret, redirect_uris (array), grant_types (optional)
-OIDC_CLIENTS=[{"client_id":"grafana","client_secret":"strong-secret-here","redirect_uris":["https://grafana.example.com/login/generic_oauth"]},{"client_id":"gitea","client_secret":"another-secret","redirect_uris":["https://gitea.example.com/user/oauth2/situla/callback"]}]
-
-# Auto-generated on first startup and persisted here. DO NOT change manually.
-# OIDC_JWKS={"keys":[...]}
-```
-
-> [!IMPORTANT]
-> After editing `OIDC_CLIENTS`, run `docker compose restart` (no rebuild needed).
-> The RSA signing key (`OIDC_JWKS`) is auto-generated on first boot and saved to `.env` automatically.
-
 ### Supported Scopes & Claims
+- `openid`: `sub` (User ID)
+- `profile`: `preferred_username`, `name`
+- `email`: `email`, `email_verified`
 
-| Scope | Claims returned |
-|---|---|
-| `openid` | `sub` (user ID) |
-| `profile` | `preferred_username`, `name` |
-| `email` | `email`, `email_verified` |
+### Integrating Applications
 
-### Application Configuration Examples
+Applications like Grafana or Gitea can be registered directly through the **OIDC Management** panel in the Situla Auth Admin Console or configured in `.env` via `OIDC_CLIENTS`.
 
-**Grafana** (`grafana.ini`):
+**Grafana Configuration Example** (`grafana.ini`):
 ```ini
 [auth.generic_oauth]
 enabled = true
 name = Situla Auth
 client_id = grafana
-client_secret = strong-secret-here
+client_secret = your-client-secret
 scopes = openid profile email
 auth_url = https://auth.example.com/oidc/auth
 token_url = https://auth.example.com/oidc/token
 api_url = https://auth.example.com/oidc/userinfo
 ```
 
-**Gitea** (Admin Panel → Authentication Sources → OAuth2):
-```
-Provider: OpenID Connect
-Client ID: gitea
-Client Secret: another-secret
-OpenID Connect Auto Discovery URL: https://auth.example.com/oidc/.well-known/openid-configuration
-```
+---
+
+## 🔄 Maintenance & Updates
+
+### Applying Updates
+
+| Type of Change | Command Required |
+|---|---|
+| Modifying `.env` configuration | `docker compose restart` |
+| Updating backend or frontend code (`public/`, `services/`, `server.js`) | `docker compose up -d --build` |
+| Running full deployment & health check | `bash deploy.sh` |
+
+> [!WARNING]
+> Because frontend assets in `public/` and server dependencies are compiled into the container, a plain `restart` will not pick up code changes. Always use `docker compose up -d --build` or `bash deploy.sh` when pulling new code.
+
+### Data Persistence & Hot Backups
+
+- **Persistence**: All SQLite data is stored on the host at `./data/database.sqlite` and mounted into `/app/data` inside the container. It persists across image rebuilds.
+- **Automated Snapshots**: Running `bash deploy.sh` automatically creates timestamped backups in `./data/database.sqlite.bak_YYYYMMDD_HHMMSS` before performing rebuilds.
 
 ---
 
-## 🗺️ Roadmap
+## 📄 License
 
-- [x] **OIDC (OpenID Connect) Support**: ✅ Situla Auth now acts as a native OpenID Connect Identity Provider, supporting Authorization Code Flow with mandatory PKCE.
-
+This project is licensed under the **AGPL-3.0 License**. See the [LICENSE](LICENSE) file for details.
