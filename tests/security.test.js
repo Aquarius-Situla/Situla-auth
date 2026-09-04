@@ -54,21 +54,21 @@ describe('1. Open Redirect & PSL (Public Suffix List) Security', () => {
             }
         }
 
-        // 1. Standard Production Domain (.aquanexus.me + auth.aquanexus.me)
+        // 1. Standard Production Domain (.example.com + auth.example.com)
         const prodRoots = [...new Set([
-            normalizeTrustRoot('.aquanexus.me'),
-            normalizeTrustRoot('auth.aquanexus.me')
+            normalizeTrustRoot('.example.com'),
+            normalizeTrustRoot('auth.example.com')
         ])];
-        expect(prodRoots).toEqual(['aquanexus.me', 'auth.aquanexus.me']);
-        expect(isTrustedRedirect('https://aquanexus.me', prodRoots)).toBe(true);
-        expect(isTrustedRedirect('https://aquanexus.me/', prodRoots)).toBe(true);
-        expect(isTrustedRedirect('https://app.aquanexus.me/dashboard', prodRoots)).toBe(true);
-        expect(isTrustedRedirect('https://auth.aquanexus.me/admin', prodRoots)).toBe(true);
+        expect(prodRoots).toEqual(['example.com', 'auth.example.com']);
+        expect(isTrustedRedirect('https://example.com', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://example.com/', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://app.example.com/dashboard', prodRoots)).toBe(true);
+        expect(isTrustedRedirect('https://auth.example.com/admin', prodRoots)).toBe(true);
         expect(isTrustedRedirect('/admin', prodRoots)).toBe(true);
 
         // Open redirect attack vectors
-        expect(isTrustedRedirect('https://evil-aquanexus.me', prodRoots)).toBe(false);
-        expect(isTrustedRedirect('https://aquanexus.me.evil.com', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('https://evil-example.com', prodRoots)).toBe(false);
+        expect(isTrustedRedirect('https://example.com.evil.com', prodRoots)).toBe(false);
         expect(isTrustedRedirect('//evil.com', prodRoots)).toBe(false);
         expect(isTrustedRedirect('/\\evil.com', prodRoots)).toBe(false);
         expect(isTrustedRedirect('javascript:alert(1)', prodRoots)).toBe(false);
