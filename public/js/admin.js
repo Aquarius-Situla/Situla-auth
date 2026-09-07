@@ -1,7 +1,11 @@
-/**
- * public/js/admin.js
- * Situla Auth 2.0 Admin Dashboard - Modern ESM Controller (Pixel-Perfect Architecture)
- */
+/* ============================================================================
+ * Situla Auth 2.0 — Admin Dashboard Controller (admin.js)
+ * ============================================================================
+ * COMMENTING STANDARDS
+ * 1. Block comments only. Inline comments are strictly prohibited.
+ * 2. Section dividers use the === banner format.
+ * 3. All prose is written in English.
+ * ============================================================================ */
 
 import { closeAllModals, fmtDate, t } from './modules/ui.js';
 import { fetchApi } from './modules/api.js';
@@ -13,6 +17,8 @@ import { loadOidcClients, setupOidcEvents } from './modules/oidc.js';
 import { setupProfileEvents } from './modules/profile.js';
 import { setupLogsEvents } from './modules/logs.js';
 import { setupNpmGenerator } from './modules/npm-generator.js';
+import { initDeviceLayout, initOrientationGuard } from './modules/device-detect.js';
+import { initAdminNav, syncSidebarProfile } from './modules/admin-nav.js';
 
 export async function loadStatus() {
     try {
@@ -27,15 +33,24 @@ export async function loadStatus() {
         }
 
         const userDisplay = document.getElementById('usernameDisplay');
+        const heroUserDisplay = document.getElementById('overviewUsername');
         const emailDisplay = document.getElementById('emailDisplay');
+        const heroEmailDisplay = document.getElementById('overviewEmail');
         const pwdDisplay = document.getElementById('passwordUpdatedDisplay');
-        // Username is safe to display as-is (already in JWT, not additional exposure)
-        if (userDisplay && data.username) userDisplay.textContent = data.username;
-        // Email: data.email is always masked by server; data.fullEmail is only present when elevated
-        if (emailDisplay) {
-            const emailText = (data.elevated && data.fullEmail) ? data.fullEmail : data.email;
-            emailDisplay.textContent = emailText || t('status_email_not_set');
+
+        /* Display username across main settings and overview hero card */
+        if (data.username) {
+            if (userDisplay) userDisplay.textContent = data.username;
+            if (heroUserDisplay) heroUserDisplay.textContent = data.username;
         }
+
+        /* Email display: masked by default unless elevated */
+        const emailText = (data.elevated && data.fullEmail) ? data.fullEmail : data.email;
+        const finalEmail = emailText || t('status_email_not_set');
+        if (emailDisplay) emailDisplay.textContent = finalEmail;
+        if (heroEmailDisplay) heroEmailDisplay.textContent = finalEmail;
+
+        /* Password last updated time */
         if (pwdDisplay) {
             if (data.passwordUpdatedAt) {
                 pwdDisplay.textContent = t('status_pwd_last_updated', fmtDate(data.passwordUpdatedAt));
@@ -44,11 +59,18 @@ export async function loadStatus() {
             }
         }
 
+        /* Render security components */
         set2faBadge(data.twoFaMethod, data.fido2Count || 0);
         renderPasskeys(data.passkeys);
         renderFido2Keys(data.fido2Keys || [], data.twoFaMethod);
         updateRcCard(!!data.twoFaMethod, data.recoveryCodesRemaining);
         loadOidcClients();
+
+        /* Update Overview tab health summary metrics */
+        updateOverviewHealthSummary(data);
+
+        /* Synchronize desktop sidebar and overview Identicon profile */
+        syncSidebarProfile();
     } catch (err) {
         console.error('[Admin] loadStatus failed:', err);
         renderPasskeys([]);
@@ -61,6 +83,36 @@ export async function loadStatus() {
     }
 }
 window.reloadAccountStatus = loadStatus;
+
+function updateOverviewHealthSummary(data) {
+    const twoFaBadge = document.getElementById('summaryTwoFaBadge');
+    if (twoFaBadge) {
+        if (data.twoFaMethod) {
+            twoFaBadge.className = 'badge badge-enabled';
+            twoFaBadge.textContent = data.twoFaMethod === 'fido2' ? t('method_fido2_title') : t('method_totp_title');
+        } else {
+            twoFaBadge.className = 'badge badge-disabled';
+            twoFaBadge.textContent = t('badge_disabled');
+        }
+    }
+
+    const pkCount = document.getElementById('summaryPasskeyCount');
+    if (pkCount) {
+        const count = Array.isArray(data.passkeys) ? data.passkeys.length : 0;
+        pkCount.textContent = count > 0 ? t('status_passkeys_count', count) : t('status_no_passkeys');
+    }
+
+    const rcCount = document.getElementById('summaryRcCount');
+    if (rcCount) {
+        if (!data.twoFaMethod) {
+            rcCount.textContent = t('badge_disabled');
+        } else if (data.recoveryCodesRemaining !== null && data.recoveryCodesRemaining !== undefined) {
+            rcCount.textContent = t('status_rc_count', data.recoveryCodesRemaining);
+        } else {
+            rcCount.textContent = t('badge_not_gen');
+        }
+    }
+}
 
 function setupGlobalModalClosers() {
     document.querySelectorAll('.modal-close, .modal-btn-secondary:not([data-no-close="true"])').forEach(b => {
@@ -79,6 +131,12 @@ function setupGlobalModalClosers() {
 }
 
 function initDashboard() {
+    /* Initialize device fingerprint routing and phone orientation blocker */
+    try { initDeviceLayout(); } catch (e) { console.error('[Admin] initDeviceLayout failed:', e); }
+    try { initOrientationGuard(); } catch (e) { console.error('[Admin] initOrientationGuard failed:', e); }
+    try { initAdminNav(); } catch (e) { console.error('[Admin] initAdminNav failed:', e); }
+
+    /* Initialize core dashboard module events */
     try { setupGlobalModalClosers(); } catch (e) { console.error('[Admin] setupGlobalModalClosers failed:', e); }
     try { setupProfileEvents(loadStatus); } catch (e) { console.error('[Admin] setupProfileEvents failed:', e); }
     try { setupPasskeyEvents(loadStatus); } catch (e) { console.error('[Admin] setupPasskeyEvents failed:', e); }

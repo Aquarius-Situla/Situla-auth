@@ -19,7 +19,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="账户安全">
@@ -30,425 +30,473 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=99">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="/css/style.css?v=100">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n/locales/zh-CN.js?v=99"></script>
-    <script src="/i18n/locales/en-US.js?v=99"></script>
-    <script src="/i18n/i18n.js?v=99"></script>
+    <script src="/i18n/locales/zh-CN.js?v=100"></script>
+    <script src="/i18n/locales/en-US.js?v=100"></script>
+    <script src="/i18n/i18n.js?v=100"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
         <div class="apple-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
     </div>
+
     <div id="appContent" style="opacity: 0; transition: opacity 0.4s ease;">
-    <div class="apple-container">
-        <!-- Header -->
-        <div class="logo-container">
-            <svg width="64" height="64" viewBox="10 -85 95 95" fill="#86868b" style="filter: none; display: block; margin: 0 auto;">
-                <path d="M24.2188 5.37109C26.416 5.37109 28.125 3.61328 28.125 1.61133L28.125-12.8418C32.666-14.4531 35.9375-18.7988 35.9375-23.877C35.9375-28.9551 32.666-33.3008 28.125-34.9121L28.125-76.6113C28.125-78.8086 26.416-80.5664 24.2188-80.5664C22.0215-80.5664 20.2637-78.8086 20.2637-76.6113L20.2637-34.9609C15.7227-33.3008 12.4512-28.9551 12.4512-23.877C12.4512-18.7988 15.7227-14.4531 20.2637-12.8418L20.2637 1.61133C20.2637 3.61328 22.0215 5.37109 24.2188 5.37109ZM57.1289 5.37109C59.3262 5.37109 61.084 3.61328 61.084 1.41602L61.084-41.0645C65.5762-42.6758 68.8477-47.0215 68.8477-52.0996C68.8477-57.1777 65.5762-61.5234 61.084-63.1348L61.084-76.8066C61.084-78.8086 59.3262-80.5664 57.1289-80.5664C54.9316-80.5664 53.2227-78.8086 53.2227-76.8066L53.2227-63.1836C48.6328-61.5234 45.3613-57.1777 45.3613-52.0996C45.3613-47.0215 48.6328-42.6758 53.2227-41.0645L53.2227 1.41602C53.2227 3.61328 54.9316 5.37109 57.1289 5.37109ZM78.3691-23.877C78.3691-18.7988 81.5918-14.4531 86.1328-12.8418L86.1328 1.61133C86.1328 3.61328 87.8906 5.37109 90.0879 5.37109C92.2852 5.37109 93.9941 3.61328 93.9941 1.61133L93.9941-12.8418C98.5352-14.4531 101.807-18.7988 101.807-23.877C101.807-28.9551 98.5352-33.3496 93.9941-34.9609L93.9941-76.6113C93.9941-78.8086 92.2852-80.5664 90.0879-80.5664C87.8906-80.5664 86.1328-78.8086 86.1328-76.6113L86.1328-34.9121C81.5918-33.3008 78.3691-28.9551 78.3691-23.877ZM51.416-52.0996C51.416-55.2734 53.9551-57.8125 57.1289-57.8125C60.3516-57.8125 62.8418-55.2734 62.8418-52.0996C62.8418-48.877 60.3516-46.3867 57.1289-46.3867C53.9551-46.3867 51.416-48.877 51.416-52.0996ZM18.457-23.877C18.457-27.0996 20.9961-29.5898 24.2188-29.5898C27.4414-29.5898 29.9316-27.0996 29.9316-23.877C29.9316-20.6543 27.4414-18.1641 24.2188-18.1641C20.9961-18.1641 18.457-20.6543 18.457-23.877ZM84.375-23.877C84.375-27.0996 86.9141-29.5898 90.0879-29.5898C93.3594-29.5898 95.8008-27.0996 95.8008-23.877C95.8008-20.6543 93.3594-18.1641 90.0879-18.1641C86.9141-18.1641 84.375-20.6543 84.375-23.877Z" />
-            </svg>
-            <h2 data-i18n="admin_title">账户安全</h2>
-        </div>
-
-        <div class="settings-group">
-            <!-- Change username -->
-            <div class="section">
-                <div class="section-header" style="margin-bottom:0;">
-                    <div>
-                        <h3 data-i18n="section_username_title">用户名</h3>
-                        <p class="desc" id="usernameDisplay" style="margin-bottom:0;">-</p>
-                    </div>
-                    <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
+        <!-- Mobile Frosted Top Navigation Bar -->
+        <nav class="apple-top-nav" aria-label="移动端顶部导航栏">
+            <div class="nav-content-row">
+                <div class="nav-brand-box">
+                    <svg class="nav-brand-icon" viewBox="10 -85 95 95">
+                        <path d="M24.2188 5.37109C26.416 5.37109 28.125 3.61328 28.125 1.61133L28.125-12.8418C32.666-14.4531 35.9375-18.7988 35.9375-23.877C35.9375-28.9551 32.666-33.3008 28.125-34.9121L28.125-76.6113C28.125-78.8086 26.416-80.5664 24.2188-80.5664C22.0215-80.5664 20.2637-78.8086 20.2637-76.6113L20.2637-34.9609C15.7227-33.3008 12.4512-28.9551 12.4512-23.877C12.4512-18.7988 15.7227-14.4531 20.2637-12.8418L20.2637 1.61133C20.2637 3.61328 22.0215 5.37109 24.2188 5.37109ZM57.1289 5.37109C59.3262 5.37109 61.084 3.61328 61.084 1.41602L61.084-41.0645C65.5762-42.6758 68.8477-47.0215 68.8477-52.0996C68.8477-57.1777 65.5762-61.5234 61.084-63.1348L61.084-76.8066C61.084-78.8086 59.3262-80.5664 57.1289-80.5664C54.9316-80.5664 53.2227-78.8086 53.2227-76.8066L53.2227-63.1836C48.6328-61.5234 45.3613-57.1777 45.3613-52.0996C45.3613-47.0215 48.6328-42.6758 53.2227-41.0645L53.2227 1.41602C53.2227 3.61328 54.9316 5.37109 57.1289 5.37109ZM78.3691-23.877C78.3691-18.7988 81.5918-14.4531 86.1328-12.8418L86.1328 1.61133C86.1328 3.61328 87.8906 5.37109 90.0879 5.37109C92.2852 5.37109 93.9941 3.61328 93.9941 1.61133L93.9941-12.8418C98.5352-14.4531 101.807-18.7988 101.807-23.877C101.807-28.9551 98.5352-33.3496 93.9941-34.9609L93.9941-76.6113C93.9941-78.8086 92.2852-80.5664 90.0879-80.5664C87.8906-80.5664 86.1328-78.8086 86.1328-76.6113L86.1328-34.9121C81.5918-33.3008 78.3691-28.9551 78.3691-23.877ZM51.416-52.0996C51.416-55.2734 53.9551-57.8125 57.1289-57.8125C60.3516-57.8125 62.8418-55.2734 62.8418-52.0996C62.8418-48.877 60.3516-46.3867 57.1289-46.3867C53.9551-46.3867 51.416-48.877 51.416-52.0996ZM18.457-23.877C18.457-27.0996 20.9961-29.5898 24.2188-29.5898C27.4414-29.5898 29.9316-27.0996 29.9316-23.877C29.9316-20.6543 27.4414-18.1641 24.2188-18.1641C20.9961-18.1641 18.457-20.6543 18.457-23.877ZM84.375-23.877C84.375-27.0996 86.9141-29.5898 90.0879-29.5898C93.3594-29.5898 95.8008-27.0996 95.8008-23.877C95.8008-20.6543 93.3594-18.1641 90.0879-18.1641C86.9141-18.1641 84.375-20.6543 84.375-23.877Z" />
+                    </svg>
+                    <span class="nav-title" id="mobileNavTitle" data-i18n="admin_title">账户安全</span>
                 </div>
+                <button type="button" class="nav-action-btn" onclick="document.getElementById('logoutBtn')?.click()" data-i18n="btn_logout">退出</button>
             </div>
+        </nav>
 
-            <!-- Change email -->
-            <div class="section">
-                <div class="section-header" style="margin-bottom:0;">
-                    <div>
-                        <h3 data-i18n="section_email_title">电子邮件</h3>
-                        <p class="desc" id="emailDisplay" style="margin-bottom:0;">-</p>
-                    </div>
-                    <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
-                </div>
-            </div>
-
-            <!-- Change password -->
-            <div class="section">
-                <div class="section-header" style="margin-bottom:0;">
-                    <div>
-                        <h3 data-i18n="section_password_title">密码</h3>
-                        <p class="desc" id="passwordUpdatedDisplay" style="margin-bottom:0;">-</p>
-                    </div>
-                    <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-group">
-            <!-- Passkey section -->
-            <div class="section" id="passkeySection">
-                <div class="section-header">
-                    <h3 data-i18n="section_pk_title">通行密钥</h3>
-                    <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
-                </div>
-                <p class="desc" data-i18n="section_pk_desc">使用面容 ID、触控 ID 或设备密码安全登录，无需记忆密码。</p>
-
-                <!-- Passkey list -->
-                <div id="passkeyList"></div>
-
-                <div class="btn-row" style="margin-top:12px;">
-                    <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
-                </div>
-
-                <!-- Inline naming panel (shown instead of prompt) -->
-                <div id="OLD_passkeyNamePanel" style="display:none!important;" style="display:none; margin-top:14px;">
-                    <div class="form-fields" style="margin-bottom:10px;">
-                        <input type="text" class="field-input" id="OLD_passkeyNameInput"
-                               data-i18n-placeholder="placeholder_pk_name"
-                               placeholder="给这把通行密钥起个名字（可留空）"
-                               autocomplete="off" maxlength="64">
-                    </div>
-                    <div class="btn-row">
-                        <button class="btn-solid" id="OLD_confirmAddPasskeyBtn" data-i18n="btn_confirm_add_pk">确认并注册</button>
-                        <button class="btn-outline" id="OLD_cancelAddPasskeyBtn" data-i18n="btn_cancel">取消</button>
-                    </div>
-                </div>
-
-                <div class="msg" id="passkeyMsg"></div>
-            </div>
-
-            <!-- 2FA section -->
-            <div class="section" id="twoFaSection">
-                <div class="section-header">
-                    <div>
-                        <h3 data-i18n="section_2fa_title">双重认证</h3>
-                    </div>
-                    <span class="badge badge-disabled" id="twoFaBadge">
-                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                            <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
+        <!-- macOS Translucent Left Sidebar -->
+        <aside id="desktop-sidebar" class="desktop-sidebar" role="navigation" aria-label="桌面端控制侧栏">
+            <div class="desktop-sidebar-top">
+                <!-- Brand Header -->
+                <div class="desktop-sidebar-brand">
+                    <div class="desktop-sidebar-brand-icon">
+                        <svg viewBox="10 -85 95 95">
+                            <path d="M24.2188 5.37109C26.416 5.37109 28.125 3.61328 28.125 1.61133L28.125-12.8418C32.666-14.4531 35.9375-18.7988 35.9375-23.877C35.9375-28.9551 32.666-33.3008 28.125-34.9121L28.125-76.6113C28.125-78.8086 26.416-80.5664 24.2188-80.5664C22.0215-80.5664 20.2637-78.8086 20.2637-76.6113L20.2637-34.9609C15.7227-33.3008 12.4512-28.9551 12.4512-23.877C12.4512-18.7988 15.7227-14.4531 20.2637-12.8418L20.2637 1.61133C20.2637 3.61328 22.0215 5.37109 24.2188 5.37109ZM57.1289 5.37109C59.3262 5.37109 61.084 3.61328 61.084 1.41602L61.084-41.0645C65.5762-42.6758 68.8477-47.0215 68.8477-52.0996C68.8477-57.1777 65.5762-61.5234 61.084-63.1348L61.084-76.8066C61.084-78.8086 59.3262-80.5664 57.1289-80.5664C54.9316-80.5664 53.2227-78.8086 53.2227-76.8066L53.2227-63.1836C48.6328-61.5234 45.3613-57.1777 45.3613-52.0996C45.3613-47.0215 48.6328-42.6758 53.2227-41.0645L53.2227 1.41602C53.2227 3.61328 54.9316 5.37109 57.1289 5.37109ZM78.3691-23.877C78.3691-18.7988 81.5918-14.4531 86.1328-12.8418L86.1328 1.61133C86.1328 3.61328 87.8906 5.37109 90.0879 5.37109C92.2852 5.37109 93.9941 3.61328 93.9941 1.61133L93.9941-12.8418C98.5352-14.4531 101.807-18.7988 101.807-23.877C101.807-28.9551 98.5352-33.3496 93.9941-34.9609L93.9941-76.6113C93.9941-78.8086 92.2852-80.5664 90.0879-80.5664C87.8906-80.5664 86.1328-78.8086 86.1328-76.6113L86.1328-34.9121C81.5918-33.3008 78.3691-28.9551 78.3691-23.877ZM51.416-52.0996C51.416-55.2734 53.9551-57.8125 57.1289-57.8125C60.3516-57.8125 62.8418-55.2734 62.8418-52.0996C62.8418-48.877 60.3516-46.3867 57.1289-46.3867C53.9551-46.3867 51.416-48.877 51.416-52.0996ZM18.457-23.877C18.457-27.0996 20.9961-29.5898 24.2188-29.5898C27.4414-29.5898 29.9316-27.0996 29.9316-23.877C29.9316-20.6543 27.4414-18.1641 24.2188-18.1641C20.9961-18.1641 18.457-20.6543 18.457-23.877ZM84.375-23.877C84.375-27.0996 86.9141-29.5898 90.0879-29.5898C93.3594-29.5898 95.8008-27.0996 95.8008-23.877C95.8008-20.6543 93.3594-18.1641 90.0879-18.1641C86.9141-18.1641 84.375-20.6543 84.375-23.877Z" />
                         </svg>
-                        <span data-i18n="badge_disabled">未启用</span>
-                    </span>
-                </div>
-                <p class="desc" id="twoFaDesc" data-i18n="section_2fa_desc">为账户添加额外安全防护。可选择身份验证器 App 或物理安全密钥。</p>
-
-                <!-- ── State A: No 2FA enabled ── -->
-                <div id="twoFaDisabledUI" class="btn-row">
-                    <button class="btn-outline" id="setup2faBtn" data-i18n="btn_setup_2fa">＋ 添加双重认证</button>
-                </div>
-
-                <!-- ── Method selector (shown after clicking Add) ── -->
-                <div id="twoFaMethodSelector" class="method-selector-container">
-                    <p class="method-selector-title" data-i18n="choose_2fa_method">选择验证方式</p>
-                    <div class="method-cards-row">
-                        <!-- FIDO2 option card -->
-                        <button id="chooseFido2Btn" class="method-card">
-                            <img src="/assets/icons/fido.svg" alt="FIDO2" class="method-icon icon-adaptive">
-                            <div class="method-title" data-i18n="method_fido2_title">安全密钥</div>
-                            <div class="method-desc" data-i18n="method_fido2_desc">YubiKey 等 FIDO2 硬件密钥</div>
-                        </button>
-                        <!-- TOTP option card -->
-                        <button id="chooseTotpBtn" class="method-card">
-                            <img src="/assets/icons/totp.svg" alt="TOTP" class="method-icon icon-adaptive">
-                            <div class="method-title" data-i18n="method_totp_title">身份验证器</div>
-                            <div class="method-desc" data-i18n="method_totp_desc">TOTP 动态验证码</div>
-                        </button>
                     </div>
-                    <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-outline" id="cancelMethodSelectorBtn" data-i18n="btn_cancel">取消</button>
-                    </div>
+                    <div class="desktop-sidebar-brand-text">Situla Auth</div>
                 </div>
 
-                <!-- ── State B: FIDO2 enabled — key list ── -->
-                <div id="fido2EnabledUI" style="display:none;">
-                    <div id="fido2KeyList" style="margin: 12px 0 4px;"></div>
+                <!-- Apple Music Search Box -->
+                <div class="desktop-search-box">
+                    <div class="desktop-search-input-wrapper">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" class="desktop-search-input" id="desktopSearchInput" data-i18n-placeholder="search_settings_placeholder" placeholder="搜索设置与功能..." autocomplete="off">
+                    </div>
+                    <div class="desktop-search-dropdown" id="desktopSearchDropdown"></div>
+                </div>
 
-                    <!-- Add key area -->
-                    <div id="fido2AddArea">
-                        <div class="btn-row" style="margin-top:8px;" id="fido2AddBtnRow">
-                            <button class="btn-outline" id="addFido2KeyBtn" data-i18n="btn_add_fido2_key">＋ 添加安全密钥</button>
-                        </div>
-                        <!-- Inline naming panel -->
-                        <div id="OLD_fido2NamePanel" style="display:none!important;" style="display:none; margin-top:14px;">
-                            <div class="form-fields" style="margin-bottom:10px;">
-                                <input type="text" class="field-input" id="OLD_fido2KeyNameInput"
-                                       data-i18n-placeholder="placeholder_fido2_key_name"
-                                       placeholder="给这把安全密钥起个名字（可留空）"
-                                       autocomplete="off" maxlength="40">
+                <!-- Section 1: Management -->
+                <div class="desktop-nav-section">
+                    <div class="desktop-nav-header" data-i18n="nav_section_manage">管理</div>
+                    <a href="#overview" class="desktop-nav-item active" data-tab-id="overview">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2.1a1.2 1.2 0 0 0-.85.35L2.6 10.9a1.2 1.2 0 0 0 .85 2.05H4v7.75c0 .66.54 1.2 1.2 1.2h13.6c.66 0 1.2-.54 1.2-1.2V12.95h.55a1.2 1.2 0 0 0 .85-2.05L12.85 2.45A1.2 1.2 0 0 0 12 2.1z"/>
+                        </svg>
+                        <span class="desktop-nav-label" data-i18n="tab_overview">概览</span>
+                    </a>
+                </div>
+
+                <!-- Section 2: Security & Credentials -->
+                <div class="desktop-nav-section">
+                    <div class="desktop-nav-header" data-i18n="nav_section_security">安全与凭证</div>
+                    <a href="#credentials" class="desktop-nav-item" data-tab-id="credentials">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M7 14A5 5 0 0 1 2 9a5 5 0 0 1 5-5 5 5 0 0 1 4.9 4H20a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2h-3.1A5 5 0 0 1 7 14zm0-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                        </svg>
+                        <span class="desktop-nav-label" data-i18n="tab_credentials">凭证</span>
+                    </a>
+                    <a href="#integrations" class="desktop-nav-item" data-tab-id="integrations">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.5"/>
+                            <rect x="13" y="2.5" width="8.5" height="8.5" rx="2.5"/>
+                            <rect x="2.5" y="13" width="8.5" height="8.5" rx="2.5"/>
+                            <rect x="13" y="13" width="8.5" height="8.5" rx="2.5"/>
+                        </svg>
+                        <span class="desktop-nav-label" data-i18n="tab_integrations">集成</span>
+                    </a>
+                </div>
+
+                <!-- Section 3: Audit & Logs -->
+                <div class="desktop-nav-section">
+                    <div class="desktop-nav-header" data-i18n="nav_section_system">系统与审计</div>
+                    <a href="#logs" class="desktop-nav-item" data-tab-id="logs">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/>
+                        </svg>
+                        <span class="desktop-nav-label" data-i18n="tab_logs">日志</span>
+                    </a>
+                </div>
+
+                <!-- Fluid Dynamic Sliding Indicator -->
+                <div class="desktop-nav-indicator"></div>
+            </div>
+
+            <!-- Sidebar Footer Visitor Profile (Apple Music Profile Style with Identicon) -->
+            <div class="desktop-sidebar-bottom">
+                <div class="desktop-profile-card" id="desktopProfileCard" tabindex="0" role="button" aria-label="当前登录账户" title="点击复制用户名">
+                    <div class="desktop-profile-avatar" id="desktopProfileAvatar"></div>
+                    <span class="desktop-profile-username" id="desktopProfileUsername">-</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Desktop Content Stage -->
+        <main id="desktop-stage" class="desktop-stage" role="main">
+            <div class="stage-container">
+                
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Tab Pane 1: 账户概览 (Overview)                         -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section id="tab-pane-overview" class="tab-pane active" aria-labelledby="tab-overview">
+                    <!-- User Hero Card -->
+                    <div class="settings-group" id="accountHeroCard">
+                        <div class="overview-user-hero">
+                            <div class="overview-avatar-box" id="overviewUserAvatar"></div>
+                            <div class="overview-user-meta">
+                                <h3 id="overviewUsername">-</h3>
+                                <p class="user-subtext" id="overviewEmail">-</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Health Metrics Grid -->
+                    <div class="settings-group" id="securityHealthCard">
+                        <div class="section" style="border-bottom: 0.5px solid var(--border-subtle); padding-bottom: 12px;">
+                            <div class="section-header">
+                                <h3 data-i18n="status_security_summary">安全防护概况</h3>
+                            </div>
+                        </div>
+                        <div class="overview-stats-grid">
+                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
+                                <span class="stat-card-label" data-i18n="section_2fa_title">双重认证</span>
+                                <div class="stat-card-value">
+                                    <span class="badge badge-disabled" id="summaryTwoFaBadge" data-i18n="badge_disabled">未启用</span>
+                                </div>
+                            </div>
+                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
+                                <span class="stat-card-label" data-i18n="section_pk_title">通行密钥</span>
+                                <div class="stat-card-value" id="summaryPasskeyCount" data-i18n="status_no_passkeys">未添加通行密钥</div>
+                            </div>
+                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
+                                <span class="stat-card-label" data-i18n="section_rc_title">恢复码</span>
+                                <div class="stat-card-value" id="summaryRcCount" data-i18n="badge_not_gen">未生成</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Info Settings Group -->
+                    <div class="settings-group" id="accountInfoCard">
+                        <!-- Change username -->
+                        <div class="section">
+                            <div class="section-header" style="margin-bottom:0;">
+                                <div>
+                                    <h3 data-i18n="section_username_title">用户名</h3>
+                                    <p class="desc" id="usernameDisplay" style="margin-bottom:0;">-</p>
+                                </div>
+                                <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
+                            </div>
+                        </div>
+
+                        <!-- Change email -->
+                        <div class="section">
+                            <div class="section-header" style="margin-bottom:0;">
+                                <div>
+                                    <h3 data-i18n="section_email_title">电子邮件</h3>
+                                    <p class="desc" id="emailDisplay" style="margin-bottom:0;">-</p>
+                                </div>
+                                <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
+                            </div>
+                        </div>
+
+                        <!-- Change password -->
+                        <div class="section">
+                            <div class="section-header" style="margin-bottom:0;">
+                                <div>
+                                    <h3 data-i18n="section_password_title">密码</h3>
+                                    <p class="desc" id="passwordUpdatedDisplay" style="margin-bottom:0;">-</p>
+                                </div>
+                                <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session & Logout Card -->
+                    <div class="settings-group" id="sessionActionsCard">
+                        <div class="section">
+                            <div class="section-header">
+                                <div>
+                                    <h3 data-i18n="status_current_session">当前登录会话</h3>
+                                    <p class="desc" style="margin-bottom:0;" data-i18n="logs_desc">查看近期登录记录，包含时间、IP 地址、地理位置和设备信息。</p>
+                                </div>
+                            </div>
+                            <div class="action-btn-container" style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn-outline" id="viewLoginLogsBtn" data-i18n="btn_view">查看活动日志</button>
+                            </div>
+                        </div>
+                        <div class="section" style="background: var(--bg-secondary); border-top: 0.5px solid var(--border-subtle);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
+                                <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Tab Pane 2: 认证凭证 (Credentials & 2FA)                -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section id="tab-pane-credentials" class="tab-pane" aria-labelledby="tab-credentials">
+                    <!-- Passkey section -->
+                    <div class="settings-group" id="passkeySection">
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 data-i18n="section_pk_title">通行密钥</h3>
+                                <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
+                            </div>
+                            <p class="desc" data-i18n="section_pk_desc">使用面容 ID、触控 ID 或设备密码安全登录，无需记忆密码。</p>
+
+                            <!-- Passkey list -->
+                            <div id="passkeyList"></div>
+
+                            <div class="btn-row" style="margin-top:12px;">
+                                <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
+                            </div>
+
+                            <div class="msg" id="passkeyMsg"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2FA section -->
+                    <div class="settings-group" id="twoFaSection">
+                        <div class="section">
+                            <div class="section-header">
+                                <div>
+                                    <h3 data-i18n="section_2fa_title">双重认证</h3>
+                                </div>
+                                <span class="badge badge-disabled" id="twoFaBadge">
+                                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                        <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
+                                    </svg>
+                                    <span data-i18n="badge_disabled">未启用</span>
+                                </span>
+                            </div>
+                            <p class="desc" id="twoFaDesc" data-i18n="section_2fa_desc">为账户添加额外安全防护。可选择身份验证器 App 或物理安全密钥。</p>
+
+                            <!-- State A: No 2FA enabled -->
+                            <div id="twoFaDisabledUI" class="btn-row">
+                                <button class="btn-outline" id="setup2faBtn" data-i18n="btn_setup_2fa">＋ 添加双重认证</button>
+                            </div>
+
+                            <!-- Method selector (shown after clicking Add) -->
+                            <div id="twoFaMethodSelector" class="method-selector-container">
+                                <p class="method-selector-title" data-i18n="choose_2fa_method">选择验证方式</p>
+                                <div class="method-cards-row">
+                                    <!-- FIDO2 option card -->
+                                    <button id="chooseFido2Btn" class="method-card">
+                                        <img src="/assets/icons/fido.svg" alt="FIDO2" class="method-icon icon-adaptive">
+                                        <div class="method-title" data-i18n="method_fido2_title">安全密钥</div>
+                                        <div class="method-desc" data-i18n="method_fido2_desc">YubiKey 等 FIDO2 硬件密钥</div>
+                                    </button>
+                                    <!-- TOTP option card -->
+                                    <button id="chooseTotpBtn" class="method-card">
+                                        <img src="/assets/icons/totp.svg" alt="TOTP" class="method-icon icon-adaptive">
+                                        <div class="method-title" data-i18n="method_totp_title">身份验证器</div>
+                                        <div class="method-desc" data-i18n="method_totp_desc">TOTP 动态验证码</div>
+                                    </button>
+                                </div>
+                                <div class="btn-row" style="margin-top:12px;">
+                                    <button class="btn-outline" id="cancelMethodSelectorBtn" data-i18n="btn_cancel">取消</button>
+                                </div>
+                            </div>
+
+                            <!-- State B: FIDO2 enabled — key list -->
+                            <div id="fido2EnabledUI" style="display:none;">
+                                <div id="fido2KeyList" style="margin: 12px 0 4px;"></div>
+
+                                <!-- Add key area -->
+                                <div id="fido2AddArea">
+                                    <div class="btn-row" style="margin-top:8px;" id="fido2AddBtnRow">
+                                        <button class="btn-outline" id="addFido2KeyBtn" data-i18n="btn_add_fido2_key">＋ 添加安全密钥</button>
+                                    </div>
+                                </div>
+
+                                <div class="btn-row" style="margin-top:14px;">
+                                    <button class="btn-outline" id="enableFido2Btn" data-i18n="btn_enable_fido2" style="display:none;">启用安全密钥认证</button>
+                                    <button class="btn-danger" id="disableFido2Btn" data-i18n="btn_disable_2fa" style="display:none;">停用双重认证</button>
+                                </div>
+                                <div class="msg" id="fido2Msg"></div>
+                            </div>
+
+                            <!-- State C: TOTP enabled -->
+                            <div id="totpEnabledUI" class="btn-row" style="display:none;">
+                                <button class="btn-outline" id="reset2faBtn" data-i18n="btn_reset_2fa">重新设置</button>
+                                <button class="btn-danger" id="disable2faBtn" data-i18n="btn_disable_2fa">停用双重认证</button>
+                            </div>
+
+                            <!-- QR / TOTP setup panel -->
+                            <div class="setup-panel" id="totpSetup">
+                                <p class="setup-step" data-i18n="step_1_scan">第一步：使用身份验证器 App 扫描二维码</p>
+                                <div class="qr-container">
+                                    <img id="qrCode" src="" alt="QR Code">
+                                    <div>
+                                        <p class="secret-label" data-i18n="label_manual_secret">无法扫码？手动输入密钥：</p>
+                                        <p class="secret-key" id="secretKey" title="点击复制"></p>
+                                    </div>
+                                </div>
+                                <p class="setup-step" data-i18n="step_2_enter">第二步：输入 6 位动态验证码</p>
+                                <div class="code-row">
+                                    <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
+                                    <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
+                                    <button class="btn-outline" id="cancelTotpSetupBtn" data-i18n="btn_cancel">取消</button>
+                                </div>
+                                <div class="msg" id="totpMsg"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recovery codes card -->
+                    <div class="settings-group" id="rcCard" style="display:none;">
+                        <div class="section">
+                            <div class="section-header">
+                                <h3 data-i18n="section_rc_title">恢复码</h3>
+                                <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
+                            </div>
+                            <p class="desc" data-i18n="section_rc_desc">当无法使用双重认证设备时，可使用恢复码应急登录。每次生成 8 组一次性恢复码，每组仅可使用一次。</p>
                             <div class="btn-row">
-                                <button class="btn-solid" id="OLD_confirmAddFido2KeyBtn" data-i18n="btn_add_fido2_key">添加安全密钥</button>
-                                <button class="btn-outline" id="OLD_cancelAddFido2KeyBtn" data-i18n="btn_cancel">取消</button>
+                                <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
+                            </div>
+
+                            <!-- Codes reveal panel -->
+                            <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
+                                <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
+                                    请妥善保管以下恢复码。恢复码仅显示一次，遗失后需重新生成。
+                                </p>
+                                <div id="rcList" style="
+                                    background:var(--bg-secondary); border-radius:10px; padding:16px;
+                                    font-family:var(--font-mono); font-size:16px; line-height:2;
+                                    letter-spacing:1px; color:var(--text-primary);
+                                "></div>
+                                <div class="btn-row" style="margin-top:12px;">
+                                    <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部恢复码</button>
+                                </div>
+                                <div class="msg" id="rcMsg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Tab Pane 3: 授权集成 (Integrations & NPM)               -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section id="tab-pane-integrations" class="tab-pane" aria-labelledby="tab-integrations">
+                    <!-- OIDC Section -->
+                    <div class="settings-group" id="oidcSection">
+                        <div class="section">
+                            <div class="section-header">
+                                <div>
+                                    <h3 data-i18n="oidc_title">授权应用</h3>
+                                </div>
+                            </div>
+                            <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统进行单点登录的第三方应用。</p>
+                            
+                            <div id="oidcClientList" class="key-list"></div>
+                            
+                            <div class="action-btn-container" style="margin-top: 15px;">
+                                <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加授权应用</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="btn-row" style="margin-top:14px;">
-                        <button class="btn-outline" id="enableFido2Btn" data-i18n="btn_enable_fido2" style="display:none;">启用安全密钥认证</button>
-                        <button class="btn-danger" id="disableFido2Btn" data-i18n="btn_disable_2fa" style="display:none;">停用双重认证</button>
-                    </div>
-                    <div class="msg" id="fido2Msg"></div>
-                </div>
+                    <!-- Nginx Proxy Protection Section -->
+                    <div class="settings-group" id="npmSection">
+                        <div class="section">
+                            <div class="section-header">
+                                <div>
+                                    <h3 data-i18n="npm_section_title">反向代理防护</h3>
+                                </div>
+                                <span class="badge badge-count" data-i18n="badge_forward_auth">Forward-Auth</span>
+                            </div>
+                            <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
 
-                <!-- ── State C: TOTP enabled ── -->
-                <div id="totpEnabledUI" class="btn-row" style="display:none;">
-                    <button class="btn-outline" id="reset2faBtn" data-i18n="btn_reset_2fa">重新设置</button>
-                    <button class="btn-danger" id="disable2faBtn" data-i18n="btn_disable_2fa">停用双重认证</button>
-                </div>
-
-                <!-- QR / TOTP setup panel -->
-                <div class="setup-panel" id="totpSetup">
-                    <p class="setup-step" data-i18n="step_1_scan">第一步：使用身份验证器 App 扫描二维码</p>
-                    <div class="qr-container">
-                        <img id="qrCode" src="" alt="QR Code">
-                        <div>
-                            <p class="secret-label" data-i18n="label_manual_secret">无法扫码？手动输入密钥：</p>
-                            <p class="secret-key" id="secretKey" title="点击复制"></p>
+                            <div class="action-btn-container" style="margin-top: 15px;">
+                                <button class="btn-outline" id="openNpmModalBtn" data-i18n="btn_generate_npm">＋ 生成防护配置</button>
+                            </div>
                         </div>
                     </div>
-                    <p class="setup-step" data-i18n="step_2_enter">第二步：输入 6 位动态验证码</p>
-                    <div class="code-row">
-                        <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
-                        <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
-                        <button class="btn-outline" id="cancelTotpSetupBtn" data-i18n="btn_cancel">取消</button>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Tab Pane 4: 登录审计 (Audit Logs & Sessions)            -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section id="tab-pane-logs" class="tab-pane" aria-labelledby="tab-logs">
+                    <div class="settings-group" id="loginLogsCard">
+                        <div class="section">
+                            <div class="section-header" style="align-items: center;">
+                                <div>
+                                    <h3 data-i18n="logs_title">近期登录活动</h3>
+                                    <p class="desc" style="margin-bottom:0;" data-i18n="logs_modal_desc">显示最近最多 20 条登录记录。</p>
+                                </div>
+                                <button class="btn-outline" id="refreshLogsBtn" data-i18n="btn_refresh_logs">刷新日志</button>
+                            </div>
+
+                            <div id="liveLoginLogsList" class="log-list-container" style="margin-top: 16px;">
+                                <!-- Live logs rendered via JS -->
+                            </div>
+                        </div>
+                        <div class="section" style="background: var(--bg-secondary); border-top: 0.5px solid var(--border-subtle);">
+                            <div style="display: flex; justify-content: flex-end;">
+                                <span class="danger-link" id="logoutAllBtnTab4" onclick="document.getElementById('logoutAllBtn')?.click()" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="msg" id="totpMsg"></div>
-                </div>
+                </section>
+
             </div>
-        </div>
+        </main>
 
-        <!-- Recovery codes card -->
-        <div class="settings-group" id="rcCard" style="display:none;">
-            <div class="section">
-                <div class="section-header">
-                    <h3 data-i18n="section_rc_title">恢复码</h3>
-                    <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
+        <!-- Mobile Frosted Bottom Apple Tab Bar -->
+        <nav id="apple-tab-bar" class="apple-tab-bar" role="navigation" aria-label="底部导航栏">
+            <a href="#overview" class="tab-item active" data-tab-id="overview" aria-label="概览">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2.1a1.2 1.2 0 0 0-.85.35L2.6 10.9a1.2 1.2 0 0 0 .85 2.05H4v7.75c0 .66.54 1.2 1.2 1.2h13.6c.66 0 1.2-.54 1.2-1.2V12.95h.55a1.2 1.2 0 0 0 .85-2.05L12.85 2.45A1.2 1.2 0 0 0 12 2.1z"/></svg>
                 </div>
-                <p class="desc" data-i18n="section_rc_desc">当无法使用双重认证设备时，可使用恢复码应急登录。每次生成 8 组一次性恢复码，每组仅可使用一次。</p>
-                <div class="btn-row">
-                    <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
+                <div class="tab-label" data-i18n="tab_overview">概览</div>
+            </a>
+            <a href="#credentials" class="tab-item" data-tab-id="credentials" aria-label="凭证">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24"><path d="M7 14A5 5 0 0 1 2 9a5 5 0 0 1 5-5 5 5 0 0 1 4.9 4H20a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2h-3.1A5 5 0 0 1 7 14zm0-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
                 </div>
-
-                <!-- Codes reveal panel -->
-                <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
-                    <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
-                        请妥善保管以下恢复码。恢复码仅显示一次，遗失后需重新生成。
-                    </p>
-                    <div id="rcList" style="
-                        background:#f5f5f7; border-radius:10px; padding:16px;
-                        font-family:monospace; font-size:16px; line-height:2;
-                        letter-spacing:1px; color:#1d1d1f;
-                    "></div>
-                    <div class="btn-row" style="margin-top:12px;">
-                        <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部恢复码</button>
-                    </div>
-                    <div class="msg" id="rcMsg"></div>
+                <div class="tab-label" data-i18n="tab_credentials">凭证</div>
+            </a>
+            <a href="#integrations" class="tab-item" data-tab-id="integrations" aria-label="集成">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.5"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.5"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.5"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.5"/></svg>
                 </div>
-            </div>
-        </div>
-
-        <!-- Login Logs card -->
-        <div class="settings-group" id="loginLogsCard">
-            <div class="section">
-                <h3 data-i18n="logs_title">近期登录活动</h3>
-                <p class="desc" data-i18n="logs_desc">查看近期登录记录，包含时间、IP 地址、地理位置和设备信息。</p>
-                <div class="action-btn-container" style="margin-top: 15px;">
-                    <button class="btn-outline" id="viewLoginLogsBtn" data-i18n="btn_view">查看</button>
+                <div class="tab-label" data-i18n="tab_integrations">集成</div>
+            </a>
+            <a href="#logs" class="tab-item" data-tab-id="logs" aria-label="日志">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/></svg>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Integration group (OIDC Clients & Nginx Proxy Protection) -->
-        <div class="settings-group" id="integrationCard">
-            <!-- OIDC Section -->
-            <div class="section" id="oidcSection">
-                <div class="section-header">
-                    <div>
-                        <h3 data-i18n="oidc_title">授权应用</h3>
-                    </div>
-                </div>
-                <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统进行单点登录的第三方应用。</p>
-                
-                <div id="oidcClientList" class="key-list"></div>
-                
-                <div class="action-btn-container" style="margin-top: 15px;">
-                    <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加授权应用</button>
-                </div>
-            </div>
-
-            <!-- Nginx Proxy Protection Section -->
-            <div class="section" id="npmSection">
-                <div class="section-header">
-                    <div>
-                        <h3 data-i18n="npm_section_title">反向代理防护</h3>
-                    </div>
-                    <span class="badge badge-count" data-i18n="badge_forward_auth">Forward-Auth</span>
-                </div>
-                <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
-
-                <div class="action-btn-container" style="margin-top: 15px;">
-                    <button class="btn-outline" id="openNpmModalBtn" data-i18n="btn_generate_npm">＋ 生成防护配置</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="logout-row" style="display: flex; justify-content: center; gap: 20px;">
-            <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
-            <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: bold;">在所有设备上退出登录</span>
-        </div>
+                <div class="tab-label" data-i18n="tab_logs">日志</div>
+            </a>
+        </nav>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Modals Architecture (Zero Premature Focus & 3px Apple Ring) -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
 
     <!-- Login Logs Modal -->
     <div class="modal-overlay" id="loginLogsModal" style="display: none;">
         <div class="modal-card">
             <div class="modal-icon">
-                <?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
- "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="100%" height="100%" viewBox="0 0 2206.000000 2206.000000"
- preserveAspectRatio="xMidYMid meet">
-<metadata>
-Created by potrace 1.16, written by Peter Selinger 2001-2019
-</metadata>
-<g transform="translate(0.000000,2206.000000) scale(0.100000,-0.100000)"
-fill="currentColor" stroke="none">
-<path d="M10800 20654 c-245 -31 -427 -46 -635 -54 -606 -24 -822 -56 -1226
--184 -283 -90 -330 -102 -619 -160 -258 -52 -371 -87 -618 -192 -96 -41 -255
--102 -351 -135 -204 -70 -296 -111 -466 -209 -68 -39 -204 -106 -303 -148 -98
--43 -223 -105 -278 -138 -477 -290 -500 -306 -564 -386 -179 -226 -140 -477
-141 -908 45 -69 124 -199 177 -290 52 -91 126 -214 164 -273 38 -60 119 -194
-179 -298 60 -105 140 -236 178 -292 37 -56 109 -170 159 -254 50 -84 113 -185
-140 -225 78 -116 129 -202 213 -360 43 -81 125 -219 182 -305 57 -87 123 -192
-147 -233 24 -41 96 -160 160 -265 64 -104 142 -235 173 -291 31 -56 95 -156
-143 -224 120 -171 146 -213 232 -374 41 -78 118 -208 172 -291 303 -469 302
--563 -6 -972 -110 -146 -380 -589 -455 -747 -119 -250 -198 -542 -306 -1116
--56 -301 -7 -779 121 -1176 19 -60 62 -203 96 -319 104 -361 258 -625 658
--1130 176 -221 229 -270 459 -428 106 -73 237 -162 290 -199 231 -160 702
--371 931 -417 672 -137 1243 -134 1909 10 357 77 1069 469 1413 777 375 337
-742 913 875 1377 30 105 84 274 120 378 182 528 173 1108 -30 1752 -24 77 -62
-205 -85 285 -80 278 -111 346 -257 569 -105 160 -182 265 -332 449 -252 312
--247 448 34 872 57 85 144 230 193 322 50 91 131 230 182 308 50 78 132 215
-182 303 50 89 144 245 210 347 177 274 340 537 431 695 44 77 128 214 187 305
-59 91 140 226 180 300 40 74 112 196 158 270 47 74 121 196 165 270 44 74 126
-203 181 285 55 83 143 224 196 315 54 91 136 230 185 309 322 528 315 790 -26
-1022 -208 141 -522 315 -719 398 -80 34 -206 96 -280 138 -186 105 -268 142
--470 211 -96 33 -254 94 -350 135 -233 99 -354 138 -610 196 -118 27 -323 79
--455 116 -642 178 -780 200 -1400 225 -143 5 -334 19 -425 31 -157 20 -559 34
--650 23z m1285 -1392 c527 -58 587 -71 1020 -217 196 -67 380 -121 500 -149
-329 -77 679 -225 871 -369 178 -134 180 -296 7 -564 -87 -134 -162 -259 -252
--418 -271 -481 -425 -569 -763 -436 -86 33 -230 81 -320 106 -195 53 -239 67
--428 134 -327 117 -534 153 -995 176 -66 3 -212 16 -325 28 -127 13 -272 21
--380 21 -108 0 -253 -8 -380 -21 -113 -12 -259 -25 -325 -28 -483 -24 -649
--55 -1054 -195 -112 -39 -272 -88 -355 -110 -83 -22 -225 -66 -316 -97 -367
--127 -497 -44 -840 532 -29 50 -98 159 -153 243 -229 354 -225 524 15 660 264
-149 587 279 878 352 107 27 301 85 430 130 425 147 521 167 1070 225 480 50
-1631 48 2095 -3z m-665 -3042 c657 -57 869 -99 1159 -228 498 -222 520 -352
-153 -888 -53 -78 -131 -206 -172 -284 -209 -395 -343 -461 -795 -391 -630 96
--868 96 -1490 0 -450 -70 -584 -7 -787 374 -86 162 -106 194 -232 376 -302
-435 -276 582 139 781 322 155 524 198 1206 259 136 12 684 13 819 1z m-40
--3075 c123 -21 305 -66 400 -101 301 -108 776 -467 978 -739 134 -180 355
--703 393 -930 22 -128 18 -661 -5 -790 -117 -654 -844 -1457 -1446 -1596 -74
--17 -229 -54 -345 -82 -336 -83 -512 -66 -1080 105 -343 103 -869 536 -1073
-883 -49 84 -209 450 -257 587 -102 291 -101 826 1 1120 206 592 468 933 964
-1255 415 269 955 375 1470 288z"/>
-<path d="M10805 12535 c-560 -105 -921 -372 -1178 -872 -158 -309 -187 -813
--65 -1149 114 -316 504 -735 801 -861 598 -253 1261 -149 1690 266 392 379
-512 664 494 1176 -20 585 -400 1128 -931 1332 -276 106 -594 148 -811 108z"/>
-<path d="M17106 18294 c-119 -43 -274 -232 -445 -539 -200 -360 -187 -431 141
--773 415 -432 1031 -1189 1197 -1472 41 -69 113 -188 161 -265 47 -77 96 -156
-108 -175 11 -20 52 -104 91 -188 39 -85 111 -227 161 -316 107 -192 142 -273
-204 -467 45 -143 78 -230 174 -450 70 -161 104 -278 156 -534 25 -121 65 -303
-91 -405 50 -203 136 -637 157 -795 18 -141 19 -1617 0 -1754 -12 -87 -61 -351
--133 -718 -36 -185 -150 -666 -185 -783 -33 -111 -57 -177 -143 -397 -39 -101
--102 -272 -140 -380 -109 -316 -330 -766 -517 -1053 -56 -85 -132 -207 -169
--270 -296 -503 -1211 -1534 -1694 -1911 -74 -57 -202 -159 -285 -226 -160
--131 -183 -147 -456 -325 -237 -155 -238 -156 -395 -243 -77 -42 -189 -109
--250 -148 -139 -89 -254 -148 -425 -216 -74 -30 -214 -91 -310 -136 -214 -101
--294 -131 -480 -185 -80 -22 -266 -81 -415 -130 -376 -124 -475 -148 -744
--180 -91 -12 -245 -32 -341 -45 -96 -13 -263 -31 -370 -40 -107 -8 -292 -31
--410 -50 -358 -59 -501 -58 -873 5 -95 16 -262 36 -372 45 -110 9 -279 27
--375 40 -96 13 -236 31 -310 40 -286 34 -390 59 -760 180 -157 52 -349 112
--428 135 -198 57 -262 81 -462 175 -96 46 -245 111 -330 145 -198 80 -245 104
--415 210 -77 48 -203 123 -280 165 -77 43 -210 123 -295 180 -85 56 -207 136
--270 178 -63 41 -183 131 -266 199 -83 68 -209 168 -280 223 -170 131 -835
-793 -1015 1010 -341 410 -584 736 -673 901 -38 71 -117 208 -175 304 -58 96
--141 252 -184 345 -44 94 -111 225 -149 293 -99 175 -158 302 -231 502 -36 96
--97 257 -136 357 -87 226 -121 337 -161 539 -18 88 -52 245 -77 349 -24 105
--62 294 -83 420 -21 127 -50 277 -64 335 -51 215 -51 224 -51 1050 0 862 -5
-791 76 1130 26 113 64 294 84 402 35 194 140 693 170 809 24 93 67 213 129
-359 32 74 91 233 132 352 74 218 120 322 220 496 30 51 89 166 132 255 43 89
-123 232 179 317 55 85 133 216 173 290 110 204 295 461 520 725 47 55 128 152
-180 215 160 193 364 423 516 582 343 355 353 459 84 889 -255 406 -429 504
--660 372 -259 -149 -899 -846 -1329 -1448 -62 -88 -134 -186 -158 -217 -39
--51 -170 -240 -378 -548 -39 -58 -107 -175 -150 -260 -43 -85 -116 -222 -162
--303 -94 -166 -115 -209 -213 -447 -37 -91 -99 -232 -137 -315 -94 -201 -110
--244 -188 -495 -37 -118 -93 -283 -125 -365 -121 -314 -154 -448 -240 -980
--27 -171 -61 -373 -74 -450 -13 -77 -32 -223 -41 -325 -10 -113 -30 -254 -53
--365 -54 -265 -57 -1092 -5 -1345 44 -213 50 -259 63 -465 11 -192 23 -282 70
--520 16 -82 47 -260 69 -395 52 -314 79 -420 200 -780 54 -162 127 -380 161
--485 34 -105 104 -284 155 -400 51 -115 123 -286 160 -380 72 -183 128 -296
-222 -445 33 -52 95 -160 138 -240 84 -157 136 -240 225 -365 32 -44 104 -152
-160 -240 189 -297 403 -593 587 -813 178 -214 1153 -1180 1298 -1287 66 -49
-208 -154 316 -234 423 -314 545 -400 707 -492 92 -53 222 -130 290 -173 67
--42 218 -123 335 -180 116 -56 242 -121 279 -144 125 -77 225 -121 423 -186
-107 -36 255 -93 328 -127 239 -111 337 -147 517 -190 380 -90 430 -103 580
--149 433 -135 638 -175 1082 -210 141 -11 332 -30 425 -42 278 -38 1385 -35
-1688 4 116 15 284 32 375 38 399 26 669 78 1075 205 171 54 276 81 515 135
-238 54 327 85 535 182 103 49 246 106 363 144 224 74 289 103 468 206 72 42
-198 107 280 144 82 38 194 96 249 130 227 139 286 174 398 238 66 37 180 111
-255 165 76 54 196 136 267 184 151 100 444 328 595 462 191 171 1040 1032
-1177 1195 184 220 453 567 530 685 116 180 340 542 414 672 40 70 108 186 151
-257 82 134 126 223 198 390 23 55 79 178 124 275 115 245 149 333 222 590 36
-123 90 290 120 370 98 256 123 328 148 429 37 142 129 645 176 952 22 146 60
-391 85 545 24 154 50 327 57 385 18 147 18 1093 0 1240 -21 172 -121 790 -162
-1010 -22 113 -55 304 -75 425 -54 328 -111 535 -245 895 -32 85 -81 232 -110
-325 -65 213 -91 277 -183 462 -41 81 -105 218 -142 303 -81 186 -129 282 -205
-415 -32 55 -89 164 -128 241 -176 352 -601 979 -1004 1483 -203 253 -833 899
--971 996 -127 89 -234 115 -331 79z"/>
-<path d="M6400 15599 c-222 -105 -719 -705 -1012 -1224 -47 -83 -116 -200
--153 -260 -91 -147 -132 -236 -205 -449 -34 -99 -97 -255 -141 -348 -104 -219
--127 -293 -184 -583 -26 -132 -60 -296 -77 -365 -53 -222 -68 -308 -93 -539
--14 -124 -39 -305 -56 -401 -61 -354 -58 -492 27 -1045 69 -452 88 -561 175
--970 97 -456 107 -486 247 -790 33 -71 81 -186 107 -255 111 -299 352 -732
-618 -1110 200 -284 261 -356 587 -685 653 -660 804 -791 1235 -1072 239 -156
-302 -192 470 -263 123 -52 228 -105 364 -182 140 -79 209 -107 435 -177 105
--33 261 -86 346 -119 312 -120 467 -153 1037 -222 746 -90 1637 -60 2337 81
-195 39 290 67 510 149 99 38 258 92 351 120 190 58 271 93 466 203 74 41 199
-103 279 137 183 77 256 117 450 242 433 281 476 314 750 569 86 79 222 201
-302 271 146 127 226 213 498 537 312 373 486 613 581 804 34 67 110 210 170
-317 59 107 133 256 164 330 32 74 84 198 117 275 169 393 176 413 237 715 22
-107 58 273 81 368 23 95 56 276 75 402 19 126 43 278 54 337 42 227 46 280 46
-648 0 399 -1 414 -70 765 -24 124 -60 313 -80 420 -119 648 -189 914 -305
-1160 -40 84 -98 221 -130 305 -68 178 -115 274 -203 417 -35 57 -108 180 -162
-273 -344 600 -810 1151 -1038 1229 -157 53 -234 1 -400 -269 -57 -93 -132
--213 -166 -264 -166 -252 -197 -419 -111 -593 37 -73 46 -87 191 -273 208
--268 394 -544 459 -680 84 -176 207 -424 263 -531 81 -152 105 -228 211 -644
-192 -760 186 -720 186 -1339 0 -668 -17 -803 -165 -1276 -24 -77 -66 -228 -94
--336 -117 -454 -437 -1059 -825 -1558 -253 -326 -617 -705 -819 -855 -549
--405 -936 -638 -1262 -761 -99 -37 -220 -85 -270 -107 -333 -146 -427 -171
--903 -245 -278 -44 -1475 -43 -1767 0 -427 64 -563 100 -858 226 -100 43 -236
-98 -302 121 -169 60 -288 118 -445 214 -74 46 -189 115 -255 154 -109 64 -351
-232 -595 416 -402 301 -1079 1141 -1296 1606 -34 74 -97 201 -139 282 -95 184
--123 260 -190 518 -30 113 -78 284 -108 380 -125 401 -146 560 -151 1145 -5
-626 -3 644 155 1280 137 548 155 607 246 780 72 139 157 308 259 521 76 160
-218 367 538 788 233 307 226 454 -35 841 -64 94 -140 211 -169 260 -122 204
--235 258 -390 184z"/>
-</g>
-</svg>
-
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/>
+                </svg>
             </div>
             
             <h3 style="margin-bottom: 8px;" data-i18n="logs_modal_title">近期登录活动</h3>
             <p class="modal-desc" style="margin-bottom: 16px;" data-i18n="logs_modal_desc">显示最近最多 20 条登录记录。</p>
             
-            <div id="loginLogsList" class="log-list-container">
-                <!-- Logs rendered via JS -->
-            </div>
+            <div id="loginLogsList" class="log-list-container"></div>
             
             <div class="modal-actions" style="margin-top: 16px;">
                 <button class="modal-btn modal-btn-secondary" id="closeLoginLogsBtn" style="width: 100%;" data-i18n="btn_close">关闭</button>
@@ -456,305 +504,301 @@ fill="currentColor" stroke="none">
         </div>
     </div>
 
-    <!-- OIDC Secret Display Modal -->
-
-        
-                <!-- Passkey Modal (2-step) -->
-        <div class="modal-overlay" id="passkeyModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 825.000000 825.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,825.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M3396 7389 c-509 -44 -957 -406 -1146 -927 -72 -196 -100 -364 -100 -587 0 -474 192 -934 521 -1250 142 -137 255 -215 410 -282 89 -38 104 -43 244 -75 260 -59 579 6 817 166 29 20 56 36 60 36 15 0 308 279 308 293 0 2 25 41 56 87 69 104 175 319 209 425 37 119 74 287 86 400 16 139 6 384 -21 518 -36 186 -115 393 -202 532 -101 159 -256 334 -370 415 -27 18 -48 38 -48 43 0 6 -2 8 -6 5 -3 -3 -42 15 -87 41 -148 85 -328 144 -472 156 -140 11 -172 12 -259 4z"/><path d="M6305 4921 c-211 -50 -378 -153 -542 -334 -139 -152 -235 -331 -278 -517 -23 -99 -31 -302 -16 -413 35 -263 164 -517 351 -690 69 -64 181 -145 233 -168 l27 -12 0 -837 0 -836 110 -110 c61 -61 110 -108 110 -106 0 2 12 -6 27 -18 25 -19 38 -21 214 -20 l187 2 88 91 c122 126 207 218 287 309 54 63 67 84 67 111 0 41 -12 58 -185 246 -77 84 -141 156 -143 160 -2 7 179 210 340 379 78 82 79 84 77 130 -3 46 -6 50 -169 215 -91 93 -169 175 -173 183 -13 24 -57 64 -70 65 -13 0 27 18 52 22 74 13 257 134 358 236 197 200 298 440 310 737 12 308 -60 537 -248 785 -137 181 -346 322 -559 379 -120 32 -342 37 -455 11z m336 -578 c65 -29 111 -73 145 -140 25 -50 29 -69 29 -138 -1 -110 -16 -154 -76 -219 -68 -75 -137 -108 -227 -108 -71 -1 -142 16 -142 33 0 6 -4 8 -9 5 -5 -3 -29 10 -55 29 -47 37 -90 99 -107 157 -14 50 -13 148 4 196 18 52 58 112 74 112 6 0 15 5 19 12 5 7 3 8 -6 3 -9 -5 -11 -4 -6 3 4 7 13 12 21 12 7 0 16 7 19 16 3 8 10 13 15 10 5 -4 11 -1 13 4 14 42 205 51 289 13z"/><path d="M3210 3630 c-36 -5 -87 -11 -115 -14 -27 -2 -61 -6 -75 -9 -14 -4 -84 -18 -156 -32 -135 -26 -321 -76 -459 -122 -44 -15 -82 -28 -85 -28 -5 -2 -13 -5 -120 -50 -222 -94 -519 -273 -700 -424 -93 -77 -251 -234 -325 -321 -303 -361 -495 -809 -495 -1154 0 -185 46 -302 157 -406 35 -33 83 -70 106 -81 23 -12 44 -24 47 -28 3 -3 12 -8 20 -10 8 -2 44 -13 80 -25 l65 -21 2262 -3 c2154 -2 2262 -1 2265 15 3 10 -1 30 -9 45 -7 15 -15 35 -16 45 -2 10 -10 32 -18 48 -11 25 -14 159 -17 737 l-3 706 -89 81 c-83 76 -200 211 -183 211 5 0 3 4 -3 8 -40 27 -139 225 -165 330 -15 60 -17 62 -179 142 -58 29 -108 58 -112 64 -4 6 -8 8 -8 4 0 -3 -42 12 -92 34 -268 116 -561 199 -863 244 -128 18 -612 28 -715 14z"/></g></svg></div>
-                <div id="passkeyStep1">
-                    <form id="passkeyStep1Form" style="margin: 0; width: 100%;">
-                        <h3 data-i18n="passkey_add_title">添加通行密钥</h3>
-                        <p class="modal-desc" data-i18n="passkey_add_desc">通行密钥允许你使用面容 ID、触控 ID 或设备密码安全登录。</p>
-                        <input type="text" id="passkeyDeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="placeholder_pk_name" placeholder="通行密钥名称（如：我的 MacBook）" autocomplete="off" maxlength="64">
-                        <div class="msg" id="passkeyMsg1" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn1" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="continuePasskeyBtn" data-i18n="btn_continue">继续</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="passkeyStep2" style="display: none;">
-                    <form id="passkeySudoForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="passkeyConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="passkeyMsg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmPasskeyBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- FIDO2 Modal (2-step) -->
-        <div class="modal-overlay" id="fido2Modal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 2340.000000 2340.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,2340.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M4983 21898 c-11 -24 -50 -82 -86 -130 -171 -229 -176 -271 -177 -1433 0 -908 3 -947 76 -1034 70 -84 163 -95 469 -57 458 57 1031 76 1709 57 460 -12 522 -17 856 -58 357 -43 447 -12 495 172 18 72 23 1805 5 1955 -20 167 -59 262 -164 405 -37 50 -74 107 -84 127 -29 63 -3068 59 -3099 -4z m2617 -425 c227 -78 312 -245 297 -592 -12 -285 -94 -413 -310 -479 -75 -23 -1922 -31 -2051 -9 -261 45 -366 200 -366 537 0 343 98 499 350 555 125 27 1996 16 2080 -12z"/><path d="M5913 18410 c-1834 -103 -2481 -529 -2640 -1740 -21 -162 -34 -9161 -14 -9680 50 -1262 590 -1791 2009 -1965 612 -75 1665 -89 2262 -30 1576 156 2120 578 2271 1765 17 128 26 9310 10 9650 -41 875 -312 1364 -916 1660 -365 178 -772 263 -1585 331 -168 14 -1191 20 -1397 9z m897 -4844 c1310 -176 2034 -1676 1370 -2837 -745 -1302 -2711 -1219 -3359 141 -645 1357 490 2897 1989 2696z"/><path d="M6327 13204 c-1487 -231 -1815 -2232 -473 -2884 1146 -557 2415 400 2182 1645 -152 815 -908 1364 -1709 1239z"/><path d="M16325 15783 c-1832 -107 -2479 -570 -2565 -1832 -21 -298 -8 -7291 13 -7430 182 -1187 877 -1604 2755 -1651 2703 -69 3549 390 3613 1960 19 478 6 7118 -14 7269 -157 1153 -798 1584 -2496 1681 -160 9 -1167 12 -1306 3z m748 -1398 c427 -90 614 -623 335 -951 -328 -385 -941 -229 -1044 266 -83 397 304 771 709 685z m38 -3015 c1390 -138 2130 -1712 1350 -2871 -772 -1147 -2551 -1034 -3182 203 -655 1285 393 2810 1832 2668z"/><path d="M16735 11014 c-823 -123 -1380 -843 -1286 -1664 117 -1023 1245 -1600 2191 -1123 949 479 1048 1858 181 2508 -265 200 -762 327 -1086 279z m625 -501 c40 -28 66 -63 103 -138 231 -467 238 -1151 16 -1642 -121 -269 -296 -233 -183 37 217 520 226 984 28 1482 -89 225 -74 338 36 261z m-439 -341 c229 -260 190 -1171 -54 -1298 -94 -50 -113 53 -47 261 96 302 95 515 -4 830 -46 145 -51 178 -36 216 25 59 85 55 141 -9z m-496 -324 c137 -161 99 -631 -54 -671 -69 -18 -97 54 -76 193 18 121 19 214 3 341 -22 177 37 241 127 137z"/><path d="M4915 4171 c-111 -27 -166 -103 -185 -254 -13 -107 -13 -1628 0 -1803 17 -224 54 -331 167 -482 36 -48 75 -106 86 -129 31 -64 3070 -68 3099 -5 10 20 47 77 84 127 103 140 135 215 159 375 23 146 22 1899 0 1985 -48 185 -133 214 -492 172 -352 -43 -399 -46 -859 -58 -675 -19 -1253 0 -1708 56 -200 25 -295 29 -351 16z"/><path d="M15380 4091 c-187 -57 -190 -74 -190 -1126 0 -1095 4 -1125 165 -1340 29 -38 63 -91 76 -117 23 -48 23 -48 1520 -48 1497 0 1497 0 1509 31 7 17 48 80 91 141 159 224 154 175 154 1303 0 1034 2 1002 -67 1081 -78 89 -143 96 -503 55 -390 -44 -554 -51 -1180 -51 -653 0 -818 8 -1252 60 -166 21 -279 24 -323 11z"/></g></svg></div>
-                <div id="fido2Step1">
-                    <form id="fido2Step1Form" style="margin: 0; width: 100%;">
-                        <h3 data-i18n="fido2_add_title">添加 FIDO2 安全密钥</h3>
-                        <p class="modal-desc" data-i18n="fido2_add_desc">将物理安全密钥（如 YubiKey）连接至设备，并按照提示触摸激活。</p>
-                        <input type="text" id="fido2DeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="placeholder_fido2_name" placeholder="安全密钥名称（如：YubiKey 5C）" autocomplete="off" maxlength="40">
-                        <div class="msg" id="fido2Msg1" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelFido2Btn1" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="continueFido2Btn" data-i18n="btn_continue">继续</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="fido2Step2" style="display: none;">
-                    <form id="fido2SudoForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="fido2ConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="fido2Msg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelFido2Btn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmFido2Btn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Username Modal -->
-        <div class="modal-overlay" id="usernameModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1753.000000 1753.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,1753.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M8555 16434 c-16 -2 -73 -9 -125 -15 -636 -71 -1216 -313 -1735 -723 -617 -488 -1214 -1521 -1330 -2299 -45 -305 -45 -998 0 -1300 124 -824 728 -1878 1360 -2372 759 -592 1609 -826 2505 -689 586 90 1093 318 1590 715 647 517 1242 1608 1352 2479 22 175 18 962 -5 1115 -103 667 -451 1392 -956 1990 -407 481 -1081 878 -1744 1025 -263 58 -745 97 -912 74z"/><path d="M8310 7490 c-140 -10 -372 -26 -515 -35 -376 -24 -518 -44 -823 -116 -68 -16 -215 -49 -325 -74 -579 -128 -1119 -331 -1839 -691 -864 -432 -1465 -914 -2162 -1734 -736 -866 -1148 -1922 -1057 -2710 56 -485 442 -853 1006 -959 378 -72 -210 -65 5965 -69 6247 -3 5979 -6 6376 73 693 139 1050 609 995 1310 -87 1095 -749 2198 -1956 3259 -744 654 -2084 1301 -3180 1535 -77 16 -216 48 -310 70 -315 74 -365 79 -1085 126 -594 39 -719 40 -1090 15z"/></g></svg></div>
-                <div id="usernameStep1">
-                    <form id="usernameStep1Form" style="margin: 0; width: 100%;">
-                        <input type="text" name="current-username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="section_username_title">修改用户名</h3>
-                        <p class="modal-desc" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
-                        <input type="text" class="modal-input" id="newUsername" name="new-username" data-i18n-placeholder="placeholder_new_username" placeholder="新用户名" autocomplete="off" required minlength="3" maxlength="32">
-                        <div class="msg" id="usernameMsg1" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelUsernameBtn1" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="continueUsernameBtn" data-i18n="btn_continue">继续</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="usernameStep2" style="display: none;">
-                    <form id="usernameForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="usernameConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="usernameMsg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelUsernameBtn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmUsernameBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Email Modal -->
-        <div class="modal-overlay" id="emailModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%"><defs><clipPath id="envelope-clip"><rect x="16" y="48" width="224" height="160" rx="24" ry="24" /></clipPath></defs><g clip-path="url(#envelope-clip)"><rect x="24" y="56" width="208" height="144" rx="16" ry="16" fill="none" stroke="currentColor" stroke-width="16" /><polyline points="16,48 128,136 240,48" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" /></g></svg></div>
-                <div id="emailStep1">
-                    <form id="emailStep1Form" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="section_email_title">绑定邮箱</h3>
-                        <p class="modal-desc" data-i18n="section_email_desc">用于单点登录 (SSO) 身份识别与重要安全通知。</p>
-                        <input type="email" class="modal-input" id="newEmail" name="email" data-i18n-placeholder="placeholder_new_email" placeholder="电子邮件地址" autocomplete="email" required>
-                        <div class="msg" id="emailMsg1" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelEmailBtn1" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="continueEmailBtn" data-i18n="btn_continue">继续</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="emailStep2" style="display: none;">
-                    <form id="emailForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="emailConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="emailMsg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelEmailBtn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmEmailBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Password Modal -->
-        <div class="modal-overlay" id="passwordModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg width="100%" height="100%" viewBox="0 0 72 73" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(0.000000, 0.441452)"><rect x="0" y="0" width="72" height="72"></rect><path d="M64.2481971,14.4931046 L65.5958533,13.1063859 C66.2989783,12.4032609 66.3185096,11.4266984 65.6349158,10.7431046 L65.1661658,10.2743546 C64.5411658,9.66888587 63.5450721,9.74701087 62.8810096,10.4110734 L61.5138221,11.7391984 L64.2481971,14.4931046 Z M42.9200721,33.6532609 L46.7677283,31.9735734 L62.8419471,15.8798234 L60.1075721,13.1845109 L44.0333533,29.2587296 L42.2755408,32.9696671 C42.0997596,33.3602921 42.5294471,33.8095109 42.9200721,33.6532609 Z M52.9200721,45.8602921 C56.4161658,45.8602921 58.3497596,44.0048234 58.3497596,40.5087296 L58.3497596,25.0595109 L55.0099158,28.3993546 L55.0099158,40.4306046 C55.0099158,41.9149796 54.1700721,42.7548234 52.6661658,42.7548234 L15.7716346,42.7548234 C14.2677283,42.7548234 13.4278846,41.9149796 13.4278846,40.4306046 L13.4278846,24.9618546 C13.4278846,23.4579484 14.2677283,22.6376359 15.7716346,22.6376359 L45.9669471,22.6376359 L49.0528846,19.5321671 L15.5177283,19.5321671 C12.0216346,19.5321671 10.0880408,21.3876359 10.0880408,24.8837296 L10.0880408,40.5087296 C10.0880408,44.0048234 12.0216346,45.8602921 15.5177283,45.8602921 L52.9200721,45.8602921 Z M20.2638221,35.3915421 C21.7481971,35.3915421 22.9591346,34.1806046 22.9591346,32.6962296 C22.9591346,31.2118546 21.7481971,30.0009171 20.2638221,30.0009171 C18.7794471,30.0009171 17.5685096,31.2118546 17.5685096,32.6962296 C17.5685096,34.1806046 18.7794471,35.3915421 20.2638221,35.3915421 Z M28.3302283,35.3915421 C29.8146033,35.3915421 31.0255408,34.1806046 31.0255408,32.6962296 C31.0255408,31.2118546 29.8146033,30.0009171 28.3302283,30.0009171 C26.8458533,30.0009171 25.6349158,31.2118546 25.6349158,32.6962296 C25.6349158,34.1806046 26.8458533,35.3915421 28.3302283,35.3915421 Z M36.3966346,35.3915421 C37.8810096,35.3915421 39.0919471,34.1806046 39.0919471,32.6962296 C39.0919471,31.2118546 37.8810096,30.0009171 36.3966346,30.0009171 C34.9122596,30.0009171 33.7013221,31.2118546 33.7013221,32.6962296 C33.7013221,34.1806046 34.9122596,35.3915421 36.3966346,35.3915421 Z" fill="currentColor" fill-rule="nonzero"></path></g></g></svg></div>
-                <div id="passwordStep1">
-                    <form id="newPasswordForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="section_password_title">修改密码</h3>
-                        <p class="modal-desc" data-i18n="section_password_desc">建议使用至少 6 位包含字母和数字的高强度密码。</p>
-                        <input type="password" name="new-password" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password" required>
-                        <input type="password" name="confirm-new-password" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password" required>
-                        <div class="msg" id="passwordMsg1" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasswordBtn1" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="continuePasswordBtn" data-i18n="btn_continue">继续</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="passwordStep2" style="display: none;">
-                    <form id="passwordSudoForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="passwordConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="passwordMsg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasswordBtn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmPasswordBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- OIDC Modal -->
-        <div class="modal-overlay" id="oidcModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon"><svg viewBox="11 -3 32 32" width="56" height="56" fill="currentColor"><path d="M36.8342359,8.83321469 C38.072496,10.0714748 39.0036329,11.229461 38.9999893,12.7117355 C39.003507,14.1372282 38.1281507,15.2573951 36.9458898,16.4543889 L31.1785056,22.2225156 C29.9342022,23.466819 28.7934901,24.3963459 27.3115033,24.3999893 C25.8788624,24.4035115 24.749034,23.5335332 23.5567881,22.3570149 L17.7584607,16.5594819 C16.5274616,15.3284828 15.5963671,14.1705113 15.6000107,12.6884967 C15.6035326,11.2559094 16.4722413,10.1422245 17.654126,8.94559591 L23.4435126,3.15546617 C24.6586501,1.94032873 25.8065942,1.00365389 27.2884967,1.00001066 C28.7210569,0.996488733 29.8508415,1.86634769 31.0234083,3.02318174 L36.8342359,8.83321469 Z M35.9238907,10.1525511 L29.8693591,4.09801954 L29.7673174,3.99715314 C29.0138651,3.26124386 28.1488919,2.61685195 27.2845165,2.61897701 C26.3955901,2.62116242 25.4951275,3.32259651 24.7143524,4.10337166 L18.6886928,10.1290312 L18.5883707,10.2305202 C17.8569815,10.9793173 17.2281729,11.8267563 17.2189796,12.684127 C17.2241815,13.5811732 17.9140907,14.4854303 18.6761093,15.2474489 L24.7525511,21.3238907 L24.8527592,21.4228437 C25.5933451,22.1447438 26.4578296,22.7758101 27.3081801,22.7737196 C28.2119997,22.7714976 29.0976005,22.0846755 29.8709688,21.3113072 L35.9186466,15.2636294 L36.0180564,15.1630511 C36.7430429,14.4206226 37.3715941,13.5727407 37.3737196,12.7081801 C37.3759052,11.8191773 36.6860659,10.9147264 35.9238907,10.1525511 Z M22.8807831,11.55 C23.5910355,11.55 24.1673879,12.1409091 24.1673879,12.85 C24.1673879,13.5709091 23.5910355,14.15 22.8807831,14.15 C22.1588872,14.15 21.6,13.5768182 21.6,12.85 C21.6,12.1409091 22.1821741,11.55 22.8807831,11.55 Z M27.2470891,11.55 C27.9515198,11.55 28.5278722,12.1409091 28.5278722,12.85 C28.5278722,13.5709091 27.9515198,14.15 27.2470891,14.15 C26.5310149,14.15 25.9721278,13.5768182 25.9721278,12.85 C25.9721278,12.1409091 26.5543019,11.55 27.2470891,11.55 Z M31.6192169,11.55 C32.3236476,11.55 32.9,12.1409091 32.9,12.85 C32.9,13.5709091 32.3236476,14.15 31.6192169,14.15 C30.8914992,14.15 30.3267903,13.5768182 30.3267903,12.85 C30.3267903,12.1409091 30.9147862,11.55 31.6192169,11.55 Z"></path></svg></div>
-                <div id="oidcStep1">
-                    <h3 data-i18n="oidc_add_title">添加授权应用</h3>
-                    <p class="modal-desc" data-i18n="oidc_add_desc">输入应用基本信息以创建 OIDC 客户端凭证。</p>
-                    <input type="text" id="oidcAppName" class="modal-input" data-i18n-placeholder="placeholder_app_name" placeholder="应用名称（如：我的网盘）" autocomplete="off">
-                    <textarea id="oidcRedirectUris" class="modal-input" data-i18n-placeholder="placeholder_redirect_uris" placeholder="重定向 URI（每行一个）"></textarea>
-                    <div class="msg" id="oidcMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+    <!-- Passkey Modal (2-step) -->
+    <div class="modal-overlay" id="passkeyModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 825.000000 825.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,825.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M3396 7389 c-509 -44 -957 -406 -1146 -927 -72 -196 -100 -364 -100 -587 0 -474 192 -934 521 -1250 142 -137 255 -215 410 -282 89 -38 104 -43 244 -75 260 -59 579 6 817 166 29 20 56 36 60 36 15 0 308 279 308 293 0 2 25 41 56 87 69 104 175 319 209 425 37 119 74 287 86 400 16 139 6 384 -21 518 -36 186 -115 393 -202 532 -101 159 -256 334 -370 415 -27 18 -48 38 -48 43 0 6 -2 8 -6 5 -3 -3 -42 15 -87 41 -148 85 -328 144 -472 156 -140 11 -172 12 -259 4z"/><path d="M6305 4921 c-211 -50 -378 -153 -542 -334 -139 -152 -235 -331 -278 -517 -23 -99 -31 -302 -16 -413 35 -263 164 -517 351 -690 69 -64 181 -145 233 -168 l27 -12 0 -837 0 -836 110 -110 c61 -61 110 -108 110 -106 0 2 12 -6 27 -18 25 -19 38 -21 214 -20 l187 2 88 91 c122 126 207 218 287 309 54 63 67 84 67 111 0 41 -12 58 -185 246 -77 84 -141 156 -143 160 -2 7 179 210 340 379 78 82 79 84 77 130 -3 46 -6 50 -169 215 -91 93 -169 175 -173 183 -13 24 -57 64 -70 65 -13 0 27 18 52 22 74 13 257 134 358 236 197 200 298 440 310 737 12 308 -60 537 -248 785 -137 181 -346 322 -559 379 -120 32 -342 37 -455 11z m336 -578 c65 -29 111 -73 145 -140 25 -50 29 -69 29 -138 -1 -110 -16 -154 -76 -219 -68 -75 -137 -108 -227 -108 -71 -1 -142 16 -142 33 0 6 -4 8 -9 5 -5 -3 -29 10 -55 29 -47 37 -90 99 -107 157 -14 50 -13 148 4 196 18 52 58 112 74 112 6 0 15 5 19 12 5 7 3 8 -6 3 -9 -5 -11 -4 -6 3 4 7 13 12 21 12 7 0 16 7 19 16 3 8 10 13 15 10 5 -4 11 -1 13 4 14 42 205 51 289 13z"/><path d="M3210 3630 c-36 -5 -87 -11 -115 -14 -27 -2 -61 -6 -75 -9 -14 -4 -84 -18 -156 -32 -135 -26 -321 -76 -459 -122 -44 -15 -82 -28 -85 -28 -5 -2 -13 -5 -120 -50 -222 -94 -519 -273 -700 -424 -93 -77 -251 -234 -325 -321 -303 -361 -495 -809 -495 -1154 0 -185 46 -302 157 -406 35 -33 83 -70 106 -81 23 -12 44 -24 47 -28 3 -3 12 -8 20 -10 8 -2 44 -13 80 -25 l65 -21 2262 -3 c2154 -2 2262 -1 2265 15 3 10 -1 30 -9 45 -7 15 -15 35 -16 45 -2 10 -10 32 -18 48 -11 25 -14 159 -17 737 l-3 706 -89 81 c-83 76 -200 211 -183 211 5 0 3 4 -3 8 -40 27 -139 225 -165 330 -15 60 -17 62 -179 142 -58 29 -108 58 -112 64 -4 6 -8 8 -8 4 0 -3 -42 12 -92 34 -268 116 -561 199 -863 244 -128 18 -612 28 -715 14z"/></g></svg></div>
+            <div id="passkeyStep1">
+                <form id="passkeyStep1Form" style="margin: 0; width: 100%;">
+                    <h3 data-i18n="passkey_add_title">添加通行密钥</h3>
+                    <p class="modal-desc" data-i18n="passkey_add_desc">通行密钥允许你使用面容 ID、触控 ID 或设备密码安全登录。</p>
+                    <input type="text" id="passkeyDeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="placeholder_pk_name" placeholder="通行密钥名称（如：我的 MacBook）" autocomplete="off" maxlength="64">
+                    <div class="msg" id="passkeyMsg1" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
-                        <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn1" data-i18n="btn_cancel">取消</button>
-                        <button class="modal-btn modal-btn-primary" id="continueOidcBtn" data-i18n="btn_continue">继续</button>
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn1" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="continuePasskeyBtn" data-i18n="btn_continue">继续</button>
                     </div>
-                </div>
-                <div id="oidcStep2" style="display: none;">
-                    <form id="oidcForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="oidcConfirmPwd" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="oidcMsg2" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelOidcBtn2" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmOidcBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
-                </div>
-                <div id="oidcStep3" style="display: none;">
-                    <h3 data-i18n="oidc_secret_title">应用凭证已生成</h3>
-                    <div id="newOidcClientSecret" class="modal-secret-display"></div>
-                    <p class="modal-desc"><span data-i18n="oidc_client_id_label">Client ID：</span><span id="newOidcClientId" style="user-select:all;font-family:monospace;"></span><br><span data-i18n="oidc_secret_desc">请妥善保管客户端密钥 (Client Secret)，该密钥仅显示一次！</span></p>
+                </form>
+            </div>
+            <div id="passkeyStep2" style="display: none;">
+                <form id="passkeySudoForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="passkeyConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="passkeyMsg2" style="font-size: 14px; margin-top: 8px;"></div>
                     <div class="modal-actions">
-                        <button class="modal-btn modal-btn-primary" id="finishOidcSecretBtn" data-i18n="btn_saved">我已保存</button>
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasskeyBtn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmPasskeyBtn" data-i18n="sudo_btn_confirm">确认</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <!-- NPM Generator Modal (2-step) -->
-        <div class="modal-overlay" id="npmModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon">
-                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                    </svg>
-                </div>
-
-                <!-- Step 1: Input form -->
-                <div id="npmStep1">
-                    <h3 data-i18n="npm_modal_title_step1">生成反向代理防护配置</h3>
-                    <p class="modal-desc" data-i18n="npm_modal_desc_step1">输入要保护的域名与放行路径，自动生成可直接复制至 NPM 的 Nginx 配置代码。</p>
-
-                    <div class="npm-form-group">
-                        <label class="npm-label" for="npmProtectedDomain" data-i18n="npm_domain_label">受保护域名</label>
-                        <input type="text" id="npmProtectedDomain" class="npm-input" data-i18n-placeholder="npm_domain_placeholder" placeholder="例如: app.example.com" autocomplete="off" spellcheck="false">
+    <!-- FIDO2 Modal (2-step) -->
+    <div class="modal-overlay" id="fido2Modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 2340.000000 2340.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,2340.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M4983 21898 c-11 -24 -50 -82 -86 -130 -171 -229 -176 -271 -177 -1433 0 -908 3 -947 76 -1034 70 -84 163 -95 469 -57 458 57 1031 76 1709 57 460 -12 522 -17 856 -58 357 -43 447 -12 495 172 18 72 23 1805 5 1955 -20 167 -59 262 -164 405 -37 50 -74 107 -84 127 -29 63 -3068 59 -3099 -4z m2617 -425 c227 -78 312 -245 297 -592 -12 -285 -94 -413 -310 -479 -75 -23 -1922 -31 -2051 -9 -261 45 -366 200 -366 537 0 343 98 499 350 555 125 27 1996 16 2080 -12z"/><path d="M5913 18410 c-1834 -103 -2481 -529 -2640 -1740 -21 -162 -34 -9161 -14 -9680 50 -1262 590 -1791 2009 -1965 612 -75 1665 -89 2262 -30 1576 156 2120 578 2271 1765 17 128 26 9310 10 9650 -41 875 -312 1364 -916 1660 -365 178 -772 263 -1585 331 -168 14 -1191 20 -1397 9z m897 -4844 c1310 -176 2034 -1676 1370 -2837 -745 -1302 -2711 -1219 -3359 141 -645 1357 490 2897 1989 2696z"/><path d="M6327 13204 c-1487 -231 -1815 -2232 -473 -2884 1146 -557 2415 400 2182 1645 -152 815 -908 1364 -1709 1239z"/><path d="M16325 15783 c-1832 -107 -2479 -570 -2565 -1832 -21 -298 -8 -7291 13 -7430 182 -1187 877 -1604 2755 -1651 2703 -69 3549 390 3613 1960 19 478 6 7118 -14 7269 -157 1153 -798 1584 -2496 1681 -160 9 -1167 12 -1306 3z m748 -1398 c427 -90 614 -623 335 -951 -328 -385 -941 -229 -1044 266 -83 397 304 771 709 685z m38 -3015 c1390 -138 2130 -1712 1350 -2871 -772 -1147 -2551 -1034 -3182 203 -655 1285 393 2810 1832 2668z"/><path d="M16735 11014 c-823 -123 -1380 -843 -1286 -1664 117 -1023 1245 -1600 2191 -1123 949 479 1048 1858 181 2508 -265 200 -762 327 -1086 279z m625 -501 c40 -28 66 -63 103 -138 231 -467 238 -1151 16 -1642 -121 -269 -296 -233 -183 37 217 520 226 984 28 1482 -89 225 -74 338 36 261z m-439 -341 c229 -260 190 -1171 -54 -1298 -94 -50 -113 53 -47 261 96 302 95 515 -4 830 -46 145 -51 178 -36 216 25 59 85 55 141 -9z m-496 -324 c137 -161 99 -631 -54 -671 -69 -18 -97 54 -76 193 18 121 19 214 3 341 -22 177 37 241 127 137z"/><path d="M4915 4171 c-111 -27 -166 -103 -185 -254 -13 -107 -13 -1628 0 -1803 17 -224 54 -331 167 -482 36 -48 75 -106 86 -129 31 -64 3070 -68 3099 -5 10 20 47 77 84 127 103 140 135 215 159 375 23 146 22 1899 0 1985 -48 185 -133 214 -492 172 -352 -43 -399 -46 -859 -58 -675 -19 -1253 0 -1708 56 -200 25 -295 29 -351 16z"/><path d="M15380 4091 c-187 -57 -190 -74 -190 -1126 0 -1095 4 -1125 165 -1340 29 -38 63 -91 76 -117 23 -48 23 -48 1520 -48 1497 0 1497 0 1509 31 7 17 48 80 91 141 159 224 154 175 154 1303 0 1034 2 1002 -67 1081 -78 89 -143 96 -503 55 -390 -44 -554 -51 -1180 -51 -653 0 -818 8 -1252 60 -166 21 -279 24 -323 11z"/></g></svg></div>
+            <div id="fido2Step1">
+                <form id="fido2Step1Form" style="margin: 0; width: 100%;">
+                    <h3 data-i18n="fido2_add_title">添加 FIDO2 安全密钥</h3>
+                    <p class="modal-desc" data-i18n="fido2_add_desc">将物理安全密钥（如 YubiKey）连接至设备，并按照提示触摸激活。</p>
+                    <input type="text" id="fido2DeviceName" name="deviceName" data-bwignore="true" class="modal-input" data-i18n-placeholder="placeholder_fido2_name" placeholder="安全密钥名称（如：YubiKey 5C）" autocomplete="off" maxlength="40">
+                    <div class="msg" id="fido2Msg1" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelFido2Btn1" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="continueFido2Btn" data-i18n="btn_continue">继续</button>
                     </div>
-
-                    <div class="npm-form-group">
-                        <label class="npm-label" for="npmBypassPaths" data-i18n="npm_bypass_label">放行路径（绕过认证）</label>
-                        <textarea id="npmBypassPaths" class="npm-textarea" data-i18n-placeholder="npm_bypass_placeholder" placeholder="例如: /api/ 或换行输入多个路径" spellcheck="false"></textarea>
+                </form>
+            </div>
+            <div id="fido2Step2" style="display: none;">
+                <form id="fido2SudoForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="fido2ConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="fido2Msg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelFido2Btn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmFido2Btn" data-i18n="sudo_btn_confirm">确认</button>
                     </div>
-
-                    <div class="npm-form-group">
-                        <label class="npm-label" for="npmOnionLocation" data-i18n="npm_onion_label">洋葱服务地址 (Onion-Location)</label>
-                        <input type="text" id="npmOnionLocation" class="npm-input" data-i18n-placeholder="npm_onion_placeholder" placeholder="例如: http://xxxxxx.onion（可选）" autocomplete="off" spellcheck="false">
-                    </div>
-
-                    <div class="npm-form-group">
-                        <label class="npm-label" for="npmSsoMode" data-i18n="npm_sso_label">单点登录凭证传递 (SSO)</label>
-                        <select id="npmSsoMode" class="npm-select">
-                            <option value="user" data-i18n="npm_sso_user" selected>传递用户名 (Remote-User)</option>
-                            <option value="email" data-i18n="npm_sso_email">传递邮箱 (Remote-Email)</option>
-                            <option value="both" data-i18n="npm_sso_both">传递用户名与邮箱</option>
-                            <option value="none" data-i18n="npm_sso_none">仅访问拦截（不传递身份头）</option>
-                        </select>
-                    </div>
-
-                    <div class="modal-actions" style="margin-top: 20px;">
-                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelNpmModalBtn" data-i18n="btn_cancel">取消</button>
-                        <button type="button" class="modal-btn modal-btn-primary" id="continueNpmModalBtn" data-i18n="btn_continue">继续</button>
-                    </div>
-                </div>
-
-                <!-- Step 2: Output display with top-right pill copy button -->
-                <div id="npmStep2" style="display: none;">
-                    <h3 data-i18n="npm_modal_title_step2">Nginx 配置代码已生成</h3>
-                    <p class="modal-desc" data-i18n="npm_modal_desc_step2">请在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡粘贴此配置。</p>
-
-                    <div class="npm-code-box-wrapper">
-                        <div class="npm-code-toolbar">
-                            <span class="npm-code-badge">Advanced Configuration</span>
-                            <button type="button" class="btn-pill-copy" id="npmCopyBtn">
-                                <img src="/assets/icons/copy.svg" width="13" height="13" alt="Copy" class="user-icon">
-                                <span id="npmCopyBtnText" data-i18n="btn_copy">复制</span>
-                            </button>
-                        </div>
-                        <pre class="npm-code-content"><code id="npmConfigOutput"></code></pre>
-                    </div>
-
-                    <div class="modal-actions" style="margin-top: 20px;">
-                        <button type="button" class="modal-btn modal-btn-secondary" id="backNpmModalBtn" data-no-close="true" data-i18n="btn_back_edit">返回修改</button>
-                        <button type="button" class="modal-btn modal-btn-primary" id="finishNpmModalBtn" data-i18n="btn_saved">完成</button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <!-- Sudo Modal (Direct password confirmation for Recovery Codes) -->
-        <div class="modal-overlay" id="sudoModal" style="display: none;">
-            <div class="modal-card">
-                <div class="modal-icon" id="sudoModalIcon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%"><path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z"/></svg></div>
-                <div id="sudoStep1">
-                    <form id="sudoForm" style="margin: 0; width: 100%;">
-                        <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
-                        <h3 id="sudoModalTitle" data-i18n="sudo_title">确认你的密码</h3>
-                        <p class="modal-desc" id="sudoModalDesc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
-                        <input type="password" name="password" class="modal-input" id="sudoPassword" autocomplete="current-password" placeholder="密码">
-                        <div class="msg" id="sudoMsg" style="font-size: 14px; margin-top: 8px;"></div>
-                        <div class="modal-actions">
-                            <button type="button" class="modal-btn modal-btn-secondary" id="cancelSudoBtn" data-i18n="btn_cancel">取消</button>
-                            <button type="submit" class="modal-btn modal-btn-primary" id="confirmSudoBtn" data-i18n="sudo_btn_confirm">确认</button>
-                        </div>
-                    </form>
+    <!-- Username Modal -->
+    <div class="modal-overlay" id="usernameModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1753.000000 1753.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,1753.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M8555 16434 c-16 -2 -73 -9 -125 -15 -636 -71 -1216 -313 -1735 -723 -617 -488 -1214 -1521 -1330 -2299 -45 -305 -45 -998 0 -1300 124 -824 728 -1878 1360 -2372 759 -592 1609 -826 2505 -689 586 90 1093 318 1590 715 647 517 1242 1608 1352 2479 22 175 18 962 -5 1115 -103 667 -451 1392 -956 1990 -407 481 -1081 878 -1744 1025 -263 58 -745 97 -912 74z"/><path d="M8310 7490 c-140 -10 -372 -26 -515 -35 -376 -24 -518 -44 -823 -116 -68 -16 -215 -49 -325 -74 -579 -128 -1119 -331 -1839 -691 -864 -432 -1465 -914 -2162 -1734 -736 -866 -1148 -1922 -1057 -2710 56 -485 442 -853 1006 -959 378 -72 -210 -65 5965 -69 6247 -3 5979 -6 6376 73 693 139 1050 609 995 1310 -87 1095 -749 2198 -1956 3259 -744 654 -2084 1301 -3180 1535 -77 16 -216 48 -310 70 -315 74 -365 79 -1085 126 -594 39 -719 40 -1090 15z"/></g></svg></div>
+            <div id="usernameStep1">
+                <form id="usernameStep1Form" style="margin: 0; width: 100%;">
+                    <input type="text" name="current-username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="section_username_title">修改用户名</h3>
+                    <p class="modal-desc" data-i18n="section_username_desc">更改后需使用新用户名登录。</p>
+                    <input type="text" class="modal-input" id="newUsername" name="new-username" data-i18n-placeholder="placeholder_new_username" placeholder="新用户名" autocomplete="off" required minlength="3" maxlength="32">
+                    <div class="msg" id="usernameMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelUsernameBtn1" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="continueUsernameBtn" data-i18n="btn_continue">继续</button>
+                    </div>
+                </form>
+            </div>
+            <div id="usernameStep2" style="display: none;">
+                <form id="usernameForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="usernameConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="usernameMsg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelUsernameBtn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmUsernameBtn" data-i18n="sudo_btn_confirm">确认</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="modal-overlay" id="emailModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%"><defs><clipPath id="envelope-clip"><rect x="16" y="48" width="224" height="160" rx="24" ry="24" /></clipPath></defs><g clip-path="url(#envelope-clip)"><rect x="24" y="56" width="208" height="144" rx="16" ry="16" fill="none" stroke="currentColor" stroke-width="16" /><polyline points="16,48 128,136 240,48" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" /></g></svg></div>
+            <div id="emailStep1">
+                <form id="emailStep1Form" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="section_email_title">绑定邮箱</h3>
+                    <p class="modal-desc" data-i18n="section_email_desc">用于单点登录 (SSO) 身份识别与重要安全通知。</p>
+                    <input type="email" class="modal-input" id="newEmail" name="email" data-i18n-placeholder="placeholder_new_email" placeholder="电子邮件地址" autocomplete="email" required>
+                    <div class="msg" id="emailMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelEmailBtn1" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="continueEmailBtn" data-i18n="btn_continue">继续</button>
+                    </div>
+                </form>
+            </div>
+            <div id="emailStep2" style="display: none;">
+                <form id="emailForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="emailConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="emailMsg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelEmailBtn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmEmailBtn" data-i18n="sudo_btn_confirm">确认</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg width="100%" height="100%" viewBox="0 0 72 73" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(0.000000, 0.441452)"><rect x="0" y="0" width="72" height="72"></rect><path d="M64.2481971,14.4931046 L65.5958533,13.1063859 C66.2989783,12.4032609 66.3185096,11.4266984 65.6349158,10.7431046 L65.1661658,10.2743546 C64.5411658,9.66888587 63.5450721,9.74701087 62.8810096,10.4110734 L61.5138221,11.7391984 L64.2481971,14.4931046 Z M42.9200721,33.6532609 L46.7677283,31.9735734 L62.8419471,15.8798234 L60.1075721,13.1845109 L44.0333533,29.2587296 L42.2755408,32.9696671 C42.0997596,33.3602921 42.5294471,33.8095109 42.9200721,33.6532609 Z M52.9200721,45.8602921 C56.4161658,45.8602921 58.3497596,44.0048234 58.3497596,40.5087296 L58.3497596,25.0595109 L55.0099158,28.3993546 L55.0099158,40.4306046 C55.0099158,41.9149796 54.1700721,42.7548234 52.6661658,42.7548234 L15.7716346,42.7548234 C14.2677283,42.7548234 13.4278846,41.9149796 13.4278846,40.4306046 L13.4278846,24.9618546 C13.4278846,23.4579484 14.2677283,22.6376359 15.7716346,22.6376359 L45.9669471,22.6376359 L49.0528846,19.5321671 L15.5177283,19.5321671 C12.0216346,19.5321671 10.0880408,21.3876359 10.0880408,24.8837296 L10.0880408,40.5087296 C10.0880408,44.0048234 12.0216346,45.8602921 15.5177283,45.8602921 L52.9200721,45.8602921 Z M20.2638221,35.3915421 C21.7481971,35.3915421 22.9591346,34.1806046 22.9591346,32.6962296 C22.9591346,31.2118546 21.7481971,30.0009171 20.2638221,30.0009171 C18.7794471,30.0009171 17.5685096,31.2118546 17.5685096,32.6962296 C17.5685096,34.1806046 18.7794471,35.3915421 20.2638221,35.3915421 Z M28.3302283,35.3915421 C29.8146033,35.3915421 31.0255408,34.1806046 31.0255408,32.6962296 C31.0255408,31.2118546 29.8146033,30.0009171 28.3302283,30.0009171 C26.8458533,30.0009171 25.6349158,31.2118546 25.6349158,32.6962296 C25.6349158,34.1806046 26.8458533,35.3915421 28.3302283,35.3915421 Z M36.3966346,35.3915421 C37.8810096,35.3915421 39.0919471,34.1806046 39.0919471,32.6962296 C39.0919471,31.2118546 37.8810096,30.0009171 36.3966346,30.0009171 C34.9122596,30.0009171 33.7013221,31.2118546 33.7013221,32.6962296 C33.7013221,34.1806046 34.9122596,35.3915421 36.3966346,35.3915421 Z" fill="currentColor" fill-rule="nonzero"></path></g></g></svg></div>
+            <div id="passwordStep1">
+                <form id="newPasswordForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="section_password_title">修改密码</h3>
+                    <p class="modal-desc" data-i18n="section_password_desc">建议使用至少 6 位包含字母和数字的高强度密码。</p>
+                    <input type="password" name="new-password" class="modal-input" id="newPassword" data-i18n-placeholder="placeholder_new_pwd" placeholder="新密码" autocomplete="new-password" required>
+                    <input type="password" name="confirm-new-password" class="modal-input" id="confirmPassword" data-i18n-placeholder="placeholder_confirm_pwd" placeholder="再次输入新密码" autocomplete="new-password" required>
+                    <div class="msg" id="passwordMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasswordBtn1" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="continuePasswordBtn" data-i18n="btn_continue">继续</button>
+                    </div>
+                </form>
+            </div>
+            <div id="passwordStep2" style="display: none;">
+                <form id="passwordSudoForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="passwordConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="passwordMsg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelPasswordBtn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmPasswordBtn" data-i18n="sudo_btn_confirm">确认</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- OIDC Modal -->
+    <div class="modal-overlay" id="oidcModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon"><svg viewBox="11 -3 32 32" width="56" height="56" fill="currentColor"><path d="M36.8342359,8.83321469 C38.072496,10.0714748 39.0036329,11.229461 38.9999893,12.7117355 C39.003507,14.1372282 38.1281507,15.2573951 36.9458898,16.4543889 L31.1785056,22.2225156 C29.9342022,23.466819 28.7934901,24.3963459 27.3115033,24.3999893 C25.8788624,24.4035115 24.749034,23.5335332 23.5567881,22.3570149 L17.7584607,16.5594819 C16.5274616,15.3284828 15.5963671,14.1705113 15.6000107,12.6884967 C15.6035326,11.2559094 16.4722413,10.1422245 17.654126,8.94559591 L23.4435126,3.15546617 C24.6586501,1.94032873 25.8065942,1.00365389 27.2884967,1.00001066 C28.7210569,0.996488733 29.8508415,1.86634769 31.0234083,3.02318174 L36.8342359,8.83321469 Z M35.9238907,10.1525511 L29.8693591,4.09801954 L29.7673174,3.99715314 C29.0138651,3.26124386 28.1488919,2.61685195 27.2845165,2.61897701 C26.3955901,2.62116242 25.4951275,3.32259651 24.7143524,4.10337166 L18.6886928,10.1290312 L18.5883707,10.2305202 C17.8569815,10.9793173 17.2281729,11.8267563 17.2189796,12.684127 C17.2241815,13.5811732 17.9140907,14.4854303 18.6761093,15.2474489 L24.7525511,21.3238907 L24.8527592,21.4228437 C25.5933451,22.1447438 26.4578296,22.7758101 27.3081801,22.7737196 C28.2119997,22.7714976 29.0976005,22.0846755 29.8709688,21.3113072 L35.9186466,15.2636294 L36.0180564,15.1630511 C36.7430429,14.4206226 37.3715941,13.5727407 37.3737196,12.7081801 C37.3759052,11.8191773 36.6860659,10.9147264 35.9238907,10.1525511 Z M22.8807831,11.55 C23.5910355,11.55 24.1673879,12.1409091 24.1673879,12.85 C24.1673879,13.5709091 23.5910355,14.15 22.8807831,14.15 C22.1588872,14.15 21.6,13.5768182 21.6,12.85 C21.6,12.1409091 22.1821741,11.55 22.8807831,11.55 Z M27.2470891,11.55 C27.9515198,11.55 28.5278722,12.1409091 28.5278722,12.85 C28.5278722,13.5709091 27.9515198,14.15 27.2470891,14.15 C26.5310149,14.15 25.9721278,13.5768182 25.9721278,12.85 C25.9721278,12.1409091 26.5543019,11.55 27.2470891,11.55 Z M31.6192169,11.55 C32.3236476,11.55 32.9,12.1409091 32.9,12.85 C32.9,13.5709091 32.3236476,14.15 31.6192169,14.15 C30.8914992,14.15 30.3267903,13.5768182 30.3267903,12.85 C30.3267903,12.1409091 30.9147862,11.55 31.6192169,11.55 Z"></path></svg></div>
+            <div id="oidcStep1">
+                <h3 data-i18n="oidc_add_title">添加授权应用</h3>
+                <p class="modal-desc" data-i18n="oidc_add_desc">输入应用基本信息以创建 OIDC 客户端凭证。</p>
+                <input type="text" id="oidcAppName" class="modal-input" data-i18n-placeholder="placeholder_app_name" placeholder="应用名称（如：我的网盘）" autocomplete="off">
+                <textarea id="oidcRedirectUris" class="modal-input" data-i18n-placeholder="placeholder_redirect_uris" placeholder="重定向 URI（每行一个）"></textarea>
+                <div class="msg" id="oidcMsg1" style="font-size: 14px; margin-top: 8px;"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" id="cancelOidcBtn1" data-i18n="btn_cancel">取消</button>
+                    <button class="modal-btn modal-btn-primary" id="continueOidcBtn" data-i18n="btn_continue">继续</button>
+                </div>
+            </div>
+            <div id="oidcStep2" style="display: none;">
+                <form id="oidcForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="oidcConfirmPwd" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="oidcMsg2" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelOidcBtn2" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmOidcBtn" data-i18n="sudo_btn_confirm">确认</button>
+                    </div>
+                </form>
+            </div>
+            <div id="oidcStep3" style="display: none;">
+                <h3 data-i18n="oidc_secret_title">应用凭证已生成</h3>
+                <div id="newOidcClientSecret" class="modal-secret-display"></div>
+                <p class="modal-desc"><span data-i18n="oidc_client_id_label">Client ID：</span><span id="newOidcClientId" style="user-select:all;font-family:var(--font-mono);"></span><br><span data-i18n="oidc_secret_desc">请妥善保管客户端密钥 (Client Secret)，该密钥仅显示一次！</span></p>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-primary" id="finishOidcSecretBtn" data-i18n="btn_saved">我已保存</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=99"></script>
+    <!-- NPM Generator Modal (2-step) -->
+    <div class="modal-overlay" id="npmModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+            </div>
+
+            <!-- Step 1: Input form -->
+            <div id="npmStep1">
+                <h3 data-i18n="npm_modal_title_step1">生成反向代理防护配置</h3>
+                <p class="modal-desc" data-i18n="npm_modal_desc_step1">输入要保护的域名与放行路径，自动生成可直接复制至 NPM 的 Nginx 配置代码。</p>
+
+                <div class="npm-form-group">
+                    <label class="npm-label" for="npmProtectedDomain" data-i18n="npm_domain_label">受保护域名</label>
+                    <input type="text" id="npmProtectedDomain" class="npm-input" data-i18n-placeholder="npm_domain_placeholder" placeholder="例如: app.example.com" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="npm-form-group">
+                    <label class="npm-label" for="npmBypassPaths" data-i18n="npm_bypass_label">放行路径（绕过认证）</label>
+                    <textarea id="npmBypassPaths" class="npm-textarea" data-i18n-placeholder="npm_bypass_placeholder" placeholder="例如: /api/ 或换行输入多个路径" spellcheck="false"></textarea>
+                </div>
+
+                <div class="npm-form-group">
+                    <label class="npm-label" for="npmOnionLocation" data-i18n="npm_onion_label">洋葱服务地址 (Onion-Location)</label>
+                    <input type="text" id="npmOnionLocation" class="npm-input" data-i18n-placeholder="npm_onion_placeholder" placeholder="例如: http://xxxxxx.onion（可选）" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="npm-form-group">
+                    <label class="npm-label" for="npmSsoMode" data-i18n="npm_sso_label">单点登录凭证传递 (SSO)</label>
+                    <select id="npmSsoMode" class="npm-select">
+                        <option value="user" data-i18n="npm_sso_user" selected>传递用户名 (Remote-User)</option>
+                        <option value="email" data-i18n="npm_sso_email">传递邮箱 (Remote-Email)</option>
+                        <option value="both" data-i18n="npm_sso_both">传递用户名与邮箱</option>
+                        <option value="none" data-i18n="npm_sso_none">仅访问拦截（不传递身份头）</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="button" class="modal-btn modal-btn-secondary" id="cancelNpmModalBtn" data-i18n="btn_cancel">取消</button>
+                    <button type="button" class="modal-btn modal-btn-primary" id="continueNpmModalBtn" data-i18n="btn_continue">继续</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Output display with top-right pill copy button -->
+            <div id="npmStep2" style="display: none;">
+                <h3 data-i18n="npm_modal_title_step2">Nginx 配置代码已生成</h3>
+                <p class="modal-desc" data-i18n="npm_modal_desc_step2">请在 Nginx Proxy Manager 中编辑对应的 Proxy Host，切换至「Advanced」选项卡粘贴此配置。</p>
+
+                <div class="npm-code-box-wrapper">
+                    <div class="npm-code-toolbar">
+                        <span class="npm-code-badge">Advanced Configuration</span>
+                        <button type="button" class="btn-pill-copy" id="npmCopyBtn">
+                            <img src="/assets/icons/copy.svg" width="13" height="13" alt="Copy" class="user-icon">
+                            <span id="npmCopyBtnText" data-i18n="btn_copy">复制</span>
+                        </button>
+                    </div>
+                    <pre class="npm-code-content"><code id="npmConfigOutput"></code></pre>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="button" class="modal-btn modal-btn-secondary" id="backNpmModalBtn" data-no-close="true" data-i18n="btn_back_edit">返回修改</button>
+                    <button type="button" class="modal-btn modal-btn-primary" id="finishNpmModalBtn" data-i18n="btn_saved">完成</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sudo Modal (Direct password confirmation for Recovery Codes) -->
+    <div class="modal-overlay" id="sudoModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-icon" id="sudoModalIcon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%"><path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z"/></svg></div>
+            <div id="sudoStep1">
+                <form id="sudoForm" style="margin: 0; width: 100%;">
+                    <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>
+                    <h3 id="sudoModalTitle" data-i18n="sudo_title">确认你的密码</h3>
+                    <p class="modal-desc" id="sudoModalDesc" data-i18n="sudo_desc">出于安全考虑，请输入当前密码以继续操作。</p>
+                    <input type="password" name="password" class="modal-input" id="sudoPassword" autocomplete="current-password" placeholder="密码">
+                    <div class="msg" id="sudoMsg" style="font-size: 14px; margin-top: 8px;"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" id="cancelSudoBtn" data-i18n="btn_cancel">取消</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="confirmSudoBtn" data-i18n="sudo_btn_confirm">确认</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/admin.js?v=100"></script>
 </body>
 </html>

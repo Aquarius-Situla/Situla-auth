@@ -266,7 +266,27 @@
             "msg_verify_failed": "Verification failed, please try again",
             "msg_2fa_wrong": "Invalid or expired 2FA code",
             "msg_enter_6_digits": "Please enter a complete 6-digit code",
-            "msg_2fa_enabled": "✓ Two-Factor Authentication successfully enabled!"
+            "msg_2fa_enabled": "✓ Two-Factor Authentication successfully enabled!",
+            "tab_overview": "Overview",
+            "tab_credentials": "Credentials",
+            "tab_integrations": "Integrations",
+            "tab_logs": "Logs",
+            "nav_section_manage": "Management",
+            "nav_section_security": "Security & Credentials",
+            "nav_section_system": "System & Audit",
+            "search_settings_placeholder": "Search settings & features...",
+            "guard_rotate_title": "Please rotate your device",
+            "guard_rotate_desc": "For optimal account security management, portrait mode is required on phones.",
+            "status_security_summary": "Security Health Overview",
+            "status_passkeys_count": "{0} passkeys configured",
+            "status_fido2_count": "{0} security keys configured",
+            "status_rc_count": "{0} recovery codes remaining",
+            "status_current_session": "Active Session",
+            "btn_quick_actions": "Quick Access",
+            "user_profile_copied": "Copied!",
+            "user_profile_label": "Logged in account",
+            "btn_refresh_logs": "Refresh Logs",
+            "search_no_results": "No matching settings found"
         }
     };
 

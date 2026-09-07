@@ -266,7 +266,27 @@
             "msg_verify_failed": "验证失败，请重试",
             "msg_2fa_wrong": "双重认证码错误或已失效",
             "msg_enter_6_digits": "请输入完整的 6 位验证码",
-            "msg_2fa_enabled": "✓ 双重认证已成功启用！"
+            "msg_2fa_enabled": "✓ 双重认证已成功启用！",
+            "tab_overview": "概览",
+            "tab_credentials": "凭证",
+            "tab_integrations": "集成",
+            "tab_logs": "日志",
+            "nav_section_manage": "管理",
+            "nav_section_security": "安全与凭证",
+            "nav_section_system": "系统与审计",
+            "search_settings_placeholder": "搜索设置与功能...",
+            "guard_rotate_title": "请将设备旋转至竖屏",
+            "guard_rotate_desc": "为了提供最佳的账户安全管理体验，手机版仅支持竖屏模式。",
+            "status_security_summary": "安全防护概况",
+            "status_passkeys_count": "已配置 {0} 个通行密钥",
+            "status_fido2_count": "已配置 {0} 把安全密钥",
+            "status_rc_count": "剩余 {0} 组应急恢复码",
+            "status_current_session": "当前登录会话",
+            "btn_quick_actions": "快捷入口",
+            "user_profile_copied": "已复制！",
+            "user_profile_label": "当前登录账户",
+            "btn_refresh_logs": "刷新日志",
+            "search_no_results": "无匹配的设置项"
         }
     };
 

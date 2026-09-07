@@ -22,3 +22,6 @@
 @import './components/loaders.css';
 @import './components/warning.css';
 @import './components/npm-generator.css';
+@import './components/desktop-shell.css';
+@import './components/tab-bar.css';
+@import './components/orientation-guard.css';
