@@ -1,0 +1,424 @@
+/* ============================================================================
+ * Situla Auth 2.0 — Apple Account & Subpage Component Styles (apple-account.css)
+ * ============================================================================
+ * COMMENTING STANDARDS
+ * 1. Block comments only. Inline comments are strictly prohibited.
+ * 2. Section dividers use the === banner format.
+ * 3. All prose is written in English.
+ * ============================================================================ */
+
+/* ============================================================================
+ * 1. Apple Account Hero Profile Header (Matches Image 1)
+ * ============================================================================ */
+.apple-account-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 16px 28px 16px;
+    margin: 0 auto;
+    max-width: 680px;
+}
+
+.apple-account-avatar-wrapper {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 14px;
+}
+
+.apple-account-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: #8e8e93;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1;
+    overflow: hidden;
+    user-select: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.apple-account-avatar svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.apple-account-name {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--apple-text-primary, #ffffff);
+    margin: 0 0 4px 0;
+    line-height: 1.25;
+}
+
+.apple-account-email {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--apple-text-secondary, rgba(235, 235, 245, 0.6));
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+/* ============================================================================
+ * 2. Inset Grouped Adjustments & Row Typography
+ * ============================================================================ */
+.apple-group-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 16px 40px 16px;
+    box-sizing: border-box;
+}
+
+.apple-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.apple-row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.apple-row-label {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.2px;
+    color: var(--apple-text-primary, #ffffff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apple-row-value {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--apple-text-secondary, rgba(235, 235, 245, 0.6));
+    white-space: nowrap;
+}
+
+.apple-row-chevron {
+    width: 8px;
+    height: 13px;
+    fill: none;
+    stroke: var(--apple-text-quaternary, rgba(235, 235, 245, 0.28));
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.apple-row.has-badge .apple-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.apple-row.has-badge .apple-badge svg {
+    width: 17px;
+    height: 17px;
+    fill: #ffffff;
+}
+
+/* Special danger row for Sign Out */
+.apple-row-danger {
+    justify-content: center;
+    text-align: center;
+}
+
+.apple-row-danger .apple-row-label {
+    color: var(--apple-red, #ff453a);
+    font-weight: 500;
+}
+
+/* Row with prominent action button / link */
+.apple-row-action-link {
+    color: var(--apple-blue, #0a84ff);
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* ============================================================================
+ * 3. Subpage Profile Top (Matches Image 2)
+ * ============================================================================ */
+.subpage-avatar-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0 24px 0;
+}
+
+.subpage-avatar-img {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: #8e8e93;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 42px;
+    font-weight: 500;
+    overflow: hidden;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+.subpage-avatar-img svg {
+    width: 100%;
+    height: 100%;
+}
+
+.subpage-avatar-edit-btn {
+    background: none;
+    border: none;
+    color: var(--apple-blue, #0a84ff);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    outline: none;
+    transition: opacity 0.2s;
+}
+
+.subpage-avatar-edit-btn:hover {
+    opacity: 0.8;
+}
+
+.subpage-footer-note {
+    font-size: 13px;
+    color: var(--apple-text-tertiary, rgba(235, 235, 245, 0.38));
+    margin: 8px 14px 24px 14px;
+    line-height: 1.45;
+}
+
+.subpage-footer-link {
+    display: block;
+    text-align: center;
+    color: var(--apple-blue, #0a84ff);
+    font-size: 13px;
+    text-decoration: none;
+    margin: 20px 0;
+    cursor: pointer;
+}
+
+.subpage-footer-link:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================================
+ * 4. SMTP Settings Form Controls
+ * ============================================================================ */
+.apple-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 14px;
+    position: relative;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.apple-form-row:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 0;
+    bottom: 0;
+    height: 0.5px;
+    background: var(--apple-divider);
+}
+
+.apple-form-label {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--apple-text-primary);
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.apple-form-input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: var(--apple-text-primary);
+    text-align: right;
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.apple-form-input::placeholder {
+    color: var(--apple-text-tertiary);
+}
+
+.apple-form-input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+/* Apple Standard Toggle Switch */
+.apple-switch {
+    position: relative;
+    display: inline-block;
+    width: 51px;
+    height: 31px;
+    flex-shrink: 0;
+}
+
+.apple-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.apple-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(120, 120, 128, 0.32);
+    transition: 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    border-radius: 31px;
+}
+
+.apple-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 27px;
+    width: 27px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #ffffff;
+    transition: 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.apple-switch input:checked + .apple-switch-slider {
+    background-color: var(--apple-green, #34c759);
+}
+
+.apple-switch input:checked + .apple-switch-slider:before {
+    transform: translateX(20px);
+}
+
+/* Buttons in Inset Groups */
+.apple-btn-row {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.apple-btn-full {
+    width: 100%;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.apple-btn-full:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+.apple-btn-blue {
+    background: var(--apple-blue, #007aff);
+    color: #ffffff;
+}
+
+.apple-btn-tinted {
+    background: rgba(0, 122, 255, 0.15);
+    color: var(--apple-blue, #007aff);
+}
+
+/* ============================================================================
+ * 5. Dynamic Subpage Embedded Container
+ * ============================================================================ */
+.subpage-items-container {
+    padding: 0 14px 14px 14px;
+}
+
+.subpage-item-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 0.5px solid var(--apple-divider);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.subpage-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.subpage-item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--apple-text-primary);
+    margin-bottom: 2px;
+}
+
+.subpage-item-meta {
+    font-size: 12px;
+    color: var(--apple-text-secondary);
+}
+
+.subpage-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================================================
+ * 6. Settings Tab Selection Indicator (Checkmark)
+ * ============================================================================ */
+.apple-check-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--apple-blue, #007aff);
+    display: none;
+}
+
+.apple-row.is-selected .apple-check-icon {
+    display: block;
+}

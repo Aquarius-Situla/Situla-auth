@@ -14,21 +14,23 @@ import { isMobileLayout } from './device-detect.js';
 /* ============================================================================
  * Tab Definitions & Mapping
  * ============================================================================ */
-export const VALID_TABS = ['overview', 'credentials', 'integrations', 'logs'];
+export const VALID_TABS = ['home', 'logs', 'settings'];
 
-let currentActiveTab = 'overview';
+let currentActiveTab = 'home';
 
 /* Search index for the desktop sidebar search box */
 const ADMIN_SEARCH_INDEX = [
-    { id: 'profile', tab: 'overview', cardId: 'accountInfoCard', titleKey: 'section_username_title', keywords: ['username', 'email', 'password', '用户名', '邮箱', '密码', '修改'] },
-    { id: 'health', tab: 'overview', cardId: 'securityHealthCard', titleKey: 'status_security_summary', keywords: ['health', 'score', 'status', '安全概览', '双重认证', '通行密钥'] },
-    { id: 'passkeys', tab: 'credentials', cardId: 'passkeySection', titleKey: 'section_pk_title', keywords: ['passkey', 'webauthn', 'biometrics', '通行密钥', '面容', '指纹'] },
-    { id: 'twofa', tab: 'credentials', cardId: 'twoFaSection', titleKey: 'section_2fa_title', keywords: ['2fa', 'totp', 'fido2', 'yubikey', '双重认证', '身份验证器', '安全密钥'] },
-    { id: 'recovery', tab: 'credentials', cardId: 'rcCard', titleKey: 'section_rc_title', keywords: ['recovery', 'codes', 'backup', '恢复码', '应急', '备用码'] },
-    { id: 'oidc', tab: 'integrations', cardId: 'oidcSection', titleKey: 'oidc_title', keywords: ['oidc', 'oauth', 'sso', 'client', '授权应用', '单点登录'] },
-    { id: 'npm', tab: 'integrations', cardId: 'npmSection', titleKey: 'npm_section_title', keywords: ['npm', 'nginx', 'forward-auth', 'proxy', '反向代理', '防护配置'] },
-    { id: 'logs', tab: 'logs', cardId: 'loginLogsCard', titleKey: 'logs_title', keywords: ['logs', 'audit', 'login', 'history', 'ip', '近期登录', '日志', '活动', '审计'] },
-    { id: 'logout', tab: 'overview', cardId: 'sessionActionsCard', titleKey: 'btn_logout', keywords: ['logout', 'signout', 'session', '退出登录', '所有设备'] }
+    { id: 'profile', tab: 'home', subpage: 'subpage-personal-info', cardId: 'personalInfoCard', titleKey: 'subpage_personal_info', keywords: ['username', 'email', 'name', 'profile', '用户名', '姓名', '邮箱', '修改'] },
+    { id: 'smtp', tab: 'home', subpage: 'subpage-smtp', cardId: 'smtpCard', titleKey: 'row_smtp_settings', keywords: ['smtp', 'mail', 'email', 'server', 'ssl', 'port', '邮件', '通信', '设置', '服务器'] },
+    { id: 'security', tab: 'home', subpage: 'subpage-security', cardId: 'securityCard', titleKey: 'subpage_security', keywords: ['security', 'password', '2fa', 'passkey', 'totp', '安全', '密码', '修改密码'] },
+    { id: 'passkeys', tab: 'home', subpage: 'subpage-security', cardId: 'passkeySection', titleKey: 'row_passkeys', keywords: ['passkey', 'webauthn', 'biometrics', '通行密钥', '面容', '指纹'] },
+    { id: 'twofa', tab: 'home', subpage: 'subpage-security', cardId: 'twoFaSection', titleKey: 'row_two_factor', keywords: ['2fa', 'totp', 'fido2', 'yubikey', '双重认证', '身份验证器', '安全密钥'] },
+    { id: 'recovery', tab: 'home', subpage: 'subpage-security', cardId: 'rcCard', titleKey: 'row_recovery_codes', keywords: ['recovery', 'codes', 'backup', '恢复码', '应急', '备用码'] },
+    { id: 'oidc', tab: 'home', subpage: 'subpage-integrations', cardId: 'oidcSection', titleKey: 'row_oidc_clients', keywords: ['oidc', 'oauth', 'sso', 'client', '授权应用', '单点登录'] },
+    { id: 'npm', tab: 'home', subpage: 'subpage-integrations', cardId: 'npmSection', titleKey: 'row_forward_auth_gen', keywords: ['npm', 'nginx', 'forward-auth', 'proxy', '反向代理', '防护配置'] },
+    { id: 'logs', tab: 'logs', subpage: null, cardId: 'loginLogsCard', titleKey: 'tab_logs', keywords: ['logs', 'audit', 'login', 'history', 'ip', '近期登录', '日志', '活动', '审计'] },
+    { id: 'settings', tab: 'settings', subpage: null, cardId: 'preferencesCard', titleKey: 'tab_settings', keywords: ['settings', 'preferences', 'language', 'theme', 'appearance', '语言', '主题', '外观', '设置'] },
+    { id: 'logout', tab: 'home', subpage: null, cardId: 'homeLogoutRow', titleKey: 'row_logout', keywords: ['logout', 'signout', 'session', '退出登录', '所有设备'] }
 ];
 
 /* ============================================================================
@@ -36,17 +38,35 @@ const ADMIN_SEARCH_INDEX = [
  * ============================================================================ */
 
 /**
+ * Normalizes legacy tab names to the modern 3-tab AquaKit architecture.
+ * @param {string} tab
+ * @returns {string}
+ */
+export function normalizeTab(tab) {
+    if (tab === 'overview') return 'home';
+    if (tab === 'credentials' || tab === 'integrations') return 'home';
+    if (VALID_TABS.includes(tab)) return tab;
+    return 'home';
+}
+
+/**
  * Switches the active tab across both Desktop Sidebar and Mobile Tab Bar.
- * @param {string} tabId One of 'overview', 'credentials', 'integrations', 'logs'
+ * @param {string} rawTabId One of 'home', 'logs', 'settings'
  * @param {boolean} updateHash Whether to update window.location.hash
  */
-export function switchTab(tabId, updateHash = true) {
-    if (!VALID_TABS.includes(tabId)) {
-        tabId = 'overview';
-    }
-
+export function switchTab(rawTabId, updateHash = true) {
+    const tabId = normalizeTab(rawTabId);
     currentActiveTab = tabId;
     window.switchTab = switchTab;
+
+    /* Dismiss any active subpage when changing tabs */
+    if (window.AquaKit && typeof window.AquaKit.popSubpage === 'function') {
+        try {
+            if (window.AquaKit.isSubpageActive()) {
+                window.AquaKit.popSubpage({ instant: true });
+            }
+        } catch (ignored) {}
+    }
 
     /* 1. Update tab-pane active class with smooth fade */
     const stage = document.getElementById('desktop-stage');
@@ -91,7 +111,7 @@ export function switchTab(tabId, updateHash = true) {
     /* 3. Synchronize mobile bottom tab bar active items */
     const tabBar = document.getElementById('apple-tab-bar');
     if (tabBar) {
-        tabBar.querySelectorAll('.tab-item').forEach(item => {
+        tabBar.querySelectorAll('.apple-tab-item, .tab-item').forEach(item => {
             if (item.getAttribute('data-tab-id') === tabId) {
                 item.classList.add('active');
             } else {
@@ -103,7 +123,11 @@ export function switchTab(tabId, updateHash = true) {
     /* 4. Synchronize mobile top nav bar title */
     const topTitle = document.getElementById('mobileNavTitle');
     if (topTitle) {
-        topTitle.textContent = t(`tab_${tabId}`);
+        if (tabId === 'home') {
+            topTitle.textContent = t('admin_title');
+        } else {
+            topTitle.textContent = t(`tab_${tabId}`);
+        }
     }
 
     /* 5. Update URL hash */
@@ -131,28 +155,45 @@ export function glideNavIndicator(tabId) {
 }
 
 /* ============================================================================
- * Apple Music Style Compact Profile Synchronizer
+ * Apple Music Style Compact Profile Synchronizer & Identicon Generation
  * ============================================================================ */
 export function syncSidebarProfile() {
     const username = window.currentUsername || 'Administrator';
+    const email = window.currentUserEmail || 'admin@aquanexus.me';
 
-    /* Generate and inject 16x16 Identicon avatar */
-    const avatarContainer = document.getElementById('desktopProfileAvatar');
-    if (avatarContainer) {
-        avatarContainer.innerHTML = generateIdenticonSvg(username, 16);
+    /* Generate and inject 16x16 Identicon avatar for desktop sidebar */
+    const sidebarAvatar = document.getElementById('desktopProfileAvatar');
+    if (sidebarAvatar) {
+        sidebarAvatar.innerHTML = generateIdenticonSvg(username, 16);
     }
 
-    /* Also inject into Overview profile header avatar */
-    const overviewAvatar = document.getElementById('overviewUserAvatar');
-    if (overviewAvatar) {
-        overviewAvatar.innerHTML = generateIdenticonSvg(username, 48);
+    /* Generate and inject 88x88 Identicon avatar for Home Hero */
+    const heroAvatar = document.getElementById('accountAvatar');
+    if (heroAvatar) {
+        heroAvatar.innerHTML = generateIdenticonSvg(username, 88);
     }
 
-    /* Set username with native browser tooltip */
+    /* Generate and inject 96x96 Identicon avatar for Personal Info Subpage */
+    const subpageAvatar = document.getElementById('subpageAvatar');
+    if (subpageAvatar) {
+        subpageAvatar.innerHTML = generateIdenticonSvg(username, 96);
+    }
+
+    /* Set username across relevant UI labels */
     const usernameEl = document.getElementById('desktopProfileUsername');
     if (usernameEl) {
         usernameEl.textContent = username;
         usernameEl.setAttribute('title', username);
+    }
+
+    const heroName = document.getElementById('accountUsername');
+    if (heroName) {
+        heroName.textContent = username;
+    }
+
+    const heroEmail = document.getElementById('accountEmail');
+    if (heroEmail) {
+        heroEmail.textContent = email;
     }
 
     const card = document.getElementById('desktopProfileCard');
@@ -178,25 +219,21 @@ function setupProfileCopyHandler(card, textEl, username) {
                 copied = true;
             }
         } catch (err) {
-            /* Fallback to execCommand */
+            console.warn('[AdminNav] Clipboard API failed, falling back:', err);
         }
 
         if (!copied) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = username;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
             try {
-                const ta = document.createElement('textarea');
-                ta.value = username;
-                ta.style.position = 'fixed';
-                ta.style.top = '-9999px';
-                ta.style.opacity = '0';
-                document.body.appendChild(ta);
-                ta.focus();
-                ta.select();
                 document.execCommand('copy');
-                document.body.removeChild(ta);
                 copied = true;
-            } catch (err) {
-                /* Ignore */
-            }
+            } catch (ignored) {}
+            document.body.removeChild(tempInput);
         }
 
         if (textEl) {
@@ -245,7 +282,7 @@ function setupDesktopSearch() {
             const title = t(item.titleKey);
             const tabName = t(`tab_${item.tab}`);
             return `
-                <div class="desktop-search-item" data-target-tab="${item.tab}" data-target-card="${item.cardId}">
+                <div class="desktop-search-item" data-target-tab="${item.tab}" data-target-subpage="${item.subpage || ''}" data-target-card="${item.cardId}">
                     <span class="desktop-search-item-title">${title}</span>
                     <span class="desktop-search-item-badge">${tabName}</span>
                 </div>
@@ -257,12 +294,19 @@ function setupDesktopSearch() {
         searchDropdown.querySelectorAll('.desktop-search-item').forEach(el => {
             el.addEventListener('click', () => {
                 const targetTab = el.getAttribute('data-target-tab');
+                const targetSubpage = el.getAttribute('data-target-subpage');
                 const targetCard = el.getAttribute('data-target-card');
 
                 searchDropdown.classList.remove('active');
                 searchInput.value = '';
 
                 switchTab(targetTab);
+
+                if (targetSubpage && window.AquaKit && typeof window.AquaKit.pushSubpage === 'function') {
+                    setTimeout(() => {
+                        window.AquaKit.pushSubpage(targetSubpage);
+                    }, 120);
+                }
 
                 setTimeout(() => {
                     const cardEl = document.getElementById(targetCard);
@@ -271,7 +315,7 @@ function setupDesktopSearch() {
                         cardEl.classList.add('card-highlight');
                         setTimeout(() => cardEl.classList.remove('card-highlight'), 1800);
                     }
-                }, 150);
+                }, targetSubpage ? 400 : 150);
             });
         });
     }
@@ -332,7 +376,7 @@ export function initAdminNav() {
     });
 
     /* 2. Bind tab click events for mobile bottom tab bar */
-    document.querySelectorAll('.apple-tab-bar .tab-item').forEach(item => {
+    document.querySelectorAll('.apple-tab-bar .apple-tab-item, .apple-tab-bar .tab-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const tabId = item.getAttribute('data-tab-id');
@@ -345,11 +389,8 @@ export function initAdminNav() {
 
     /* 4. Restore initial tab from URL hash if valid */
     const hash = (window.location.hash || '').replace('#', '').toLowerCase();
-    if (VALID_TABS.includes(hash)) {
-        switchTab(hash, false);
-    } else {
-        switchTab('overview', false);
-    }
+    const normalized = normalizeTab(hash);
+    switchTab(normalized, false);
 
     /* 5. Standalone WebApp lifecycle synchronization */
     syncStandaloneTabBar();
@@ -368,7 +409,7 @@ export function initAdminNav() {
         }
     });
 
-    /* 7. Initial indicator alignment */
+    /* 7. Initial indicator alignment and profile sync */
     setTimeout(() => {
         glideNavIndicator(currentActiveTab);
         syncSidebarProfile();

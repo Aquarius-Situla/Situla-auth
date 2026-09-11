@@ -30,13 +30,22 @@
     <link rel="apple-touch-icon" href="/assets/branding/favicon.svg">
     <title>账户安全</title>
     <link rel="icon" href="/assets/branding/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/css/style.css?v=100">
+
+    <!-- Zero-FOUC Early Device Fingerprint Script (AquaKit Specification) -->
+    <script>
+        (function(){var u=navigator.userAgent||"",p=navigator.platform||"",i=/iPad/i.test(u)||/iPad/i.test(p)||((p==="MacIntel"||u.indexOf("Macintosh")!==-1)&&navigator.maxTouchPoints>1),ph=/iPhone|iPod/i.test(u)||p==="iPhone"||p==="iPod"||/Android.*Mobile/i.test(u),t=i||/Android(?!.*Mobile)/i.test(u),m=ph||t||window.innerWidth<=768,d=document.documentElement;if(m){d.classList.add("device-mobile");if(t)d.classList.add("device-tablet");if(ph)d.classList.add("device-phone");if(i)d.classList.add("device-ipad");}else{d.classList.add("device-desktop");}if(('standalone' in navigator && navigator.standalone) || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)){d.classList.add('is-standalone');}})();
+    </script>
+
+    <!-- AquaKit Core Stylesheet & Application Overrides -->
+    <link rel="stylesheet" href="/css/uikit.css?v=101">
+    <link rel="stylesheet" href="/css/style.css?v=101">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n/locales/zh-CN.js?v=100"></script>
-    <script src="/i18n/locales/en-US.js?v=100"></script>
-    <script src="/i18n/i18n.js?v=100"></script>
+    <script src="/i18n/locales/zh-CN.js?v=101"></script>
+    <script src="/i18n/locales/en-US.js?v=101"></script>
+    <script src="/i18n/i18n.js?v=101"></script>
+    <script src="/js/uikit.js?v=101"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -45,7 +54,7 @@
 
     <div id="appContent" style="opacity: 0; transition: opacity 0.4s ease;">
         <!-- Mobile Frosted Top Navigation Bar -->
-        <nav class="apple-top-nav" aria-label="移动端顶部导航栏">
+        <header class="apple-top-nav" aria-label="移动端顶部导航栏">
             <div class="nav-content-row">
                 <div class="nav-brand-box">
                     <svg class="nav-brand-icon" viewBox="10 -85 95 95">
@@ -55,9 +64,9 @@
                 </div>
                 <button type="button" class="nav-action-btn" onclick="document.getElementById('logoutBtn')?.click()" data-i18n="btn_logout">退出</button>
             </div>
-        </nav>
+        </header>
 
-        <!-- macOS Translucent Left Sidebar -->
+        <!-- macOS Translucent Left Sidebar (3 Top-Level Tabs) -->
         <aside id="desktop-sidebar" class="desktop-sidebar" role="navigation" aria-label="桌面端控制侧栏">
             <div class="desktop-sidebar-top">
                 <!-- Brand Header -->
@@ -70,7 +79,7 @@
                     <div class="desktop-sidebar-brand-text">Situla Auth</div>
                 </div>
 
-                <!-- Apple Music Search Box -->
+                <!-- Desktop Search Box -->
                 <div class="desktop-search-box">
                     <div class="desktop-search-input-wrapper">
                         <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -82,53 +91,28 @@
                     <div class="desktop-search-dropdown" id="desktopSearchDropdown"></div>
                 </div>
 
-                <!-- Section 1: Management -->
+                <!-- 3 Top-Level Categories -->
                 <div class="desktop-nav-section">
-                    <div class="desktop-nav-header" data-i18n="nav_section_manage">管理</div>
-                    <a href="#overview" class="desktop-nav-item active" data-tab-id="overview">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2.1a1.2 1.2 0 0 0-.85.35L2.6 10.9a1.2 1.2 0 0 0 .85 2.05H4v7.75c0 .66.54 1.2 1.2 1.2h13.6c.66 0 1.2-.54 1.2-1.2V12.95h.55a1.2 1.2 0 0 0 .85-2.05L12.85 2.45A1.2 1.2 0 0 0 12 2.1z"/>
-                        </svg>
-                        <span class="desktop-nav-label" data-i18n="tab_overview">概览</span>
+                    <div class="desktop-nav-header" data-i18n="nav_section_manage">导航</div>
+                    <a href="#home" class="desktop-nav-item active" id="nav-item-home" data-tab-id="home">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        <span class="desktop-nav-label" data-i18n="tab_home">主页</span>
                     </a>
-                </div>
-
-                <!-- Section 2: Security & Credentials -->
-                <div class="desktop-nav-section">
-                    <div class="desktop-nav-header" data-i18n="nav_section_security">安全与凭证</div>
-                    <a href="#credentials" class="desktop-nav-item" data-tab-id="credentials">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M7 14A5 5 0 0 1 2 9a5 5 0 0 1 5-5 5 5 0 0 1 4.9 4H20a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2h-3.1A5 5 0 0 1 7 14zm0-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                        </svg>
-                        <span class="desktop-nav-label" data-i18n="tab_credentials">凭证</span>
-                    </a>
-                    <a href="#integrations" class="desktop-nav-item" data-tab-id="integrations">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.5"/>
-                            <rect x="13" y="2.5" width="8.5" height="8.5" rx="2.5"/>
-                            <rect x="2.5" y="13" width="8.5" height="8.5" rx="2.5"/>
-                            <rect x="13" y="13" width="8.5" height="8.5" rx="2.5"/>
-                        </svg>
-                        <span class="desktop-nav-label" data-i18n="tab_integrations">集成</span>
-                    </a>
-                </div>
-
-                <!-- Section 3: Audit & Logs -->
-                <div class="desktop-nav-section">
-                    <div class="desktop-nav-header" data-i18n="nav_section_system">系统与审计</div>
-                    <a href="#logs" class="desktop-nav-item" data-tab-id="logs">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/>
-                        </svg>
+                    <a href="#logs" class="desktop-nav-item" id="nav-item-logs" data-tab-id="logs">
+                        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/></svg>
                         <span class="desktop-nav-label" data-i18n="tab_logs">日志</span>
                     </a>
+                    <a href="#settings" class="desktop-nav-item" id="nav-item-settings" data-tab-id="settings">
+                        <svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm7.43-2.91a8.1 8.1 0 0 0 .05-1.18c0-.4-.02-.8-.05-1.18l2.06-1.61c.19-.15.24-.42.12-.64l-1.95-3.38a.502.502 0 0 0-.61-.22l-2.43.98c-.5-.39-1.05-.72-1.64-.97l-.37-2.58a.499.499 0 0 0-.49-.41h-3.9a.5.5 0 0 0-.49.41l-.37 2.58c-.59.25-1.14.58-1.64.97l-2.43-.98a.498.498 0 0 0-.61.22L2.79 8c-.12.22-.07.49.12.64l2.06 1.61c-.03.38-.05.78-.05 1.18 0 .4.02.8.05 1.18L2.91 14.22c-.19.15-.24.42-.12.64l1.95 3.38c.12.21.38.3.61.22l2.43-.98c.5.39 1.05.72 1.64.97l.37 2.58c.05.24.25.41.49.41h3.9c.24 0 .44-.17.49-.41l.37-2.58c.59-.25 1.14-.58 1.64-.97l2.43.98c.23.09.49 0 .61-.22l1.95-3.38c.12-.22.07-.49-.12-.64l-2.06-1.61z"/></svg>
+                        <span class="desktop-nav-label" data-i18n="tab_settings">设置</span>
+                    </a>
                 </div>
 
-                <!-- Fluid Dynamic Sliding Indicator -->
+                <!-- Sliding Dynamic Indicator -->
                 <div class="desktop-nav-indicator"></div>
             </div>
 
-            <!-- Sidebar Footer Visitor Profile (Apple Music Profile Style with Identicon) -->
+            <!-- Sidebar Footer Visitor Profile (Apple Music 24px Style) -->
             <div class="desktop-sidebar-bottom">
                 <div class="desktop-profile-card" id="desktopProfileCard" tabindex="0" role="button" aria-label="当前登录账户" title="点击复制用户名">
                     <div class="desktop-profile-avatar" id="desktopProfileAvatar"></div>
@@ -142,307 +126,529 @@
             <div class="stage-container">
                 
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <!-- Tab Pane 1: 账户概览 (Overview)                         -->
+                <!-- Tab Pane 1: 主页 (Home / Apple Account Style)           -->
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-overview" class="tab-pane active" aria-labelledby="tab-overview">
-                    <!-- User Hero Card -->
-                    <div class="settings-group" id="accountHeroCard">
-                        <div class="overview-user-hero">
-                            <div class="overview-avatar-box" id="overviewUserAvatar"></div>
-                            <div class="overview-user-meta">
-                                <h3 id="overviewUsername">-</h3>
-                                <p class="user-subtext" id="overviewEmail">-</p>
+                <section id="tab-pane-home" class="tab-pane active" aria-labelledby="tab-home">
+                    <div class="apple-group-container">
+                        <!-- Hero Profile Area (Apple Account Specification) -->
+                        <div class="apple-account-hero" id="homeHeroProfile">
+                            <div class="apple-account-avatar-wrapper">
+                                <div class="apple-account-avatar" id="accountAvatar"></div>
+                            </div>
+                            <h1 class="apple-account-name" id="accountUsername">-</h1>
+                            <p class="apple-account-email" id="accountEmail">-</p>
+                        </div>
+
+                        <!-- 3 Inset Grouped Navigation Cards -->
+                        <div class="apple-inset-group">
+                            <!-- 1. Personal Info Row -->
+                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-personal-info" data-subpage-title="个人信息" data-parent-title="主页" id="personalInfoCard">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge" style="background: #007aff;">
+                                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label" data-i18n="subpage_personal_info">个人信息</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </div>
+
+                            <!-- 2. Sign-In & Security Row -->
+                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-security" data-subpage-title="登录与安全性" data-parent-title="主页" id="securityCard">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge" style="background: #34c759;">
+                                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label" data-i18n="subpage_security">登录与安全性</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </div>
+
+                            <!-- 3. Connected Apps Row -->
+                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-integrations" data-subpage-title="连接应用" data-parent-title="主页" id="integrationsCard">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge" style="background: #af52de;">
+                                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                                    </div>
+                                    <span class="apple-row-label" data-i18n="subpage_integrations">连接应用</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Security Health Metrics Grid -->
-                    <div class="settings-group" id="securityHealthCard">
-                        <div class="section" style="border-bottom: 0.5px solid var(--border-subtle); padding-bottom: 12px;">
-                            <div class="section-header">
-                                <h3 data-i18n="status_security_summary">安全防护概况</h3>
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- Subpage 1: 个人信息 (Personal Info)                     -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <div id="subpage-personal-info" class="apple-subpage" data-title="个人信息">
+                        <div class="apple-group-container">
+                            <div class="apple-subpage-header">
+                                <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                    <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    <span class="apple-back-title" data-i18n="tab_home">主页</span>
+                                </button>
+                                <div class="apple-subpage-title" data-i18n="subpage_personal_info">个人信息</div>
+                                <div style="width: 48px;"></div>
                             </div>
-                        </div>
-                        <div class="overview-stats-grid">
-                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
-                                <span class="stat-card-label" data-i18n="section_2fa_title">双重认证</span>
-                                <div class="stat-card-value">
-                                    <span class="badge badge-disabled" id="summaryTwoFaBadge" data-i18n="badge_disabled">未启用</span>
+
+                            <!-- Centered Avatar with Edit Link -->
+                            <div class="subpage-avatar-center">
+                                <div class="subpage-avatar-img" id="subpageAvatar"></div>
+                                <button type="button" class="subpage-avatar-edit-btn" id="editAvatarBtn" data-i18n="btn_edit_avatar">编辑</button>
+                            </div>
+
+                            <!-- Group 1: Basic Profile Info (Username & Email - No Birthday) -->
+                            <div class="apple-group-header" data-i18n="section_personal_info">基本资料</div>
+                            <div class="apple-inset-group">
+                                <div class="apple-list-row apple-clickable" id="showUsernameFormBtn">
+                                    <div class="apple-row-left">
+                                        <span class="apple-row-label" data-i18n="field_username">姓名</span>
+                                    </div>
+                                    <div class="apple-row-right">
+                                        <span class="apple-row-value" id="usernameDisplay">-</span>
+                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    </div>
+                                </div>
+                                <div class="apple-list-row apple-clickable" id="showEmailFormBtn">
+                                    <div class="apple-row-left">
+                                        <span class="apple-row-label" data-i18n="field_email">电子邮件</span>
+                                    </div>
+                                    <div class="apple-row-right">
+                                        <span class="apple-row-value" id="emailDisplay">-</span>
+                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
-                                <span class="stat-card-label" data-i18n="section_pk_title">通行密钥</span>
-                                <div class="stat-card-value" id="summaryPasskeyCount" data-i18n="status_no_passkeys">未添加通行密钥</div>
+
+                            <!-- Group 2: Communication Preferences (SMTP) -->
+                            <div class="apple-group-header" data-i18n="section_communication">通信设置</div>
+                            <div class="apple-inset-group" id="smtpCard">
+                                <div class="apple-list-row apple-clickable" data-open-subpage="subpage-smtp" data-subpage-title="通信偏好设置" data-parent-title="个人信息">
+                                    <div class="apple-row-left">
+                                        <span class="apple-row-label" data-i18n="row_smtp_settings">通信偏好设置</span>
+                                    </div>
+                                    <div class="apple-row-right">
+                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="stat-card-item" onclick="window.switchTab('credentials')">
-                                <span class="stat-card-label" data-i18n="section_rc_title">恢复码</span>
-                                <div class="stat-card-value" id="summaryRcCount" data-i18n="badge_not_gen">未生成</div>
+
+                            <div class="subpage-footer-note" style="text-align: center;">
+                                <a class="subpage-footer-link" href="#" id="learnDataBtn" data-i18n="learn_data_management">了解数据的管理方式...</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- Subpage 1.1: 通信偏好设置 / SMTP 设置表单               -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <div id="subpage-smtp" class="apple-subpage" data-title="通信偏好设置">
+                        <div class="apple-group-container">
+                            <div class="apple-subpage-header">
+                                <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                    <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    <span class="apple-back-title" data-i18n="subpage_personal_info">个人信息</span>
+                                </button>
+                                <div class="apple-subpage-title" data-i18n="row_smtp_settings">通信偏好设置</div>
+                                <div style="width: 48px;"></div>
+                            </div>
+
+                            <div class="subpage-footer-note" data-i18n="smtp_desc" style="margin-top: 4px; margin-bottom: 16px;">配置系统外发安全验证码与通知邮件的 SMTP 服务器。</div>
+
+                            <!-- SMTP Server Settings Group -->
+                            <div class="apple-group-header" data-i18n="smtp_title">SMTP 服务器配置</div>
+                            <div class="apple-inset-group">
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_server">SMTP 服务器</span>
+                                    <input type="text" class="apple-form-input" id="smtpHost" data-i18n-placeholder="smtp_server_placeholder" placeholder="例如 smtp.example.com" value="smtp.example.com" autocomplete="off">
+                                </div>
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_port">端口</span>
+                                    <input type="number" class="apple-form-input" id="smtpPort" placeholder="465" value="465" autocomplete="off">
+                                </div>
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_ssl">使用 SSL/TLS 加密</span>
+                                    <label class="apple-switch">
+                                        <input type="checkbox" id="smtpSslSwitch" checked>
+                                        <span class="apple-switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SMTP Auth Group -->
+                            <div class="apple-group-header" data-i18n="section_security_auth">认证凭据</div>
+                            <div class="apple-inset-group">
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_sender">发件人邮箱</span>
+                                    <input type="email" class="apple-form-input" id="smtpSender" placeholder="auth@example.com" value="auth@aquanexus.me" autocomplete="off">
+                                </div>
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_user">SMTP 用户名</span>
+                                    <input type="text" class="apple-form-input" id="smtpUser" placeholder="auth@example.com" value="aquarius_admin" autocomplete="off">
+                                </div>
+                                <div class="apple-form-row">
+                                    <span class="apple-row-label" data-i18n="smtp_pass">授权码 / 密码</span>
+                                    <input type="password" class="apple-form-input" id="smtpPassword" placeholder="••••••••" value="••••••••" autocomplete="off">
+                                </div>
+                            </div>
+
+                            <div id="smtpMsg" class="msg" style="margin-top: 12px;"></div>
+
+                            <!-- SMTP Action Buttons -->
+                            <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+                                <button type="button" class="btn-outline" id="testSmtpBtn" style="flex: 1; min-width: 140px;" data-i18n="btn_smtp_test">测试连接</button>
+                                <button type="button" class="btn-solid" id="saveSmtpBtn" style="flex: 1; min-width: 140px;" data-i18n="btn_smtp_save">保存配置</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Basic Info Settings Group -->
-                    <div class="settings-group" id="accountInfoCard">
-                        <!-- Change username -->
-                        <div class="section">
-                            <div class="section-header" style="margin-bottom:0;">
-                                <div>
-                                    <h3 data-i18n="section_username_title">用户名</h3>
-                                    <p class="desc" id="usernameDisplay" style="margin-bottom:0;">-</p>
-                                </div>
-                                <button class="btn-outline" id="showUsernameFormBtn" data-i18n="btn_change">更改</button>
-                            </div>
-                        </div>
-
-                        <!-- Change email -->
-                        <div class="section">
-                            <div class="section-header" style="margin-bottom:0;">
-                                <div>
-                                    <h3 data-i18n="section_email_title">电子邮件</h3>
-                                    <p class="desc" id="emailDisplay" style="margin-bottom:0;">-</p>
-                                </div>
-                                <button class="btn-outline" id="showEmailFormBtn" data-i18n="btn_change">更改</button>
-                            </div>
-                        </div>
-
-                        <!-- Change password -->
-                        <div class="section">
-                            <div class="section-header" style="margin-bottom:0;">
-                                <div>
-                                    <h3 data-i18n="section_password_title">密码</h3>
-                                    <p class="desc" id="passwordUpdatedDisplay" style="margin-bottom:0;">-</p>
-                                </div>
-                                <button class="btn-outline" id="showPasswordFormBtn" data-i18n="btn_change">更改</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Session & Logout Card -->
-                    <div class="settings-group" id="sessionActionsCard">
-                        <div class="section">
-                            <div class="section-header">
-                                <div>
-                                    <h3 data-i18n="status_current_session">当前登录会话</h3>
-                                    <p class="desc" style="margin-bottom:0;" data-i18n="logs_desc">查看近期登录记录，包含时间、IP 地址、地理位置和设备信息。</p>
-                                </div>
-                            </div>
-                            <div class="action-btn-container" style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap;">
-                                <button class="btn-outline" id="viewLoginLogsBtn" data-i18n="btn_view">查看活动日志</button>
-                            </div>
-                        </div>
-                        <div class="section" style="background: var(--bg-secondary); border-top: 0.5px solid var(--border-subtle);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                                <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
-                                <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════ -->
-                <!-- Tab Pane 2: 认证凭证 (Credentials & 2FA)                -->
-                <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-credentials" class="tab-pane" aria-labelledby="tab-credentials">
-                    <!-- Passkey section -->
-                    <div class="settings-group" id="passkeySection">
-                        <div class="section">
-                            <div class="section-header">
-                                <h3 data-i18n="section_pk_title">通行密钥</h3>
-                                <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
-                            </div>
-                            <p class="desc" data-i18n="section_pk_desc">使用面容 ID、触控 ID 或设备密码安全登录，无需记忆密码。</p>
-
-                            <!-- Passkey list -->
-                            <div id="passkeyList"></div>
-
-                            <div class="btn-row" style="margin-top:12px;">
-                                <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- Subpage 2: 登录与安全性 (Sign-In & Security)             -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <div id="subpage-security" class="apple-subpage" data-title="登录与安全性">
+                        <div class="apple-group-container">
+                            <div class="apple-subpage-header">
+                                <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                    <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    <span class="apple-back-title" data-i18n="tab_home">主页</span>
+                                </button>
+                                <div class="apple-subpage-title" data-i18n="subpage_security">登录与安全性</div>
+                                <div style="width: 48px;"></div>
                             </div>
 
-                            <div class="msg" id="passkeyMsg"></div>
-                        </div>
-                    </div>
+                            <div class="subpage-footer-note" data-i18n="subpage_security_desc" style="margin-top: 4px; margin-bottom: 16px;">这些凭据和安全验证方式用于登录、验证身份，以及帮助你恢复账户访问权限。</div>
 
-                    <!-- 2FA section -->
-                    <div class="settings-group" id="twoFaSection">
-                        <div class="section">
-                            <div class="section-header">
-                                <div>
-                                    <h3 data-i18n="section_2fa_title">双重认证</h3>
-                                </div>
-                                <span class="badge badge-disabled" id="twoFaBadge">
-                                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                        <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
-                                    </svg>
-                                    <span data-i18n="badge_disabled">未启用</span>
-                                </span>
-                            </div>
-                            <p class="desc" id="twoFaDesc" data-i18n="section_2fa_desc">为账户添加额外安全防护。可选择身份验证器 App 或物理安全密钥。</p>
-
-                            <!-- State A: No 2FA enabled -->
-                            <div id="twoFaDisabledUI" class="btn-row">
-                                <button class="btn-outline" id="setup2faBtn" data-i18n="btn_setup_2fa">＋ 添加双重认证</button>
-                            </div>
-
-                            <!-- Method selector (shown after clicking Add) -->
-                            <div id="twoFaMethodSelector" class="method-selector-container">
-                                <p class="method-selector-title" data-i18n="choose_2fa_method">选择验证方式</p>
-                                <div class="method-cards-row">
-                                    <!-- FIDO2 option card -->
-                                    <button id="chooseFido2Btn" class="method-card">
-                                        <img src="/assets/icons/fido.svg" alt="FIDO2" class="method-icon icon-adaptive">
-                                        <div class="method-title" data-i18n="method_fido2_title">安全密钥</div>
-                                        <div class="method-desc" data-i18n="method_fido2_desc">YubiKey 等 FIDO2 硬件密钥</div>
-                                    </button>
-                                    <!-- TOTP option card -->
-                                    <button id="chooseTotpBtn" class="method-card">
-                                        <img src="/assets/icons/totp.svg" alt="TOTP" class="method-icon icon-adaptive">
-                                        <div class="method-title" data-i18n="method_totp_title">身份验证器</div>
-                                        <div class="method-desc" data-i18n="method_totp_desc">TOTP 动态验证码</div>
-                                    </button>
-                                </div>
-                                <div class="btn-row" style="margin-top:12px;">
-                                    <button class="btn-outline" id="cancelMethodSelectorBtn" data-i18n="btn_cancel">取消</button>
-                                </div>
-                            </div>
-
-                            <!-- State B: FIDO2 enabled — key list -->
-                            <div id="fido2EnabledUI" style="display:none;">
-                                <div id="fido2KeyList" style="margin: 12px 0 4px;"></div>
-
-                                <!-- Add key area -->
-                                <div id="fido2AddArea">
-                                    <div class="btn-row" style="margin-top:8px;" id="fido2AddBtnRow">
-                                        <button class="btn-outline" id="addFido2KeyBtn" data-i18n="btn_add_fido2_key">＋ 添加安全密钥</button>
+                            <!-- Group 1: Password & 2FA -->
+                            <div class="apple-group-header" data-i18n="section_security_auth">安全</div>
+                            <div class="apple-inset-group">
+                                <!-- Change Password Row -->
+                                <div class="apple-list-row apple-clickable" id="showPasswordFormBtn">
+                                    <div class="apple-row-left">
+                                        <span class="apple-row-label" data-i18n="row_change_password">更改密码</span>
+                                    </div>
+                                    <div class="apple-row-right">
+                                        <span class="apple-row-value" id="passwordUpdatedDisplay">-</span>
+                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
                                     </div>
                                 </div>
 
-                                <div class="btn-row" style="margin-top:14px;">
-                                    <button class="btn-outline" id="enableFido2Btn" data-i18n="btn_enable_fido2" style="display:none;">启用安全密钥认证</button>
-                                    <button class="btn-danger" id="disableFido2Btn" data-i18n="btn_disable_2fa" style="display:none;">停用双重认证</button>
-                                </div>
-                                <div class="msg" id="fido2Msg"></div>
-                            </div>
-
-                            <!-- State C: TOTP enabled -->
-                            <div id="totpEnabledUI" class="btn-row" style="display:none;">
-                                <button class="btn-outline" id="reset2faBtn" data-i18n="btn_reset_2fa">重新设置</button>
-                                <button class="btn-danger" id="disable2faBtn" data-i18n="btn_disable_2fa">停用双重认证</button>
-                            </div>
-
-                            <!-- QR / TOTP setup panel -->
-                            <div class="setup-panel" id="totpSetup">
-                                <p class="setup-step" data-i18n="step_1_scan">第一步：使用身份验证器 App 扫描二维码</p>
-                                <div class="qr-container">
-                                    <img id="qrCode" src="" alt="QR Code">
-                                    <div>
-                                        <p class="secret-label" data-i18n="label_manual_secret">无法扫码？手动输入密钥：</p>
-                                        <p class="secret-key" id="secretKey" title="点击复制"></p>
+                                <!-- 2FA Row -->
+                                <div class="apple-list-row apple-clickable" id="twoFaRow">
+                                    <div class="apple-row-left">
+                                        <span class="apple-row-label" data-i18n="row_two_factor">双重认证</span>
+                                    </div>
+                                    <div class="apple-row-right">
+                                        <span class="badge badge-disabled" id="twoFaBadge">
+                                            <span data-i18n="badge_disabled">未启用</span>
+                                        </span>
+                                        <span class="badge badge-disabled" id="summaryTwoFaBadge" style="display: none;"></span>
+                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
                                     </div>
                                 </div>
-                                <p class="setup-step" data-i18n="step_2_enter">第二步：输入 6 位动态验证码</p>
-                                <div class="code-row">
-                                    <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
-                                    <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
-                                    <button class="btn-outline" id="cancelTotpSetupBtn" data-i18n="btn_cancel">取消</button>
-                                </div>
-                                <div class="msg" id="totpMsg"></div>
                             </div>
+                            <div class="subpage-footer-note" data-i18n="footer_two_factor_note">你的受信任设备和身份验证器用于在登录时验证你的身份。</div>
+
+                            <!-- Group 2: Modern Passkeys & Physical Security Keys -->
+                            <div class="apple-group-header" data-i18n="section_passkeys_fido2">现代通行密钥与物理密钥</div>
+                            
+                            <!-- Passkey Section -->
+                            <div class="settings-group" id="passkeySection" style="margin-bottom: 16px;">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <div>
+                                            <h3 data-i18n="section_pk_title">通行密钥</h3>
+                                            <span class="badge badge-disabled" id="passkeyBadge" data-i18n="badge_none">未添加</span>
+                                        </div>
+                                        <span class="apple-row-value" id="summaryPasskeyCount">未添加</span>
+                                    </div>
+                                    <p class="desc" data-i18n="section_pk_desc">使用面容 ID、触控 ID 或设备密码安全登录，无需记忆密码。</p>
+                                    <div id="passkeyList"></div>
+                                    <div class="btn-row" style="margin-top:12px;">
+                                        <button class="btn-outline" id="regPasskeyBtn" data-i18n="btn_add_pk">＋ 添加通行密钥</button>
+                                    </div>
+                                    <div class="msg" id="passkeyMsg"></div>
+                                </div>
+                            </div>
+
+                            <!-- 2FA / FIDO2 Key Management Section -->
+                            <div class="settings-group" id="twoFaSection" style="margin-bottom: 16px;">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <div>
+                                            <h3 data-i18n="section_2fa_title">双重认证管理</h3>
+                                        </div>
+                                    </div>
+                                    <p class="desc" id="twoFaDesc" data-i18n="section_2fa_desc">为账户添加额外安全防护。可选择身份验证器 App 或物理安全密钥。</p>
+
+                                    <!-- State A: No 2FA enabled -->
+                                    <div id="twoFaDisabledUI" class="btn-row">
+                                        <button class="btn-outline" id="setup2faBtn" data-i18n="btn_setup_2fa">＋ 添加双重认证</button>
+                                    </div>
+
+                                    <!-- Method selector -->
+                                    <div id="twoFaMethodSelector" class="method-selector-container">
+                                        <p class="method-selector-title" data-i18n="choose_2fa_method">选择验证方式</p>
+                                        <div class="method-cards-row">
+                                            <button id="chooseFido2Btn" class="method-card">
+                                                <img src="/assets/icons/fido.svg" alt="FIDO2" class="method-icon icon-adaptive">
+                                                <div class="method-title" data-i18n="method_fido2_title">安全密钥</div>
+                                                <div class="method-desc" data-i18n="method_fido2_desc">YubiKey 等 FIDO2 硬件密钥</div>
+                                            </button>
+                                            <button id="chooseTotpBtn" class="method-card">
+                                                <img src="/assets/icons/totp.svg" alt="TOTP" class="method-icon icon-adaptive">
+                                                <div class="method-title" data-i18n="method_totp_title">身份验证器</div>
+                                                <div class="method-desc" data-i18n="method_totp_desc">TOTP 动态验证码</div>
+                                            </button>
+                                        </div>
+                                        <div class="btn-row" style="margin-top:12px;">
+                                            <button class="btn-outline" id="cancelMethodSelectorBtn" data-i18n="btn_cancel">取消</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- State B: FIDO2 enabled -->
+                                    <div id="fido2EnabledUI" style="display:none;">
+                                        <div id="fido2KeyList" style="margin: 12px 0 4px;"></div>
+                                        <div id="fido2AddArea">
+                                            <div class="btn-row" style="margin-top:8px;" id="fido2AddBtnRow">
+                                                <button class="btn-outline" id="addFido2KeyBtn" data-i18n="btn_add_fido2_key">＋ 添加安全密钥</button>
+                                            </div>
+                                        </div>
+                                        <div class="btn-row" style="margin-top:14px;">
+                                            <button class="btn-outline" id="enableFido2Btn" data-i18n="btn_enable_fido2" style="display:none;">启用安全密钥认证</button>
+                                            <button class="btn-danger" id="disableFido2Btn" data-i18n="btn_disable_2fa" style="display:none;">停用双重认证</button>
+                                        </div>
+                                        <div class="msg" id="fido2Msg"></div>
+                                    </div>
+
+                                    <!-- State C: TOTP enabled -->
+                                    <div id="totpEnabledUI" class="btn-row" style="display:none;">
+                                        <button class="btn-outline" id="reset2faBtn" data-i18n="btn_reset_2fa">重新设置</button>
+                                        <button class="btn-danger" id="disable2faBtn" data-i18n="btn_disable_2fa">停用双重认证</button>
+                                    </div>
+
+                                    <!-- QR / TOTP setup panel -->
+                                    <div class="setup-panel" id="totpSetup">
+                                        <p class="setup-step" data-i18n="step_1_scan">第一步：使用身份验证器 App 扫描二维码</p>
+                                        <div class="qr-container">
+                                            <img id="qrCode" src="" alt="QR Code">
+                                            <div>
+                                                <p class="secret-label" data-i18n="label_manual_secret">无法扫码？手动输入密钥：</p>
+                                                <p class="secret-key" id="secretKey" title="点击复制"></p>
+                                            </div>
+                                        </div>
+                                        <p class="setup-step" data-i18n="step_2_enter">第二步：输入 6 位动态验证码</p>
+                                        <div class="code-row">
+                                            <input type="text" id="totpCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
+                                            <button class="btn-solid" id="verify2faBtn" data-i18n="btn_verify_enable">验证并启用</button>
+                                            <button class="btn-outline" id="cancelTotpSetupBtn" data-i18n="btn_cancel">取消</button>
+                                        </div>
+                                        <div class="msg" id="totpMsg"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Group 3: Recovery Methods -->
+                            <div class="apple-group-header" data-i18n="section_recovery">恢复方法</div>
+                            <div class="settings-group" id="rcCard" style="display:none;">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <div>
+                                            <h3 data-i18n="section_rc_title">恢复码</h3>
+                                            <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
+                                        </div>
+                                        <span class="apple-row-value" id="summaryRcCount">未生成</span>
+                                    </div>
+                                    <p class="desc" data-i18n="section_rc_desc">当无法使用双重认证设备时，可使用恢复码应急登录。每次生成 8 组一次性恢复码，每组仅可使用一次。</p>
+                                    <div class="btn-row">
+                                        <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
+                                    </div>
+
+                                    <!-- Codes reveal panel -->
+                                    <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
+                                        <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
+                                            请妥善保管以下恢复码。恢复码仅显示一次，遗失后需重新生成。
+                                        </p>
+                                        <div id="rcList" style="
+                                            background:var(--bg-secondary); border-radius:10px; padding:16px;
+                                            font-family:var(--font-mono); font-size:16px; line-height:2;
+                                            letter-spacing:1px; color:var(--text-primary);
+                                        "></div>
+                                        <div class="btn-row" style="margin-top:12px;">
+                                            <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部恢复码</button>
+                                        </div>
+                                        <div class="msg" id="rcMsg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="subpage-footer-note" data-i18n="footer_recovery_note">在忘记密码或设备丢失时，帮助你重新获取账户访问权限。</div>
                         </div>
                     </div>
 
-                    <!-- Recovery codes card -->
-                    <div class="settings-group" id="rcCard" style="display:none;">
-                        <div class="section">
-                            <div class="section-header">
-                                <h3 data-i18n="section_rc_title">恢复码</h3>
-                                <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
-                            </div>
-                            <p class="desc" data-i18n="section_rc_desc">当无法使用双重认证设备时，可使用恢复码应急登录。每次生成 8 组一次性恢复码，每组仅可使用一次。</p>
-                            <div class="btn-row">
-                                <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- Subpage 3: 连接应用 (Connected Apps / Integrations)      -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <div id="subpage-integrations" class="apple-subpage" data-title="连接应用">
+                        <div class="apple-group-container">
+                            <div class="apple-subpage-header">
+                                <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                    <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    <span class="apple-back-title" data-i18n="tab_home">主页</span>
+                                </button>
+                                <div class="apple-subpage-title" data-i18n="subpage_integrations">连接应用</div>
+                                <div style="width: 48px;"></div>
                             </div>
 
-                            <!-- Codes reveal panel -->
-                            <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
-                                <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
-                                    请妥善保管以下恢复码。恢复码仅显示一次，遗失后需重新生成。
-                                </p>
-                                <div id="rcList" style="
-                                    background:var(--bg-secondary); border-radius:10px; padding:16px;
-                                    font-family:var(--font-mono); font-size:16px; line-height:2;
-                                    letter-spacing:1px; color:var(--text-primary);
-                                "></div>
-                                <div class="btn-row" style="margin-top:12px;">
-                                    <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部恢复码</button>
+                            <div class="subpage-footer-note" data-i18n="subpage_integrations_desc" style="margin-top: 4px; margin-bottom: 16px;">管理通过 Situla Auth 提供统一身份认证的第三方应用与反向代理连接。</div>
+
+                            <!-- Group 1: OIDC Clients -->
+                            <div class="settings-group" id="oidcSection" style="margin-bottom: 16px;">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <div>
+                                            <h3 data-i18n="oidc_title">授权应用</h3>
+                                        </div>
+                                    </div>
+                                    <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统进行单点登录的第三方应用。</p>
+                                    <div id="oidcClientList" class="key-list"></div>
+                                    <div class="action-btn-container" style="margin-top: 15px;">
+                                        <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加授权应用</button>
+                                    </div>
                                 </div>
-                                <div class="msg" id="rcMsg"></div>
+                            </div>
+
+                            <!-- Group 2: Forward Auth Generator -->
+                            <div class="settings-group" id="npmSection">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <div>
+                                            <h3 data-i18n="npm_section_title">反向代理防护</h3>
+                                        </div>
+                                        <span class="badge badge-count" data-i18n="badge_forward_auth">Forward-Auth</span>
+                                    </div>
+                                    <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
+                                    <div class="action-btn-container" style="margin-top: 15px;">
+                                        <button class="btn-outline" id="openNpmModalBtn" data-i18n="btn_generate_npm">＋ 生成防护配置</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <!-- Tab Pane 3: 授权集成 (Integrations & NPM)               -->
-                <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-integrations" class="tab-pane" aria-labelledby="tab-integrations">
-                    <!-- OIDC Section -->
-                    <div class="settings-group" id="oidcSection">
-                        <div class="section">
-                            <div class="section-header">
-                                <div>
-                                    <h3 data-i18n="oidc_title">授权应用</h3>
-                                </div>
-                            </div>
-                            <p class="desc" data-i18n="oidc_desc">管理可以通过当前身份验证系统进行单点登录的第三方应用。</p>
-                            
-                            <div id="oidcClientList" class="key-list"></div>
-                            
-                            <div class="action-btn-container" style="margin-top: 15px;">
-                                <button class="btn-outline" id="addOidcBtn" data-i18n="oidc_add">＋ 添加授权应用</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Nginx Proxy Protection Section -->
-                    <div class="settings-group" id="npmSection">
-                        <div class="section">
-                            <div class="section-header">
-                                <div>
-                                    <h3 data-i18n="npm_section_title">反向代理防护</h3>
-                                </div>
-                                <span class="badge badge-count" data-i18n="badge_forward_auth">Forward-Auth</span>
-                            </div>
-                            <p class="desc" data-i18n="npm_section_desc">为 Nginx Proxy Manager 快速生成前置身份验证拦截与单点登录配置。</p>
-
-                            <div class="action-btn-container" style="margin-top: 15px;">
-                                <button class="btn-outline" id="openNpmModalBtn" data-i18n="btn_generate_npm">＋ 生成防护配置</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════ -->
-                <!-- Tab Pane 4: 登录审计 (Audit Logs & Sessions)            -->
+                <!-- Tab Pane 2: 日志 (Logs & Audit)                         -->
                 <!-- ═══════════════════════════════════════════════════════ -->
                 <section id="tab-pane-logs" class="tab-pane" aria-labelledby="tab-logs">
-                    <div class="settings-group" id="loginLogsCard">
-                        <div class="section">
-                            <div class="section-header" style="align-items: center;">
-                                <div>
-                                    <h3 data-i18n="logs_title">近期登录活动</h3>
-                                    <p class="desc" style="margin-bottom:0;" data-i18n="logs_modal_desc">显示最近最多 20 条登录记录。</p>
+                    <div class="apple-group-container" style="padding-top: 16px;">
+                        <div class="settings-group" id="loginLogsCard">
+                            <div class="section">
+                                <div class="section-header" style="align-items: center;">
+                                    <div>
+                                        <h3 data-i18n="logs_title">近期登录活动</h3>
+                                        <p class="desc" style="margin-bottom:0;" data-i18n="logs_modal_desc">显示最近最多 20 条登录记录。</p>
+                                    </div>
+                                    <button class="btn-outline" id="refreshLogsBtn" data-i18n="btn_refresh_logs">刷新日志</button>
                                 </div>
-                                <button class="btn-outline" id="refreshLogsBtn" data-i18n="btn_refresh_logs">刷新日志</button>
-                            </div>
 
-                            <div id="liveLoginLogsList" class="log-list-container" style="margin-top: 16px;">
-                                <!-- Live logs rendered via JS -->
+                                <div id="liveLoginLogsList" class="log-list-container" style="margin-top: 16px;">
+                                    <!-- Live logs rendered via JS -->
+                                </div>
                             </div>
                         </div>
-                        <div class="section" style="background: var(--bg-secondary); border-top: 0.5px solid var(--border-subtle);">
-                            <div style="display: flex; justify-content: flex-end;">
-                                <span class="danger-link" id="logoutAllBtnTab4" onclick="document.getElementById('logoutAllBtn')?.click()" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Tab Pane 3: 设置 (Settings / Preferences)               -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section id="tab-pane-settings" class="tab-pane" aria-labelledby="tab-settings">
+                    <div class="apple-group-container" style="padding-top: 16px;">
+                        <!-- Group 1: Preferences -->
+                        <div class="apple-group-header" data-i18n="settings_preferences">偏好设置 (PREFERENCES)</div>
+                        <div class="apple-inset-group" id="preferencesCard">
+                            <!-- Language Selection -->
+                            <div class="apple-list-row apple-clickable" id="settingLangRow">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_language">全局语言 (Language)</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value" id="currentLangLabel">简体中文</span>
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </div>
+
+                            <!-- Appearance Theme Selection -->
+                            <div class="apple-list-row apple-clickable" id="settingThemeRow">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_appearance">外观显示 (Appearance)</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value" id="currentThemeLabel" data-i18n="theme_auto">跟随系统</span>
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 2: About & Legal -->
+                        <div class="apple-group-header" data-i18n="settings_about_legal">关于与声明 (ABOUT & LEGAL)</div>
+                        <div class="apple-inset-group">
+                            <a class="apple-list-row apple-clickable" href="https://github.com/Aquarius-Situla/Situla-auth" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_about_app">关于 Situla Auth</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">GitHub ↗</span>
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </a>
+                            <div class="apple-list-row apple-clickable" id="settingPrivacyRow">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_privacy">隐私政策与免责声明</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 3: Version -->
+                        <div class="apple-group-header" data-i18n="settings_version">版本 (VERSION)</div>
+                        <div class="apple-inset-group">
+                            <div class="apple-list-row">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_version_app">Situla-Auth</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">v2.0.0</span>
+                                </div>
+                            </div>
+                            <div class="apple-list-row">
+                                <div class="apple-row-left">
+                                    <span class="apple-row-label" data-i18n="settings_version_uikit">AquaKit</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">v1.0.0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subpage-footer-note" data-i18n="settings_footer_note" style="margin-bottom: 24px;">本应用基于 Apple Human Interface Guidelines 设计规范构建，采用 AquaKit 开源 UI 框架。</div>
+
+                        <!-- Group 4: Bottom Action Rows (STRICT USER REQUIREMENT: 退出登录和在所有设备退出都应该放在设置页的最下面) -->
+                        <div class="apple-inset-group" id="settingsBottomActions" style="margin-top: 16px; margin-bottom: 32px;">
+                            <div class="apple-list-row apple-clickable" id="logoutAllRow">
+                                <div class="apple-row-left" style="justify-content: center; width: 100%;">
+                                    <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
+                                </div>
+                            </div>
+                            <div class="apple-list-row apple-clickable apple-row-danger" id="logoutRow">
+                                <div class="apple-row-left" style="justify-content: center; width: 100%;">
+                                    <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -451,31 +657,25 @@
             </div>
         </main>
 
-        <!-- Mobile Frosted Bottom Apple Tab Bar -->
+        <!-- Mobile Frosted Bottom Apple Tab Bar (3 Top-Level Tabs) -->
         <nav id="apple-tab-bar" class="apple-tab-bar" role="navigation" aria-label="底部导航栏">
-            <a href="#overview" class="tab-item active" data-tab-id="overview" aria-label="概览">
+            <a href="#home" class="apple-tab-item tab-item active" data-tab-id="home" aria-label="主页">
                 <div class="tab-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2.1a1.2 1.2 0 0 0-.85.35L2.6 10.9a1.2 1.2 0 0 0 .85 2.05H4v7.75c0 .66.54 1.2 1.2 1.2h13.6c.66 0 1.2-.54 1.2-1.2V12.95h.55a1.2 1.2 0 0 0 .85-2.05L12.85 2.45A1.2 1.2 0 0 0 12 2.1z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                 </div>
-                <div class="tab-label" data-i18n="tab_overview">概览</div>
+                <div class="tab-label" data-i18n="tab_home">主页</div>
             </a>
-            <a href="#credentials" class="tab-item" data-tab-id="credentials" aria-label="凭证">
-                <div class="tab-icon">
-                    <svg viewBox="0 0 24 24"><path d="M7 14A5 5 0 0 1 2 9a5 5 0 0 1 5-5 5 5 0 0 1 4.9 4H20a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2h-3.1A5 5 0 0 1 7 14zm0-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
-                </div>
-                <div class="tab-label" data-i18n="tab_credentials">凭证</div>
-            </a>
-            <a href="#integrations" class="tab-item" data-tab-id="integrations" aria-label="集成">
-                <div class="tab-icon">
-                    <svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.5"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.5"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.5"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.5"/></svg>
-                </div>
-                <div class="tab-label" data-i18n="tab_integrations">集成</div>
-            </a>
-            <a href="#logs" class="tab-item" data-tab-id="logs" aria-label="日志">
+            <a href="#logs" class="apple-tab-item tab-item" data-tab-id="logs" aria-label="日志">
                 <div class="tab-icon">
                     <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13h-1v6l5.2 3.1.5-.9-4.7-2.8z"/></svg>
                 </div>
                 <div class="tab-label" data-i18n="tab_logs">日志</div>
+            </a>
+            <a href="#settings" class="apple-tab-item tab-item" data-tab-id="settings" aria-label="设置">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm7.43-2.91a8.1 8.1 0 0 0 .05-1.18c0-.4-.02-.8-.05-1.18l2.06-1.61c.19-.15.24-.42.12-.64l-1.95-3.38a.502.502 0 0 0-.61-.22l-2.43.98c-.5-.39-1.05-.72-1.64-.97l-.37-2.58a.499.499 0 0 0-.49-.41h-3.9a.5.5 0 0 0-.49.41l-.37 2.58c-.59.25-1.14.58-1.64.97l-2.43-.98a.498.498 0 0 0-.61.22L2.79 8c-.12.22-.07.49.12.64l2.06 1.61c-.03.38-.05.78-.05 1.18 0 .4.02.8.05 1.18L2.91 14.22c-.19.15-.24.42-.12.64l1.95 3.38c.12.21.38.3.61.22l2.43-.98c.5.39 1.05.72 1.64.97l.37 2.58c.05.24.25.41.49.41h3.9c.24 0 .44-.17.49-.41l.37-2.58c.59-.25 1.14-.58 1.64-.97l2.43.98c.23.09.49 0 .61-.22l1.95-3.38c.12-.22.07-.49-.12-.64l-2.06-1.61z"/></svg>
+                </div>
+                <div class="tab-label" data-i18n="tab_settings">设置</div>
             </a>
         </nav>
     </div>
@@ -782,7 +982,7 @@
     <!-- Sudo Modal (Direct password confirmation for Recovery Codes) -->
     <div class="modal-overlay" id="sudoModal" style="display: none;">
         <div class="modal-card">
-            <div class="modal-icon" id="sudoModalIcon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -95 95 115" width="100%" height="100%"><path fill="currentColor" d="M57.5684 15.4785C74.707 15.4785 86.8164 6.20117 93.3105-12.1094L101.904-36.2793C102.49-37.9395 102.783-39.5508 102.783-41.0156C102.783-46.1914 98.877-49.8047 93.8965-49.8047C90.5273-49.8047 87.5-47.8027 85.8398-43.9453L82.666-36.1328C82.5684-35.9375 82.4219-35.791 82.2266-35.791C81.9824-35.791 81.8848-35.9863 81.8848-36.2305L81.8848-75.3906C81.8848-81.1035 78.3203-84.7168 72.8516-84.7168C70.8496-84.7168 69.043-83.9844 67.6758-82.7148C67.041-87.7441 63.8184-90.8203 58.9844-90.8203C54.248-90.8203 50.9277-87.6465 50.1953-82.8125C48.9746-84.0332 47.2168-84.7168 45.459-84.7168C40.3809-84.7168 37.0117-81.1523 37.0117-75.7324L37.0117-70.3125C35.6934-71.6797 33.6914-72.4121 31.6406-72.4121C26.5625-72.4121 23.0469-68.7012 23.0469-63.1836L23.0469-21.2402C23.0469 1.61133 36.9141 15.4785 57.5684 15.4785ZM57.3242 8.74023C40.0391 8.74023 29.4922-2.39258 29.4922-22.0215L29.4922-62.5C29.4922-64.5996 30.8105-66.0156 32.8613-66.0156C34.8633-66.0156 36.3281-64.5996 36.3281-62.5L36.3281-37.5488C36.3281-35.7422 37.793-34.5215 39.3555-34.5215C41.0156-34.5215 42.5293-35.7422 42.5293-37.5488L42.5293-74.8535C42.5293-76.9531 43.8477-78.418 45.8496-78.418C47.9004-78.418 49.3164-76.9531 49.3164-74.8535L49.3164-40.0391C49.3164-38.2324 50.7812-37.0117 52.3926-37.0117C54.0527-37.0117 55.5176-38.2324 55.5176-40.0391L55.5176-80.9082C55.5176-83.0078 56.9336-84.5215 58.9844-84.5215C60.9375-84.5215 62.3535-83.0078 62.3535-80.9082L62.3535-40.0391C62.3535-38.3301 63.7207-37.0117 65.4297-37.0117C67.0898-37.0117 68.5547-38.3301 68.5547-40.0391L68.5547-74.8535C68.5547-76.9531 69.9707-78.418 71.9727-78.418C73.9746-78.418 75.3906-76.9531 75.3906-74.8535L75.3906-26.8066C75.3906-24.3652 76.8066-22.9492 78.8574-22.9492C80.6152-22.9492 82.0801-23.7305 83.2031-26.1719L90.2344-41.8457C91.1621-43.9453 92.9688-44.6777 94.6777-44.043C96.582-43.3594 97.168-41.5527 96.2891-39.1602L87.3535-14.209C81.3965 2.44141 70.9473 8.74023 57.3242 8.74023Z"/></svg></div>
+            <div class="modal-icon" id="sudoModalIcon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 2340.000000 2340.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,2340.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M11140 21925 c-21 -25 -129 -71 -245 -105 -444 -129 -4016 -1437 -5498 -2014 -1805 -703 -1987 -876 -2154 -2046 -39 -272 -25 -7792 15 -8130 17 -151 43 -372 57 -490 47 -397 57 -464 96 -660 338 -1660 1237 -2816 3284 -4221 745 -512 3883 -2404 4393 -2650 80 -38 140 -75 171 -104 68 -63 794 -72 844 -10 20 26 76 59 225 133 485 243 1658 888 2452 1350 2402 1395 3697 2431 4425 3542 498 758 756 1514 869 2550 108 981 97 397 93 4805 -3 3586 -5 3938 -20 4021 -118 655 -220 869 -540 1127 -388 314 -839 508 -3472 1489 -1232 459 -3400 1245 -3635 1318 -112 34 -188 69 -209 94 -20 24 -1132 24 -1151 1z m950 -4129 c442 -75 705 -158 1025 -324 1039 -540 1701 -1568 1750 -2717 57 -1331 -682 -2480 -2020 -3140 -270 -133 -309 -166 -307 -263 1 -78 35 -117 612 -697 677 -681 670 -673 670 -815 0 -140 -4 -144 -697 -841 -601 -605 -613 -618 -613 -715 0 -89 27 -122 470 -569 464 -468 473 -479 474 -599 1 -139 4 -135 -861 -997 -865 -862 -860 -858 -1049 -795 -136 45 -882 792 -970 971 -73 150 -67 -68 -74 2665 -5 2678 -1 2479 -63 2567 -39 55 -83 85 -268 180 -2148 1108 -2373 4091 -417 5516 437 319 900 495 1538 586 41 6 86 13 100 15 91 16 552 -3 700 -28z"/><path d="M11542 16550 c-641 -88 -965 -817 -590 -1325 531 -719 1655 -264 1528 619 -63 431 -507 765 -938 706z"/></g></svg></div>
             <div id="sudoStep1">
                 <form id="sudoForm" style="margin: 0; width: 100%;">
                     <input type="text" name="username" autocomplete="username" class="sudo-hidden-username" style="display: none;" tabindex="-1" aria-hidden="true" readonly>

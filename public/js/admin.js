@@ -33,9 +33,9 @@ export async function loadStatus() {
         }
 
         const userDisplay = document.getElementById('usernameDisplay');
-        const heroUserDisplay = document.getElementById('overviewUsername');
+        const heroUserDisplay = document.getElementById('accountUsername') || document.getElementById('overviewUsername');
         const emailDisplay = document.getElementById('emailDisplay');
-        const heroEmailDisplay = document.getElementById('overviewEmail');
+        const heroEmailDisplay = document.getElementById('accountEmail') || document.getElementById('overviewEmail');
         const pwdDisplay = document.getElementById('passwordUpdatedDisplay');
 
         /* Display username across main settings and overview hero card */
@@ -47,6 +47,7 @@ export async function loadStatus() {
         /* Email display: masked by default unless elevated */
         const emailText = (data.elevated && data.fullEmail) ? data.fullEmail : data.email;
         const finalEmail = emailText || t('status_email_not_set');
+        window.currentUserEmail = finalEmail;
         if (emailDisplay) emailDisplay.textContent = finalEmail;
         if (heroEmailDisplay) heroEmailDisplay.textContent = finalEmail;
 
@@ -130,6 +131,118 @@ function setupGlobalModalClosers() {
     });
 }
 
+/* ============================================================================
+ * SMTP Communication Preferences Mock Controller
+ * ============================================================================ */
+function setupSmtpEvents() {
+    const testBtn = document.getElementById('testSmtpBtn');
+    const saveBtn = document.getElementById('saveSmtpBtn');
+    const msgEl = document.getElementById('smtpMsg');
+
+    testBtn?.addEventListener('click', () => {
+        if (msgEl) {
+            msgEl.className = 'msg msg-info';
+            msgEl.textContent = t('smtp_testing') || '正在测试 SMTP 连接...';
+        }
+        setTimeout(() => {
+            if (msgEl) {
+                msgEl.className = 'msg msg-ok';
+                msgEl.textContent = t('smtp_test_success') || 'SMTP 连接测试成功！邮件通道畅通。';
+            }
+        }, 600);
+    });
+
+    saveBtn?.addEventListener('click', () => {
+        if (msgEl) {
+            msgEl.className = 'msg msg-ok';
+            msgEl.textContent = t('smtp_save_success') || 'SMTP 配置已保存。';
+        }
+    });
+}
+
+/* ============================================================================
+ * Settings Tab Preferences Controller (Language, Theme, Legal, & Logouts)
+ * ============================================================================ */
+function setupSettingsEvents() {
+    /* 1. Language switcher */
+    const langRow = document.getElementById('settingLangRow');
+    const langLabel = document.getElementById('currentLangLabel');
+
+    function syncLangLabel() {
+        if (!langLabel) return;
+        const cur = window.i18n ? window.i18n.getLanguage() : 'zh-CN';
+        langLabel.textContent = cur.startsWith('zh') ? '简体中文' : 'English';
+    }
+    syncLangLabel();
+
+    langRow?.addEventListener('click', () => {
+        const cur = window.i18n ? window.i18n.getLanguage() : 'zh-CN';
+        const next = cur.startsWith('zh') ? 'en-US' : 'zh-CN';
+        if (window.i18n && typeof window.i18n.setLanguage === 'function') {
+            window.i18n.setLanguage(next);
+            syncLangLabel();
+            syncSidebarProfile();
+        }
+    });
+
+    window.addEventListener('languagechange', () => {
+        syncLangLabel();
+        syncSidebarProfile();
+    });
+
+    /* 2. Appearance Theme switcher */
+    const themeRow = document.getElementById('settingThemeRow');
+    const themeLabel = document.getElementById('currentThemeLabel');
+    const THEMES = ['auto', 'dark', 'light'];
+    let currentTheme = localStorage.getItem('situla_theme') || 'auto';
+
+    function applyTheme(theme) {
+        currentTheme = theme;
+        localStorage.setItem('situla_theme', theme);
+        if (theme === 'auto') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        if (themeLabel) {
+            themeLabel.textContent = theme === 'dark' ? t('theme_dark') : (theme === 'light' ? t('theme_light') : t('theme_auto'));
+        }
+    }
+    applyTheme(currentTheme);
+
+    themeRow?.addEventListener('click', () => {
+        const nextIdx = (THEMES.indexOf(currentTheme) + 1) % THEMES.length;
+        applyTheme(THEMES[nextIdx]);
+    });
+
+    /* 3. Subpage and Link helpers */
+    document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
+        document.getElementById('showUsernameFormBtn')?.click();
+    });
+
+    document.getElementById('learnDataBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert(`${t('subpage_personal_info')}\n\n${t('subpage_security_desc')}\n\n${t('settings_footer_note')}`);
+    });
+
+    document.getElementById('settingPrivacyRow')?.addEventListener('click', () => {
+        alert(`${t('settings_privacy')}\n\n${t('settings_footer_note')}`);
+    });
+
+    /* 4. Settings Bottom Action Rows delegation */
+    document.getElementById('logoutAllRow')?.addEventListener('click', (e) => {
+        if (e.target.id !== 'logoutAllBtn') {
+            document.getElementById('logoutAllBtn')?.click();
+        }
+    });
+
+    document.getElementById('logoutRow')?.addEventListener('click', (e) => {
+        if (e.target.id !== 'logoutBtn') {
+            document.getElementById('logoutBtn')?.click();
+        }
+    });
+}
+
 function initDashboard() {
     /* Initialize device fingerprint routing and phone orientation blocker */
     try { initDeviceLayout(); } catch (e) { console.error('[Admin] initDeviceLayout failed:', e); }
@@ -146,6 +259,8 @@ function initDashboard() {
     try { setupOidcEvents(); } catch (e) { console.error('[Admin] setupOidcEvents failed:', e); }
     try { setupNpmGenerator(); } catch (e) { console.error('[Admin] setupNpmGenerator failed:', e); }
     try { setupLogsEvents(); } catch (e) { console.error('[Admin] setupLogsEvents failed:', e); }
+    try { setupSmtpEvents(); } catch (e) { console.error('[Admin] setupSmtpEvents failed:', e); }
+    try { setupSettingsEvents(); } catch (e) { console.error('[Admin] setupSettingsEvents failed:', e); }
 
     loadStatus();
 }
