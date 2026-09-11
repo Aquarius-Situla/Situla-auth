@@ -208,7 +208,7 @@ function createOrientationGuard() {
                     <path class="guidance-arrow" d="M8 40 C8 22.33 22.33 8 40 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 3.5"/>
                     <path class="guidance-arrow" d="M35 3 L42 8 L35 13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <g class="phone-device-group">
-                        <rect x="27" y="16" width="26" height="48" rx="6" stroke="currentColor" stroke-width="2.5" fill="rgba(0, 113, 227, 0.08)"/>
+                        <rect x="27" y="16" width="26" height="48" rx="6" stroke="currentColor" stroke-width="2.5" fill="rgba(255, 69, 58, 0.08)"/>
                         <rect x="29" y="18" width="22" height="44" rx="4.5" stroke="currentColor" stroke-width="0.75" opacity="0.3" fill="none"/>
                         <rect x="36" y="20.5" width="8" height="2.5" rx="1.25" fill="currentColor"/>
                         <line x1="35" y1="58" x2="45" y2="58" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>

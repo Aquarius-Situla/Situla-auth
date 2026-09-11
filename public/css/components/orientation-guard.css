@@ -77,13 +77,14 @@ body.is-orientation-blocked {
     align-items: center;
     justify-content: center;
     margin-bottom: 20px;
-    color: var(--color-primary, #0071e3);
+    color: var(--apple-red, #ff453a);
 }
 
 .sys-orientation-guard .guard-phone-icon {
     width: 80px;
     height: 80px;
     overflow: visible;
+    color: var(--apple-red, #ff453a);
 }
 
 .sys-orientation-guard .phone-device-group {

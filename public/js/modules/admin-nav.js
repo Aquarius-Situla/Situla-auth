@@ -57,12 +57,17 @@ export function normalizeTab(tab) {
 export function switchTab(rawTabId, updateHash = true) {
     const tabId = normalizeTab(rawTabId);
     currentActiveTab = tabId;
+    window.currentActiveTab = tabId;
     window.switchTab = switchTab;
 
-    /* Dismiss any active subpage when changing tabs */
-    if (window.AquaKit && typeof window.AquaKit.popSubpage === 'function') {
+    /* Dismiss any active subpage stack when changing tabs */
+    if (window.AquaKit && typeof window.AquaKit.resetSubpageStack === 'function') {
         try {
-            if (window.AquaKit.isSubpageActive()) {
+            window.AquaKit.resetSubpageStack();
+        } catch (ignored) {}
+    } else if (window.AquaKit && typeof window.AquaKit.popSubpage === 'function') {
+        try {
+            while (window.AquaKit.isSubpageActive()) {
                 window.AquaKit.popSubpage({ instant: true });
             }
         } catch (ignored) {}
@@ -75,13 +80,23 @@ export function switchTab(rawTabId, updateHash = true) {
     }
 
     setTimeout(() => {
+        let activePaneFound = false;
         document.querySelectorAll('.tab-pane').forEach(pane => {
             if (pane.id === `tab-pane-${tabId}`) {
                 pane.classList.add('active');
+                activePaneFound = true;
             } else {
                 pane.classList.remove('active');
             }
         });
+
+        /* Robust fallback to tab-pane-home if target pane wasn't found */
+        if (!activePaneFound) {
+            const fallbackPane = document.getElementById('tab-pane-home');
+            if (fallbackPane) {
+                fallbackPane.classList.add('active');
+            }
+        }
 
         if (stage) {
             stage.classList.remove('stage-fading');

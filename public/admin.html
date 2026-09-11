@@ -21,7 +21,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="账户安全">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
@@ -37,15 +37,15 @@
     </script>
 
     <!-- AquaKit Core Stylesheet & Application Overrides -->
-    <link rel="stylesheet" href="/css/uikit.css?v=101">
-    <link rel="stylesheet" href="/css/style.css?v=101">
+    <link rel="stylesheet" href="/css/uikit.css?v=20260912b">
+    <link rel="stylesheet" href="/css/style.css?v=20260912b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n/locales/zh-CN.js?v=101"></script>
-    <script src="/i18n/locales/en-US.js?v=101"></script>
-    <script src="/i18n/i18n.js?v=101"></script>
-    <script src="/js/uikit.js?v=101"></script>
+    <script src="/i18n/locales/zh-CN.js?v=20260912b"></script>
+    <script src="/i18n/locales/en-US.js?v=20260912b"></script>
+    <script src="/i18n/i18n.js?v=20260912b"></script>
+    <script src="/js/uikit.js?v=20260912b"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; justify-content: center; align-items: center;">
@@ -57,9 +57,9 @@
         <header class="apple-top-nav" id="appleTopNav" aria-label="顶部导航栏">
             <button type="button" class="apple-back-btn" data-close-subpage aria-label="返回">
                 <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                <span class="apple-back-title" data-i18n="tab_home">主页</span>
+                <span class="apple-back-title">主页</span>
             </button>
-            <h1 class="nav-title" id="mobileNavTitle" data-i18n="tab_home">主页</h1>
+            <h1 class="nav-title" id="mobileNavTitle">主页</h1>
         </header>
 
         <!-- macOS Translucent Left Sidebar (3 Top-Level Tabs) -->
@@ -626,7 +626,7 @@
                         <div class="apple-section-header apple-group-header" data-i18n="settings_preferences">偏好设置 (PREFERENCES)</div>
                         <div class="apple-card apple-inset-group" id="preferencesCard">
                             <!-- Language Selection -->
-                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingLangRow">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingLangRow" data-open-subpage="subpage-language" data-subpage-title="全局语言" data-parent-title="设置">
                                 <div class="apple-row-left">
                                     <div class="apple-badge badge-blue">
                                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
@@ -640,10 +640,10 @@
                             </div>
 
                             <!-- Appearance Theme Selection -->
-                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingThemeRow">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingThemeRow" data-open-subpage="subpage-appearance" data-subpage-title="外观显示" data-parent-title="设置">
                                 <div class="apple-row-left">
                                     <div class="apple-badge badge-purple">
-                                        <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.49 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+                                        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z M12 4a8 8 0 0 1 0 16z"/></svg>
                                     </div>
                                     <span class="apple-row-label" data-i18n="settings_appearance">外观显示 (Appearance)</span>
                                 </div>
@@ -737,6 +737,103 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Subpage 5: 全局语言 (Language Preferences)              -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <div id="subpage-language" class="apple-subpage" data-title="全局语言">
+                    <div class="apple-group-container">
+                        <div class="apple-subpage-header">
+                            <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span class="apple-back-title" data-i18n="tab_settings">设置</span>
+                            </button>
+                            <div class="apple-subpage-title" data-i18n="settings_language">全局语言</div>
+                            <div style="width: 48px;"></div>
+                        </div>
+
+                        <div class="apple-section-header apple-group-header" data-i18n="lang_section_header">偏好语言 (PREFERRED LANGUAGES)</div>
+                        <div class="apple-card apple-inset-group">
+                            <div class="apple-row apple-list-row apple-clickable" id="langRowZh" data-lang-choice="zh-CN">
+                                <div class="apple-row-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                    <span class="apple-row-label" style="font-size: 16px; font-weight: 500;" data-i18n="lang_zh_cn">简体中文</span>
+                                    <span class="apple-row-value" style="font-size: 12px; color: var(--apple-text-secondary);" data-i18n="lang_zh_cn_desc">简化字 · Simplified Chinese</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row apple-clickable" id="langRowEn" data-lang-choice="en-US">
+                                <div class="apple-row-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                    <span class="apple-row-label" style="font-size: 16px; font-weight: 500;" data-i18n="lang_en_us">English</span>
+                                    <span class="apple-row-value" style="font-size: 12px; color: var(--apple-text-secondary);" data-i18n="lang_en_us_desc">英语 · English</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subpage-footer-note" data-i18n="lang_footer_note" style="margin-top: 8px;">选择在 Situla Auth 中显示的语言偏好。系统将自动保存您的偏好设置。</div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Subpage 6: 外观显示 (Appearance Preferences)            -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <div id="subpage-appearance" class="apple-subpage" data-title="外观显示">
+                    <div class="apple-group-container">
+                        <div class="apple-subpage-header">
+                            <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span class="apple-back-title" data-i18n="tab_settings">设置</span>
+                            </button>
+                            <div class="apple-subpage-title" data-i18n="settings_appearance">外观显示</div>
+                            <div style="width: 48px;"></div>
+                        </div>
+
+                        <div class="apple-section-header apple-group-header" data-i18n="theme_section_header">外观偏好 (APPEARANCE)</div>
+                        <div class="apple-card apple-inset-group">
+                            <div class="apple-row apple-list-row apple-clickable" id="themeRowAuto" data-theme-choice="auto">
+                                <div class="apple-row-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                    <span class="apple-row-label" style="font-size: 16px; font-weight: 500;" data-i18n="theme_auto">跟随系统</span>
+                                    <span class="apple-row-value" style="font-size: 12px; color: var(--apple-text-secondary);" data-i18n="theme_auto_desc">跟随设备系统偏好自动切换深浅色</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row apple-clickable" id="themeRowDark" data-theme-choice="dark">
+                                <div class="apple-row-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                    <span class="apple-row-label" style="font-size: 16px; font-weight: 500;" data-i18n="theme_dark">深色模式</span>
+                                    <span class="apple-row-value" style="font-size: 12px; color: var(--apple-text-secondary);" data-i18n="theme_dark_desc">始终使用深色高对比度界面</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row apple-clickable" id="themeRowLight" data-theme-choice="light">
+                                <div class="apple-row-left" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                    <span class="apple-row-label" style="font-size: 16px; font-weight: 500;" data-i18n="theme_light">浅色模式</span>
+                                    <span class="apple-row-value" style="font-size: 12px; color: var(--apple-text-secondary);" data-i18n="theme_light_desc">始终使用浅色明亮界面</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subpage-footer-note" data-i18n="theme_footer_note" style="margin-top: 8px;">选择 Situla Auth 的外观显示主题。当选择“跟随系统”时，将根据设备系统设置自动切换。</div>
+                    </div>
+                </div>
 
             </div>
         </main>
@@ -1083,6 +1180,6 @@
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=100"></script>
+    <script type="module" src="/js/admin.js?v=20260912b"></script>
 </body>
 </html>

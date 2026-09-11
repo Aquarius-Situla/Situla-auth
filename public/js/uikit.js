@@ -382,6 +382,20 @@ function initStandaloneSync() {
  * ============================================================================ */
 const navHistory = [];
 let isTransitioning = false;
+let transitionSafetyTimer = null;
+
+function setTransitionState(val) {
+    isTransitioning = val;
+    if (transitionSafetyTimer) {
+        clearTimeout(transitionSafetyTimer);
+        transitionSafetyTimer = null;
+    }
+    if (val) {
+        transitionSafetyTimer = setTimeout(() => {
+            isTransitioning = false;
+        }, 400);
+    }
+}
 
 /* Resolve element helper */
 function resolveElement(target) {
@@ -402,17 +416,22 @@ function pushSubpage(targetSubpage, options = {}) {
     const subpageEl = resolveElement(targetSubpage);
     if (!subpageEl) return null;
 
-    isTransitioning = true;
+    setTransitionState(true);
 
     /* Determine current active parent view */
+    const activeSubpage = navHistory.length > 0 ? navHistory[navHistory.length - 1].subpage : null;
     const parentView = resolveElement(options.fromView) || 
+                       activeSubpage ||
                        document.querySelector('.tab-pane.active:not(.apple-subpage)') ||
                        document.querySelector('.view-content.active:not(.apple-subpage)') || 
                        document.querySelector('.apple-nav-view.active') ||
                        document.querySelector('.apple-desktop-stage');
 
     const title = options.title || subpageEl.getAttribute('data-title') || '';
-    const parentTitle = options.parentTitle || (parentView ? parentView.getAttribute('data-title') : '') || '返回';
+    const parentTitle = options.parentTitle || 
+                        (activeSubpage ? (activeSubpage.getAttribute('data-title') || '返回') : '') ||
+                        (parentView ? (parentView.getAttribute('data-title') || parentView.getAttribute('data-nav-title')) : '') || 
+                        '返回';
 
     /* 1. Mark parent view as pushed backward */
     if (parentView) {
@@ -439,7 +458,9 @@ function pushSubpage(targetSubpage, options = {}) {
         mobileTopNav.classList.add('has-back');
         const mobileTitle = mobileTopNav.querySelector('.nav-title');
         if (mobileTitle && title) {
-            mobileTitle.setAttribute('data-prev-title', mobileTitle.textContent);
+            if (navHistory.length === 0) {
+                mobileTitle.setAttribute('data-prev-title', mobileTitle.textContent);
+            }
             mobileTitle.textContent = title;
         }
         const mobileBackBtn = mobileTopNav.querySelector('.apple-back-btn');
@@ -496,7 +517,9 @@ function pushSubpage(targetSubpage, options = {}) {
         subpageEl.style.top = '';
         subpageEl.style.left = '';
         subpageEl.style.width = '';
-        isTransitioning = false;
+        subpageEl.style.transform = '';
+        subpageEl.style.transition = '';
+        setTransitionState(false);
         if (typeof options.onPush === 'function') {
             options.onPush(subpageEl);
         }
@@ -513,7 +536,7 @@ function popSubpage(options = {}) {
     if (isTransitioning) return null;
     if (navHistory.length === 0) return null;
 
-    isTransitioning = true;
+    setTransitionState(true);
     const currentEntry = navHistory.pop();
     const { subpage, parentView, scrollY, historyPushed } = currentEntry;
 
@@ -530,6 +553,9 @@ function popSubpage(options = {}) {
     if (parentView) {
         parentView.style.display = '';
         parentView.classList.add('is-pushed');
+        parentView.style.transform = '';
+        parentView.style.transition = '';
+        parentView.style.filter = '';
     }
 
     /* 2. Anchor subpage absolutely so parent view can slide back in place */
@@ -538,6 +564,7 @@ function popSubpage(options = {}) {
         subpage.style.top = '0';
         subpage.style.left = '0';
         subpage.style.width = '100%';
+        subpage.style.transform = '';
     }
 
     /* Force reflow */
@@ -571,6 +598,13 @@ function popSubpage(options = {}) {
             if (mobileTitle && prevEntry.title) {
                 mobileTitle.textContent = prevEntry.title;
             }
+            const mobileBackBtn = mobileTopNav.querySelector('.apple-back-btn');
+            if (mobileBackBtn) {
+                const mobileBackText = mobileBackBtn.querySelector('span:not(svg)');
+                if (mobileBackText) {
+                    mobileBackText.textContent = prevEntry.parentTitle || '返回';
+                }
+            }
         }
     }
 
@@ -583,11 +617,19 @@ function popSubpage(options = {}) {
             subpage.style.top = '';
             subpage.style.left = '';
             subpage.style.width = '';
+            subpage.style.transform = '';
+            subpage.style.transition = '';
+        }
+        if (parentView) {
+            parentView.style.transform = '';
+            parentView.style.transition = '';
+            parentView.style.filter = '';
+            parentView.classList.remove('is-pushed');
         }
         if (typeof scrollY === 'number' && typeof window !== 'undefined') {
             window.scrollTo({ top: scrollY, behavior: 'instant' });
         }
-        isTransitioning = false;
+        setTransitionState(false);
         if (typeof options.onPop === 'function') {
             options.onPop(subpage);
         }
@@ -596,16 +638,57 @@ function popSubpage(options = {}) {
     return subpage;
 }
 
+/* ============================================================================
+ * Cleanly Reset Subpage Navigation Stack (Used on Tab Switching)
+ * ============================================================================ */
+function resetSubpageStack() {
+    while (navHistory.length > 0) {
+        const entry = navHistory.pop();
+        if (entry.subpage) {
+            entry.subpage.classList.remove('active', 'is-exiting');
+            entry.subpage.style.display = 'none';
+            entry.subpage.style.position = '';
+            entry.subpage.style.top = '';
+            entry.subpage.style.left = '';
+            entry.subpage.style.width = '';
+            entry.subpage.style.transform = '';
+            entry.subpage.style.transition = '';
+        }
+        if (entry.parentView) {
+            entry.parentView.classList.remove('is-pushed');
+            entry.parentView.style.display = '';
+            entry.parentView.style.transform = '';
+            entry.parentView.style.transition = '';
+            entry.parentView.style.filter = '';
+        }
+    }
+    if (typeof document !== 'undefined' && document.body) {
+        document.body.classList.remove('is-subpage');
+    }
+    const mobileTopNav = document.querySelector('.apple-top-nav');
+    if (mobileTopNav) {
+        mobileTopNav.classList.remove('has-back');
+        const mobileTitle = mobileTopNav.querySelector('.nav-title');
+        if (mobileTitle && mobileTitle.getAttribute('data-prev-title')) {
+            mobileTitle.textContent = mobileTitle.getAttribute('data-prev-title');
+            mobileTitle.removeAttribute('data-prev-title');
+        }
+    }
+    setTransitionState(false);
+}
+
 /* Check if subpages are currently opened */
 function isSubpageActive() {
     return navHistory.length > 0;
 }
 
-/* ============================================================================
- * Automatic Navigation Stack Event Delegator & Apple Edge-Swipe Gesture
- * ============================================================================ */
+/* Navigation stack initialization guard */
+let isNavStackInitialized = false;
+
 function initNavigationStack(options = {}) {
     if (typeof document === 'undefined') return;
+    if (isNavStackInitialized) return;
+    isNavStackInitialized = true;
 
     /* Bind push openers */
     document.addEventListener('click', (e) => {
@@ -651,6 +734,34 @@ function initNavigationStack(options = {}) {
     let activeSubpage = null;
     let activeParent = null;
 
+    function cancelSwipe() {
+        if (!isEdgeSwiping) return;
+        const sub = activeSubpage;
+        const par = activeParent;
+        isEdgeSwiping = false;
+        activeSubpage = null;
+        activeParent = null;
+
+        if (sub) {
+            sub.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)';
+            sub.style.transform = 'translate3d(0, 0, 0)';
+            setTimeout(() => {
+                sub.style.transition = '';
+                sub.style.position = 'relative';
+                sub.style.transform = '';
+            }, 260);
+        }
+        if (par) {
+            par.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s';
+            par.style.transform = '';
+            par.style.filter = '';
+            setTimeout(() => {
+                par.style.transition = '';
+                par.style.display = 'none';
+            }, 260);
+        }
+    }
+
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1 || !isSubpageActive() || isTransitioning) return;
         const touch = e.touches[0];
@@ -689,9 +800,7 @@ function initNavigationStack(options = {}) {
         /* If vertical scroll is detected early, cancel horizontal swipe */
         if (deltaX <= 0) return;
         if (deltaY > deltaX && deltaX < 24) {
-            isEdgeSwiping = false;
-            if (activeSubpage) activeSubpage.style.transition = '';
-            if (activeParent) activeParent.style.transition = '';
+            cancelSwipe();
             return;
         }
 
@@ -722,35 +831,26 @@ function initNavigationStack(options = {}) {
         if (progress > 0.30) {
             /* Velocity threshold met: finish pop */
             isEdgeSwiping = false;
-            if (activeSubpage) activeSubpage.style.transition = '';
-            if (activeParent) activeParent.style.transition = '';
+            if (activeSubpage) {
+                activeSubpage.style.transition = '';
+                activeSubpage.style.transform = '';
+            }
+            if (activeParent) {
+                activeParent.style.transition = '';
+                activeParent.style.transform = '';
+                activeParent.style.filter = '';
+            }
             activeSubpage = null;
             activeParent = null;
             popSubpage();
         } else {
             /* Cancel swipe: spring back to open position */
-            activeSubpage.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)';
-            activeSubpage.style.transform = 'translate3d(0, 0, 0)';
-            if (activeParent) {
-                activeParent.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s';
-                activeParent.style.transform = 'translate3d(-28%, 0, 0)';
-                activeParent.style.filter = 'brightness(0.72)';
-            }
-            setTimeout(() => {
-                if (activeSubpage) {
-                    activeSubpage.style.transition = '';
-                    activeSubpage.style.position = 'relative';
-                }
-                if (activeParent) {
-                    activeParent.style.transition = '';
-                    activeParent.style.display = 'none';
-                }
-                isEdgeSwiping = false;
-                activeSubpage = null;
-                activeParent = null;
-            }, 260);
+            cancelSwipe();
         }
     }, { passive: true });
+
+    /* Native Safari gesture cancellation fallback */
+    document.addEventListener('touchcancel', cancelSwipe, { passive: true });
 }
 
 
@@ -1311,6 +1411,7 @@ var Components = {
     hideLoading,
     pushSubpage,
     popSubpage,
+    resetSubpageStack,
     isSubpageActive,
     initNavigationStack,
     initAquaComponents
@@ -1361,6 +1462,7 @@ if (typeof window !== 'undefined') {
         Components,
         pushSubpage,
         popSubpage,
+        resetSubpageStack,
         isSubpageActive,
         initNavigationStack,
         showLoading,

@@ -164,36 +164,58 @@ function setupSmtpEvents() {
  * Settings Tab Preferences Controller (Language, Theme, Legal, & Logouts)
  * ============================================================================ */
 function setupSettingsEvents() {
-    /* 1. Language switcher */
-    const langRow = document.getElementById('settingLangRow');
+    /* 1. Language switcher & Subpage row selection */
     const langLabel = document.getElementById('currentLangLabel');
+    const langRowZh = document.getElementById('langRowZh');
+    const langRowEn = document.getElementById('langRowEn');
 
-    function syncLangLabel() {
-        if (!langLabel) return;
-        const cur = window.i18n ? window.i18n.getLanguage() : 'zh-CN';
-        langLabel.textContent = cur.startsWith('zh') ? '简体中文' : 'English';
+    function syncLanguageUI(lang) {
+        const cur = lang || (window.i18n ? window.i18n.getLanguage() : 'zh-CN');
+        if (langLabel) {
+            langLabel.textContent = cur.startsWith('zh') ? '简体中文' : 'English';
+        }
+        if (langRowZh) {
+            if (cur.startsWith('zh')) {
+                langRowZh.classList.add('is-selected');
+            } else {
+                langRowZh.classList.remove('is-selected');
+            }
+        }
+        if (langRowEn) {
+            if (!cur.startsWith('zh')) {
+                langRowEn.classList.add('is-selected');
+            } else {
+                langRowEn.classList.remove('is-selected');
+            }
+        }
     }
-    syncLangLabel();
+    syncLanguageUI();
 
-    langRow?.addEventListener('click', () => {
-        const cur = window.i18n ? window.i18n.getLanguage() : 'zh-CN';
-        const next = cur.startsWith('zh') ? 'en-US' : 'zh-CN';
+    function selectLanguage(langCode) {
         if (window.i18n && typeof window.i18n.setLanguage === 'function') {
-            window.i18n.setLanguage(next);
-            syncLangLabel();
+            window.i18n.setLanguage(langCode);
+            syncLanguageUI(langCode);
             syncSidebarProfile();
+        }
+    }
+
+    langRowZh?.addEventListener('click', () => selectLanguage('zh-CN'));
+    langRowEn?.addEventListener('click', () => selectLanguage('en-US'));
+
+    window.addEventListener('languagechange', () => {
+        syncLanguageUI();
+        syncSidebarProfile();
+        const topTitle = document.getElementById('mobileNavTitle');
+        if (topTitle && (!window.AquaKit || !window.AquaKit.isSubpageActive())) {
+            topTitle.textContent = t('tab_' + (window.currentActiveTab || 'home'));
         }
     });
 
-    window.addEventListener('languagechange', () => {
-        syncLangLabel();
-        syncSidebarProfile();
-    });
-
-    /* 2. Appearance Theme switcher */
-    const themeRow = document.getElementById('settingThemeRow');
+    /* 2. Appearance Theme switcher & Subpage row selection */
     const themeLabel = document.getElementById('currentThemeLabel');
-    const THEMES = ['auto', 'dark', 'light'];
+    const themeRowAuto = document.getElementById('themeRowAuto');
+    const themeRowDark = document.getElementById('themeRowDark');
+    const themeRowLight = document.getElementById('themeRowLight');
     let currentTheme = localStorage.getItem('situla_theme') || 'auto';
 
     function applyTheme(theme) {
@@ -207,13 +229,23 @@ function setupSettingsEvents() {
         if (themeLabel) {
             themeLabel.textContent = theme === 'dark' ? t('theme_dark') : (theme === 'light' ? t('theme_light') : t('theme_auto'));
         }
+
+        /* Synchronize checkmark state across subpage options */
+        const themeRows = [themeRowAuto, themeRowDark, themeRowLight];
+        themeRows.forEach(row => {
+            if (!row) return;
+            if (row.getAttribute('data-theme-choice') === theme) {
+                row.classList.add('is-selected');
+            } else {
+                row.classList.remove('is-selected');
+            }
+        });
     }
     applyTheme(currentTheme);
 
-    themeRow?.addEventListener('click', () => {
-        const nextIdx = (THEMES.indexOf(currentTheme) + 1) % THEMES.length;
-        applyTheme(THEMES[nextIdx]);
-    });
+    themeRowAuto?.addEventListener('click', () => applyTheme('auto'));
+    themeRowDark?.addEventListener('click', () => applyTheme('dark'));
+    themeRowLight?.addEventListener('click', () => applyTheme('light'));
 
     /* 3. Subpage and Link helpers */
     document.getElementById('editAvatarBtn')?.addEventListener('click', () => {
