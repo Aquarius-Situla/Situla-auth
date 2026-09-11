@@ -406,6 +406,7 @@ function pushSubpage(targetSubpage, options = {}) {
 
     /* Determine current active parent view */
     const parentView = resolveElement(options.fromView) || 
+                       document.querySelector('.tab-pane.active:not(.apple-subpage)') ||
                        document.querySelector('.view-content.active:not(.apple-subpage)') || 
                        document.querySelector('.apple-nav-view.active') ||
                        document.querySelector('.apple-desktop-stage');
@@ -472,6 +473,11 @@ function pushSubpage(targetSubpage, options = {}) {
         } catch (ignored) {}
     }
 
+    /* Mark body as having an active subpage to update tab bar visibility */
+    if (typeof document !== 'undefined' && document.body) {
+        document.body.classList.add('is-subpage');
+    }
+
     navHistory.push({
         subpage: subpageEl,
         parentView: parentView,
@@ -482,8 +488,8 @@ function pushSubpage(targetSubpage, options = {}) {
     });
 
     setTimeout(() => {
-        /* Once transition completes, make subpage in-flow and hide pushed parent view */
-        if (parentView) {
+        /* Once transition completes, make subpage in-flow and hide pushed parent view if separate */
+        if (parentView && !parentView.contains(subpageEl)) {
             parentView.style.display = 'none';
         }
         subpageEl.style.position = 'relative';
@@ -545,7 +551,10 @@ function popSubpage(options = {}) {
         parentView.classList.remove('is-pushed');
     }
 
-    /* 4. Restore Mobile Top Nav */
+    /* 4. Restore Mobile Top Nav & Tab Bar State */
+    if (navHistory.length === 0 && typeof document !== 'undefined' && document.body) {
+        document.body.classList.remove('is-subpage');
+    }
     const mobileTopNav = document.querySelector('.apple-top-nav');
     if (mobileTopNav) {
         if (navHistory.length === 0) {
@@ -1322,15 +1331,18 @@ function initAquaKit(options = {}) {
     /* 3. iOS WebApp Standalone Chin-Gap Synchronizer */
     initStandaloneSync();
 
-    /* 4. Interactive Components (Segmented Controls, Modals) */
+    /* 4. Navigation Stack & Subpage Transitions */
+    initNavigationStack();
+
+    /* 5. Interactive Components (Segmented Controls, Modals) */
     initAquaComponents();
 
-    /* 5. Desktop Shell Controller (if applicable) */
+    /* 6. Desktop Shell Controller (if applicable) */
     if (options.desktopShell !== false) {
         initDesktopShell(options.desktopShell || {});
     }
 
-    /* 6. Mobile Tab Bar Controller (if applicable) */
+    /* 7. Mobile Tab Bar Controller (if applicable) */
     if (options.tabBar !== false) {
         initTabBar(options.tabBar || {});
     }
@@ -1350,6 +1362,7 @@ if (typeof window !== 'undefined') {
         pushSubpage,
         popSubpage,
         isSubpageActive,
+        initNavigationStack,
         showLoading,
         hideLoading
     };
@@ -1360,10 +1373,12 @@ if (typeof window !== 'undefined') {
         document.addEventListener('DOMContentLoaded', () => {
             initDeviceLayout();
             initStandaloneSync();
+            initNavigationStack();
         });
     } else {
         initDeviceLayout();
         initStandaloneSync();
+        initNavigationStack();
     }
 }
 

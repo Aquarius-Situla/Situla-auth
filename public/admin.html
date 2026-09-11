@@ -53,17 +53,13 @@
     </div>
 
     <div id="appContent" style="opacity: 0; transition: opacity 0.4s ease;">
-        <!-- Mobile Frosted Top Navigation Bar -->
-        <header class="apple-top-nav" aria-label="移动端顶部导航栏">
-            <div class="nav-content-row">
-                <div class="nav-brand-box">
-                    <svg class="nav-brand-icon" viewBox="10 -85 95 95">
-                        <path d="M24.2188 5.37109C26.416 5.37109 28.125 3.61328 28.125 1.61133L28.125-12.8418C32.666-14.4531 35.9375-18.7988 35.9375-23.877C35.9375-28.9551 32.666-33.3008 28.125-34.9121L28.125-76.6113C28.125-78.8086 26.416-80.5664 24.2188-80.5664C22.0215-80.5664 20.2637-78.8086 20.2637-76.6113L20.2637-34.9609C15.7227-33.3008 12.4512-28.9551 12.4512-23.877C12.4512-18.7988 15.7227-14.4531 20.2637-12.8418L20.2637 1.61133C20.2637 3.61328 22.0215 5.37109 24.2188 5.37109ZM57.1289 5.37109C59.3262 5.37109 61.084 3.61328 61.084 1.41602L61.084-41.0645C65.5762-42.6758 68.8477-47.0215 68.8477-52.0996C68.8477-57.1777 65.5762-61.5234 61.084-63.1348L61.084-76.8066C61.084-78.8086 59.3262-80.5664 57.1289-80.5664C54.9316-80.5664 53.2227-78.8086 53.2227-76.8066L53.2227-63.1836C48.6328-61.5234 45.3613-57.1777 45.3613-52.0996C45.3613-47.0215 48.6328-42.6758 53.2227-41.0645L53.2227 1.41602C53.2227 3.61328 54.9316 5.37109 57.1289 5.37109ZM78.3691-23.877C78.3691-18.7988 81.5918-14.4531 86.1328-12.8418L86.1328 1.61133C86.1328 3.61328 87.8906 5.37109 90.0879 5.37109C92.2852 5.37109 93.9941 3.61328 93.9941 1.61133L93.9941-12.8418C98.5352-14.4531 101.807-18.7988 101.807-23.877C101.807-28.9551 98.5352-33.3496 93.9941-34.9609L93.9941-76.6113C93.9941-78.8086 92.2852-80.5664 90.0879-80.5664C87.8906-80.5664 86.1328-78.8086 86.1328-76.6113L86.1328-34.9121C81.5918-33.3008 78.3691-28.9551 78.3691-23.877ZM51.416-52.0996C51.416-55.2734 53.9551-57.8125 57.1289-57.8125C60.3516-57.8125 62.8418-55.2734 62.8418-52.0996C62.8418-48.877 60.3516-46.3867 57.1289-46.3867C53.9551-46.3867 51.416-48.877 51.416-52.0996ZM18.457-23.877C18.457-27.0996 20.9961-29.5898 24.2188-29.5898C27.4414-29.5898 29.9316-27.0996 29.9316-23.877C29.9316-20.6543 27.4414-18.1641 24.2188-18.1641C20.9961-18.1641 18.457-20.6543 18.457-23.877ZM84.375-23.877C84.375-27.0996 86.9141-29.5898 90.0879-29.5898C93.3594-29.5898 95.8008-27.0996 95.8008-23.877C95.8008-20.6543 93.3594-18.1641 90.0879-18.1641C86.9141-18.1641 84.375-20.6543 84.375-23.877Z" />
-                    </svg>
-                    <span class="nav-title" id="mobileNavTitle" data-i18n="admin_title">账户安全</span>
-                </div>
-                <button type="button" class="nav-action-btn" onclick="document.getElementById('logoutBtn')?.click()" data-i18n="btn_logout">退出</button>
-            </div>
+        <!-- Mobile Frosted Top Navigation Bar (AquaKit HIG Specification) -->
+        <header class="apple-top-nav" id="appleTopNav" aria-label="顶部导航栏">
+            <button type="button" class="apple-back-btn" data-close-subpage aria-label="返回">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span class="apple-back-title" data-i18n="tab_home">主页</span>
+            </button>
+            <h1 class="nav-title" id="mobileNavTitle" data-i18n="tab_home">主页</h1>
         </header>
 
         <!-- macOS Translucent Left Sidebar (3 Top-Level Tabs) -->
@@ -128,7 +124,7 @@
                 <!-- ═══════════════════════════════════════════════════════ -->
                 <!-- Tab Pane 1: 主页 (Home / Apple Account Style)           -->
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-home" class="tab-pane active" aria-labelledby="tab-home">
+                <section id="tab-pane-home" class="tab-pane view-content active" aria-labelledby="tab-home">
                     <div class="apple-group-container">
                         <!-- Hero Profile Area (Apple Account Specification) -->
                         <div class="apple-account-hero" id="homeHeroProfile">
@@ -139,48 +135,62 @@
                             <p class="apple-account-email" id="accountEmail">-</p>
                         </div>
 
-                        <!-- 3 Inset Grouped Navigation Cards -->
-                        <div class="apple-inset-group">
+                        <!-- 4 Inset Grouped Navigation Cards -->
+                        <div class="apple-card apple-inset-group">
                             <!-- 1. Personal Info Row -->
-                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-personal-info" data-subpage-title="个人信息" data-parent-title="主页" id="personalInfoCard">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" data-open-subpage="subpage-personal-info" data-subpage-title="个人信息" data-parent-title="主页" id="personalInfoCard">
                                 <div class="apple-row-left">
-                                    <div class="apple-badge" style="background: #007aff;">
+                                    <div class="apple-badge badge-blue">
                                         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                                     </div>
                                     <span class="apple-row-label" data-i18n="subpage_personal_info">个人信息</span>
                                 </div>
                                 <div class="apple-row-right">
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
 
                             <!-- 2. Sign-In & Security Row -->
-                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-security" data-subpage-title="登录与安全性" data-parent-title="主页" id="securityCard">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" data-open-subpage="subpage-security" data-subpage-title="登录与安全性" data-parent-title="主页" id="securityCard">
                                 <div class="apple-row-left">
-                                    <div class="apple-badge" style="background: #34c759;">
+                                    <div class="apple-badge badge-green">
                                         <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
                                     </div>
                                     <span class="apple-row-label" data-i18n="subpage_security">登录与安全性</span>
                                 </div>
                                 <div class="apple-row-right">
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
 
-                            <!-- 3. Connected Apps Row -->
-                            <div class="apple-list-row apple-clickable" data-open-subpage="subpage-integrations" data-subpage-title="连接应用" data-parent-title="主页" id="integrationsCard">
+                            <!-- 3. Communication Preferences Row (SMTP) -->
+                            <div class="apple-row apple-list-row has-badge apple-clickable" data-open-subpage="subpage-smtp" data-subpage-title="通信偏好设置" data-parent-title="主页" id="smtpCard">
                                 <div class="apple-row-left">
-                                    <div class="apple-badge" style="background: #af52de;">
+                                    <div class="apple-badge badge-orange">
+                                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label" data-i18n="row_smtp_settings">通信偏好设置</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </div>
+                            </div>
+
+                            <!-- 4. Connected Apps Row -->
+                            <div class="apple-row apple-list-row has-badge apple-clickable" data-open-subpage="subpage-integrations" data-subpage-title="连接应用" data-parent-title="主页" id="integrationsCard">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-purple">
                                         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
                                     </div>
                                     <span class="apple-row-label" data-i18n="subpage_integrations">连接应用</span>
                                 </div>
                                 <div class="apple-row-right">
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
                     <!-- ═══════════════════════════════════════════════════════ -->
                     <!-- Subpage 1: 个人信息 (Personal Info)                     -->
@@ -203,37 +213,46 @@
                             </div>
 
                             <!-- Group 1: Basic Profile Info (Username & Email - No Birthday) -->
-                            <div class="apple-group-header" data-i18n="section_personal_info">基本资料</div>
-                            <div class="apple-inset-group">
-                                <div class="apple-list-row apple-clickable" id="showUsernameFormBtn">
+                            <div class="apple-section-header apple-group-header" data-i18n="section_personal_info">基本资料</div>
+                            <div class="apple-card apple-inset-group">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" id="showUsernameFormBtn">
                                     <div class="apple-row-left">
+                                        <div class="apple-badge badge-blue">
+                                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                        </div>
                                         <span class="apple-row-label" data-i18n="field_username">姓名</span>
                                     </div>
                                     <div class="apple-row-right">
                                         <span class="apple-row-value" id="usernameDisplay">-</span>
-                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
-                                <div class="apple-list-row apple-clickable" id="showEmailFormBtn">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" id="showEmailFormBtn">
                                     <div class="apple-row-left">
+                                        <div class="apple-badge badge-teal">
+                                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                        </div>
                                         <span class="apple-row-label" data-i18n="field_email">电子邮件</span>
                                     </div>
                                     <div class="apple-row-right">
                                         <span class="apple-row-value" id="emailDisplay">-</span>
-                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Group 2: Communication Preferences (SMTP) -->
-                            <div class="apple-group-header" data-i18n="section_communication">通信设置</div>
-                            <div class="apple-inset-group" id="smtpCard">
-                                <div class="apple-list-row apple-clickable" data-open-subpage="subpage-smtp" data-subpage-title="通信偏好设置" data-parent-title="个人信息">
+                            <div class="apple-section-header apple-group-header" data-i18n="section_communication">通信设置</div>
+                            <div class="apple-card apple-inset-group" id="personalInfoSmtpCard">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" data-open-subpage="subpage-smtp" data-subpage-title="通信偏好设置" data-parent-title="个人信息">
                                     <div class="apple-row-left">
+                                        <div class="apple-badge badge-orange">
+                                            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                        </div>
                                         <span class="apple-row-label" data-i18n="row_smtp_settings">通信偏好设置</span>
                                     </div>
                                     <div class="apple-row-right">
-                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
                             </div>
@@ -261,18 +280,33 @@
                             <div class="subpage-footer-note" data-i18n="smtp_desc" style="margin-top: 4px; margin-bottom: 16px;">配置系统外发安全验证码与通知邮件的 SMTP 服务器。</div>
 
                             <!-- SMTP Server Settings Group -->
-                            <div class="apple-group-header" data-i18n="smtp_title">SMTP 服务器配置</div>
-                            <div class="apple-inset-group">
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_server">SMTP 服务器</span>
-                                    <input type="text" class="apple-form-input" id="smtpHost" data-i18n-placeholder="smtp_server_placeholder" placeholder="例如 smtp.example.com" value="smtp.example.com" autocomplete="off">
+                            <div class="apple-section-header apple-group-header" data-i18n="smtp_title">SMTP 服务器配置</div>
+                            <div class="apple-card apple-inset-group">
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-blue">
+                                            <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_server">SMTP 服务器</span>
+                                    </div>
+                                    <input type="text" class="apple-form-input" id="smtpHost" data-i18n-placeholder="smtp_server_placeholder" placeholder="例如 smtp.example.com" value="smtp.example.com" autocomplete="off" style="text-align: right; border: none; background: transparent; color: var(--apple-text-primary); outline: none;">
                                 </div>
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_port">端口</span>
-                                    <input type="number" class="apple-form-input" id="smtpPort" placeholder="465" value="465" autocomplete="off">
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-gray">
+                                            <svg viewBox="0 0 24 24"><path d="M20 10V8h-4V4h-2v4h-4V4H8v4H4v2h4v4H4v2h4v4h2v-4h4v4h2v-4h4v-2h-4v-4h4zm-6 4h-4v-4h4v4z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_port">端口</span>
+                                    </div>
+                                    <input type="number" class="apple-form-input" id="smtpPort" placeholder="465" value="465" autocomplete="off" style="text-align: right; border: none; background: transparent; color: var(--apple-text-primary); outline: none; width: 80px;">
                                 </div>
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_ssl">使用 SSL/TLS 加密</span>
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-green">
+                                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_ssl">使用 SSL/TLS 加密</span>
+                                    </div>
                                     <label class="apple-switch">
                                         <input type="checkbox" id="smtpSslSwitch" checked>
                                         <span class="apple-switch-slider"></span>
@@ -281,19 +315,34 @@
                             </div>
 
                             <!-- SMTP Auth Group -->
-                            <div class="apple-group-header" data-i18n="section_security_auth">认证凭据</div>
-                            <div class="apple-inset-group">
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_sender">发件人邮箱</span>
-                                    <input type="email" class="apple-form-input" id="smtpSender" placeholder="auth@example.com" value="auth@aquanexus.me" autocomplete="off">
+                            <div class="apple-section-header apple-group-header" data-i18n="section_security_auth">认证凭据</div>
+                            <div class="apple-card apple-inset-group">
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-orange">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_sender">发件人邮箱</span>
+                                    </div>
+                                    <input type="email" class="apple-form-input" id="smtpSender" placeholder="auth@example.com" value="auth@aquanexus.me" autocomplete="off" style="text-align: right; border: none; background: transparent; color: var(--apple-text-primary); outline: none;">
                                 </div>
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_user">SMTP 用户名</span>
-                                    <input type="text" class="apple-form-input" id="smtpUser" placeholder="auth@example.com" value="aquarius_admin" autocomplete="off">
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-teal">
+                                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_user">SMTP 用户名</span>
+                                    </div>
+                                    <input type="text" class="apple-form-input" id="smtpUser" placeholder="auth@example.com" value="aquarius_admin" autocomplete="off" style="text-align: right; border: none; background: transparent; color: var(--apple-text-primary); outline: none;">
                                 </div>
-                                <div class="apple-form-row">
-                                    <span class="apple-row-label" data-i18n="smtp_pass">授权码 / 密码</span>
-                                    <input type="password" class="apple-form-input" id="smtpPassword" placeholder="••••••••" value="••••••••" autocomplete="off">
+                                <div class="apple-row apple-list-row has-badge apple-form-row">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-red">
+                                            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                        </div>
+                                        <span class="apple-row-label" data-i18n="smtp_pass">授权码 / 密码</span>
+                                    </div>
+                                    <input type="password" class="apple-form-input" id="smtpPassword" placeholder="••••••••" value="••••••••" autocomplete="off" style="text-align: right; border: none; background: transparent; color: var(--apple-text-primary); outline: none;">
                                 </div>
                             </div>
 
@@ -324,22 +373,28 @@
                             <div class="subpage-footer-note" data-i18n="subpage_security_desc" style="margin-top: 4px; margin-bottom: 16px;">这些凭据和安全验证方式用于登录、验证身份，以及帮助你恢复账户访问权限。</div>
 
                             <!-- Group 1: Password & 2FA -->
-                            <div class="apple-group-header" data-i18n="section_security_auth">安全</div>
-                            <div class="apple-inset-group">
+                            <div class="apple-section-header apple-group-header" data-i18n="section_security_auth">安全</div>
+                            <div class="apple-card apple-inset-group">
                                 <!-- Change Password Row -->
-                                <div class="apple-list-row apple-clickable" id="showPasswordFormBtn">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" id="showPasswordFormBtn">
                                     <div class="apple-row-left">
+                                        <div class="apple-badge badge-blue">
+                                            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                        </div>
                                         <span class="apple-row-label" data-i18n="row_change_password">更改密码</span>
                                     </div>
                                     <div class="apple-row-right">
                                         <span class="apple-row-value" id="passwordUpdatedDisplay">-</span>
-                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
 
                                 <!-- 2FA Row -->
-                                <div class="apple-list-row apple-clickable" id="twoFaRow">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" id="twoFaRow">
                                     <div class="apple-row-left">
+                                        <div class="apple-badge badge-green">
+                                            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                                        </div>
                                         <span class="apple-row-label" data-i18n="row_two_factor">双重认证</span>
                                     </div>
                                     <div class="apple-row-right">
@@ -347,7 +402,7 @@
                                             <span data-i18n="badge_disabled">未启用</span>
                                         </span>
                                         <span class="badge badge-disabled" id="summaryTwoFaBadge" style="display: none;"></span>
-                                        <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
                             </div>
@@ -538,12 +593,11 @@
                             </div>
                         </div>
                     </div>
-                </section>
 
                 <!-- ═══════════════════════════════════════════════════════ -->
                 <!-- Tab Pane 2: 日志 (Logs & Audit)                         -->
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-logs" class="tab-pane" aria-labelledby="tab-logs">
+                <section id="tab-pane-logs" class="tab-pane view-content" aria-labelledby="tab-logs">
                     <div class="apple-group-container" style="padding-top: 16px;">
                         <div class="settings-group" id="loginLogsCard">
                             <div class="section">
@@ -566,69 +620,87 @@
                 <!-- ═══════════════════════════════════════════════════════ -->
                 <!-- Tab Pane 3: 设置 (Settings / Preferences)               -->
                 <!-- ═══════════════════════════════════════════════════════ -->
-                <section id="tab-pane-settings" class="tab-pane" aria-labelledby="tab-settings">
+                <section id="tab-pane-settings" class="tab-pane view-content" aria-labelledby="tab-settings">
                     <div class="apple-group-container" style="padding-top: 16px;">
                         <!-- Group 1: Preferences -->
-                        <div class="apple-group-header" data-i18n="settings_preferences">偏好设置 (PREFERENCES)</div>
-                        <div class="apple-inset-group" id="preferencesCard">
+                        <div class="apple-section-header apple-group-header" data-i18n="settings_preferences">偏好设置 (PREFERENCES)</div>
+                        <div class="apple-card apple-inset-group" id="preferencesCard">
                             <!-- Language Selection -->
-                            <div class="apple-list-row apple-clickable" id="settingLangRow">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingLangRow">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-blue">
+                                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_language">全局语言 (Language)</span>
                                 </div>
                                 <div class="apple-row-right">
                                     <span class="apple-row-value" id="currentLangLabel">简体中文</span>
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
 
                             <!-- Appearance Theme Selection -->
-                            <div class="apple-list-row apple-clickable" id="settingThemeRow">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingThemeRow">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-purple">
+                                        <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.49 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_appearance">外观显示 (Appearance)</span>
                                 </div>
                                 <div class="apple-row-right">
                                     <span class="apple-row-value" id="currentThemeLabel" data-i18n="theme_auto">跟随系统</span>
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Group 2: About & Legal -->
-                        <div class="apple-group-header" data-i18n="settings_about_legal">关于与声明 (ABOUT & LEGAL)</div>
-                        <div class="apple-inset-group">
-                            <a class="apple-list-row apple-clickable" href="https://github.com/Aquarius-Situla/Situla-auth" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                        <div class="apple-section-header apple-group-header" data-i18n="settings_about_legal">关于与声明 (ABOUT & LEGAL)</div>
+                        <div class="apple-card apple-inset-group">
+                            <a class="apple-row apple-list-row has-badge apple-clickable" href="https://github.com/Aquarius-Situla/Situla-auth" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-gray">
+                                        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_about_app">关于 Situla Auth</span>
                                 </div>
                                 <div class="apple-row-right">
                                     <span class="apple-row-value">GitHub ↗</span>
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </a>
-                            <div class="apple-list-row apple-clickable" id="settingPrivacyRow">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingPrivacyRow">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-teal">
+                                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 12.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_privacy">隐私政策与免责声明</span>
                                 </div>
                                 <div class="apple-row-right">
-                                    <svg class="apple-row-chevron" viewBox="0 0 8 13"><path d="M1.5 1.5l5 5-5 5"/></svg>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Group 3: Version -->
-                        <div class="apple-group-header" data-i18n="settings_version">版本 (VERSION)</div>
-                        <div class="apple-inset-group">
-                            <div class="apple-list-row">
+                        <div class="apple-section-header apple-group-header" data-i18n="settings_version">版本 (VERSION)</div>
+                        <div class="apple-card apple-inset-group">
+                            <div class="apple-row apple-list-row has-badge">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-orange">
+                                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.1 0 2 .9 2 2v1h1c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H9c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h1V9c0-1.1.9-2 2-2zm0 2c-.55 0-1 .45-1 1v1h2V9c0-.55-.45-1-1-1z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_version_app">Situla-Auth</span>
                                 </div>
                                 <div class="apple-row-right">
                                     <span class="apple-row-value">v2.0.0</span>
                                 </div>
                             </div>
-                            <div class="apple-list-row">
+                            <div class="apple-row apple-list-row has-badge">
                                 <div class="apple-row-left">
+                                    <div class="apple-badge badge-indigo">
+                                        <svg viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9.07l-9-7-9 7 1.63 1.2L12 16z"/></svg>
+                                    </div>
                                     <span class="apple-row-label" data-i18n="settings_version_uikit">AquaKit</span>
                                 </div>
                                 <div class="apple-row-right">
@@ -639,15 +711,27 @@
                         <div class="subpage-footer-note" data-i18n="settings_footer_note" style="margin-bottom: 24px;">本应用基于 Apple Human Interface Guidelines 设计规范构建，采用 AquaKit 开源 UI 框架。</div>
 
                         <!-- Group 4: Bottom Action Rows (STRICT USER REQUIREMENT: 退出登录和在所有设备退出都应该放在设置页的最下面) -->
-                        <div class="apple-inset-group" id="settingsBottomActions" style="margin-top: 16px; margin-bottom: 32px;">
-                            <div class="apple-list-row apple-clickable" id="logoutAllRow">
-                                <div class="apple-row-left" style="justify-content: center; width: 100%;">
-                                    <span class="danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="font-weight: 600;">在所有设备上退出登录</span>
+                        <div class="apple-card apple-inset-group" id="settingsBottomActions" style="margin-top: 16px; margin-bottom: 32px;">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="logoutAllRow">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-red">
+                                        <svg viewBox="0 0 24 24"><path d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 9h-4v-7h4v7z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label danger-link" id="logoutAllBtn" data-i18n="btn_logout_all" style="color: var(--apple-red, #ff453a); font-weight: 500;">在所有设备上退出登录</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
-                            <div class="apple-list-row apple-clickable apple-row-danger" id="logoutRow">
-                                <div class="apple-row-left" style="justify-content: center; width: 100%;">
-                                    <span class="danger-link" id="logoutBtn" data-i18n="btn_logout">退出登录</span>
+                            <div class="apple-row apple-list-row has-badge apple-clickable apple-row-danger" id="logoutRow">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-red">
+                                        <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label danger-link" id="logoutBtn" data-i18n="btn_logout" style="color: var(--apple-red, #ff453a); font-weight: 500;">退出登录</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
                             </div>
                         </div>

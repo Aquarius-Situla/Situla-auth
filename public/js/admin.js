@@ -248,6 +248,7 @@ function initDashboard() {
     try { initDeviceLayout(); } catch (e) { console.error('[Admin] initDeviceLayout failed:', e); }
     try { initOrientationGuard(); } catch (e) { console.error('[Admin] initOrientationGuard failed:', e); }
     try { initAdminNav(); } catch (e) { console.error('[Admin] initAdminNav failed:', e); }
+    try { if (window.AquaKit && typeof window.AquaKit.initNavigationStack === 'function') window.AquaKit.initNavigationStack(); } catch (e) { console.error('[Admin] initNavigationStack failed:', e); }
 
     /* Initialize core dashboard module events */
     try { setupGlobalModalClosers(); } catch (e) { console.error('[Admin] setupGlobalModalClosers failed:', e); }

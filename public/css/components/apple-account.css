@@ -80,6 +80,84 @@
     box-sizing: border-box;
 }
 
+.apple-group-header,
+.apple-section-header {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--apple-text-tertiary, #86868b);
+    margin: 22px 0 6px 14px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.apple-inset-group,
+.apple-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--apple-bg-card, #1c1c1e);
+    backdrop-filter: var(--apple-backdrop-blur, blur(25px));
+    -webkit-backdrop-filter: var(--apple-backdrop-blur, blur(25px));
+    border: var(--apple-border, 0.5px solid rgba(255, 255, 255, 0.12));
+    border-radius: var(--apple-radius-card, 12px);
+    overflow: hidden;
+    box-shadow: var(--apple-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.2));
+    margin-bottom: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.apple-row,
+.apple-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 14px;
+    position: relative;
+    background: transparent;
+    border: none;
+    text-decoration: none;
+    color: var(--apple-text-primary, #ffffff);
+    transition: background-color var(--apple-transition-fast, 0.15s ease);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.apple-row.apple-clickable,
+.apple-list-row.apple-clickable {
+    cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .apple-row:hover,
+    .apple-list-row:hover {
+        background: var(--apple-bg-card-hover, rgba(255, 255, 255, 0.06));
+    }
+}
+
+.apple-row:active,
+.apple-list-row:active {
+    background: var(--apple-bg-card-hover, rgba(255, 255, 255, 0.08));
+}
+
+.apple-row:not(:last-child)::after,
+.apple-list-row:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 0;
+    bottom: 0;
+    height: 0.5px;
+    background: var(--apple-divider, rgba(255, 255, 255, 0.1));
+}
+
+.apple-row.has-badge:not(:last-child)::after,
+.apple-list-row.has-badge:not(:last-child)::after {
+    left: 56px;
+}
+
 .apple-row-left {
     display: flex;
     align-items: center;
@@ -122,20 +200,16 @@
     stroke-linejoin: round;
 }
 
-.apple-row.has-badge .apple-badge {
+.apple-row.has-badge .apple-badge,
+.apple-list-row.has-badge .apple-badge {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: var(--apple-radius-badge, 7px);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-
-.apple-row.has-badge .apple-badge svg {
-    width: 17px;
-    height: 17px;
-    fill: #ffffff;
+    box-sizing: border-box;
 }
 
 /* Special danger row for Sign Out */
@@ -422,3 +496,11 @@
 .apple-row.is-selected .apple-check-icon {
     display: block;
 }
+
+/* ============================================================================
+ * 7. Mobile Adaptations
+ * ============================================================================ */
+html.device-mobile .apple-subpage-header {
+    display: none;
+}
+

@@ -123,11 +123,7 @@ export function switchTab(rawTabId, updateHash = true) {
     /* 4. Synchronize mobile top nav bar title */
     const topTitle = document.getElementById('mobileNavTitle');
     if (topTitle) {
-        if (tabId === 'home') {
-            topTitle.textContent = t('admin_title');
-        } else {
-            topTitle.textContent = t(`tab_${tabId}`);
-        }
+        topTitle.textContent = t(`tab_${tabId}`);
     }
 
     /* 5. Update URL hash */
