@@ -101,9 +101,10 @@
         --apple-gray-6: #1c1c1e;
 
         /* Surface & Background (Pure Black OLED Depth) */
-        --apple-bg-stage: #111111;
+        --apple-bg-stage: #000000;
+        --apple-bg-grouped: #000000;
         --apple-bg-sidebar: rgba(22, 22, 24, 0.88);
-        --apple-bg-card: rgba(36, 36, 40, 0.82);
+        --apple-bg-card: #1c1c1e;
         --apple-bg-card-hover: rgba(255, 255, 255, 0.05);
         --apple-bg-input: rgba(118, 118, 128, 0.24);
         --apple-bg-nav: rgba(20, 20, 22, 0.88);
@@ -122,8 +123,9 @@
     }
 }
 
-/* Explicit class-based override support */
-html.apple-theme-dark {
+/* Explicit class-based and data-theme override support */
+html.apple-theme-dark,
+html[data-theme="dark"] {
     --apple-blue: #0a84ff;
     --apple-green: #30d158;
     --apple-indigo: #5e5ce6;
@@ -141,9 +143,10 @@ html.apple-theme-dark {
     --apple-gray-5: #2c2c2e;
     --apple-gray-6: #1c1c1e;
 
-    --apple-bg-stage: #111111;
+    --apple-bg-stage: #000000;
+    --apple-bg-grouped: #000000;
     --apple-bg-sidebar: rgba(22, 22, 24, 0.88);
-    --apple-bg-card: rgba(36, 36, 40, 0.82);
+    --apple-bg-card: #1c1c1e;
     --apple-bg-card-hover: rgba(255, 255, 255, 0.05);
     --apple-bg-input: rgba(118, 118, 128, 0.24);
     --apple-bg-nav: rgba(20, 20, 22, 0.88);
@@ -159,7 +162,8 @@ html.apple-theme-dark {
     --apple-card-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
-html.apple-theme-light {
+html.apple-theme-light,
+html[data-theme="light"] {
     --apple-blue: #007aff;
     --apple-green: #34c759;
     --apple-indigo: #5856d6;
@@ -178,6 +182,7 @@ html.apple-theme-light {
     --apple-gray-6: #f2f2f7;
 
     --apple-bg-stage: #f2f2f7;
+    --apple-bg-grouped: #f2f2f7;
     --apple-bg-sidebar: rgba(242, 242, 247, 0.88);
     --apple-bg-card: #ffffff;
     --apple-bg-card-hover: rgba(0, 0, 0, 0.03);
@@ -220,7 +225,7 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background-color: var(--apple-bg-stage, #111111);
+    background-color: var(--apple-bg-stage, #000000);
     color: var(--apple-text-primary, #ffffff);
     font-family: var(--apple-font-family, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif);
     overscroll-behavior-x: none;
@@ -231,7 +236,7 @@ body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
     min-height: calc(100lvh + 1px);
-    background-color: var(--apple-bg-stage, #111111);
+    background-color: var(--apple-bg-stage, #000000);
     color: var(--apple-text-primary, #ffffff);
     font-family: var(--apple-font-family, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif);
     line-height: 1.47059;
@@ -337,7 +342,11 @@ html:not(.device-mobile) .apple-desktop-stage {
 /* Mobile & Tablet viewports (including all iPads) discard desktop sidebar */
 html.device-mobile .apple-desktop-stage {
     margin-left: 0 !important;
-    padding: calc(56px + env(safe-area-inset-top, 0px)) 16px calc(76px + env(safe-area-inset-bottom, 34px)) 16px !important;
+    padding: calc(44px + env(safe-area-inset-top, 0px) + 20px) calc(16px + env(safe-area-inset-right, 0px)) calc(52px + env(safe-area-inset-bottom, 34px) + 28px) calc(16px + env(safe-area-inset-left, 0px)) !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    box-sizing: border-box !important;
+    background-color: var(--apple-bg-stage, #000000) !important;
 }
 
 /* ============================================================================
@@ -1967,6 +1976,11 @@ html.apple-theme-dark .apple-health-bar {
     transform: translate3d(100%, 0, 0);
     opacity: 0;
     transition: transform var(--apple-transition-pop), opacity var(--apple-transition-pop);
+}
+
+html.device-mobile .apple-subpage {
+    background-color: var(--apple-bg-stage, #000000) !important;
+    min-height: 100% !important;
 }
 
 /* Apple Subpage Header & Back Button */

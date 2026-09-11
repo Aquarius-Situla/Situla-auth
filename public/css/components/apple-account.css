@@ -504,3 +504,12 @@ html.device-mobile .apple-subpage-header {
     display: none;
 }
 
+html.device-mobile .apple-account-hero {
+    padding-top: 12px;
+    padding-bottom: 24px;
+}
+
+html.device-mobile .subpage-avatar-center {
+    margin: 12px 0 24px 0;
+}
+
