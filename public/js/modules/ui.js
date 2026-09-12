@@ -179,3 +179,123 @@ export function formatError(err, fallbackKey = 'msg_operation_failed') {
 
     return t(fallbackKey) || '操作失败，请重试';
 }
+
+/* ============================================================================
+ * Apple HIG Formatters & Modal Helpers
+ * ============================================================================ */
+
+/**
+ * Formats an ISO date string into Apple HIG format (e.g. 2026 年 09 月 12 日).
+ * @param {string} iso
+ * @returns {string}
+ */
+export function appleFormatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    const currentLang = window.currentLang || 'zh-CN';
+    if (currentLang === 'zh-CN') {
+        return `${year} 年 ${month} 月 ${day} 日`;
+    }
+    return `${year}/${month}/${day}`;
+}
+
+/**
+ * Opens the Apple Form Sheet modal at a specified step.
+ * @param {string} stepId
+ */
+export function openAppleSheet(stepId) {
+    closeAllModals();
+    const sheetOverlay = document.getElementById('appleSheetModal');
+    if (!sheetOverlay) return;
+
+    sheetOverlay.style.display = 'flex';
+    switchAppleSheetStep(stepId);
+}
+
+/**
+ * Switches the active step inside the Apple Form Sheet.
+ * @param {string} stepId
+ */
+export function switchAppleSheetStep(stepId) {
+    const sheetOverlay = document.getElementById('appleSheetModal');
+    if (!sheetOverlay) return;
+
+    sheetOverlay.querySelectorAll('.sheet-step').forEach(step => {
+        if (step.id === stepId) {
+            step.style.display = 'block';
+        } else {
+            step.style.display = 'none';
+        }
+    });
+
+    /* Clear any messages inside the sheet */
+    sheetOverlay.querySelectorAll('.msg').forEach(m => {
+        m.textContent = '';
+        m.className = 'msg';
+    });
+}
+
+/**
+ * Closes the Apple Form Sheet modal.
+ */
+export function closeAppleSheet() {
+    const sheetOverlay = document.getElementById('appleSheetModal');
+    if (sheetOverlay) {
+        sheetOverlay.style.display = 'none';
+    }
+    if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+    }
+}
+
+/**
+ * Displays a native Apple HIG centered alert dialog (IMG_0611.PNG).
+ * @param {Object} options
+ * @param {string} options.title
+ * @param {string} options.desc
+ * @param {string} [options.confirmText]
+ * @param {string} [options.cancelText]
+ * @param {Function} [options.onConfirm]
+ * @param {Function} [options.onCancel]
+ */
+export function showAppleAlert({ title, desc, confirmText, cancelText, onConfirm, onCancel }) {
+    const overlay = document.getElementById('appleAlertModal');
+    if (!overlay) return;
+
+    const titleEl = document.getElementById('appleAlertTitle');
+    const descEl = document.getElementById('appleAlertDesc');
+    const cancelBtn = document.getElementById('appleAlertCancelBtn');
+    const confirmBtn = document.getElementById('appleAlertConfirmBtn');
+
+    if (titleEl) titleEl.textContent = title || '';
+    if (descEl) descEl.textContent = desc || '';
+    if (cancelBtn) cancelBtn.textContent = cancelText || t('btn_cancel') || '取消';
+    if (confirmBtn) confirmBtn.textContent = confirmText || t('btn_remove') || '移除';
+
+    overlay.style.display = 'flex';
+
+    const handleCancel = () => {
+        overlay.style.display = 'none';
+        cleanup();
+        if (typeof onCancel === 'function') onCancel();
+    };
+
+    const handleConfirm = () => {
+        overlay.style.display = 'none';
+        cleanup();
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+
+    const cleanup = () => {
+        cancelBtn?.removeEventListener('click', handleCancel);
+        confirmBtn?.removeEventListener('click', handleConfirm);
+    };
+
+    cancelBtn?.addEventListener('click', handleCancel, { once: true });
+    confirmBtn?.addEventListener('click', handleConfirm, { once: true });
+}

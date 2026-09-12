@@ -436,6 +436,7 @@ function pushSubpage(targetSubpage, options = {}) {
     /* 1. Mark parent view as pushed backward */
     if (parentView) {
         parentView.classList.add('is-pushed');
+        parentView.classList.remove('is-settled');
     }
 
     /* 2. Update Subpage Header Title and Back Button */
@@ -512,6 +513,7 @@ function pushSubpage(targetSubpage, options = {}) {
         /* Once transition completes, make subpage in-flow and hide pushed parent view if separate */
         if (parentView && !parentView.contains(subpageEl)) {
             parentView.style.display = 'none';
+            parentView.classList.add('is-settled-hidden');
         }
         subpageEl.style.position = 'relative';
         subpageEl.style.top = '';
@@ -589,6 +591,7 @@ function popSubpage(options = {}) {
     }
     if (effectiveParent) {
         effectiveParent.style.display = '';
+        effectiveParent.classList.remove('is-settled-hidden');
         effectiveParent.classList.add('is-pushed');
         effectiveParent.style.transform = '';
         effectiveParent.style.transition = '';
@@ -664,8 +667,11 @@ function popSubpage(options = {}) {
             effectiveParent.style.transition = '';
             effectiveParent.style.filter = '';
             effectiveParent.style.opacity = '';
-            effectiveParent.classList.remove('is-pushed');
+            effectiveParent.classList.remove('is-pushed', 'is-settled-hidden');
             effectiveParent.style.display = '';
+            if (effectiveParent.classList.contains('apple-subpage')) {
+                effectiveParent.classList.add('is-settled');
+            }
         }
 
         /* Guarantee active tab pane is never trapped in display: none */

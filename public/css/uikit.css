@@ -2127,7 +2127,9 @@ html.apple-theme-dark .apple-skeleton {
   will-change: transform, opacity, filter;
 }
 
-.apple-nav-view.is-settled-hidden {
+.apple-subpage.is-settled-hidden,
+.apple-nav-view.is-settled-hidden,
+.view-content.is-settled-hidden {
   display: none !important;
 }
 
@@ -2157,7 +2159,7 @@ html.apple-theme-dark .apple-skeleton {
   will-change: transform, opacity;
 }
 
-.apple-subpage.is-settled {
+.apple-subpage.is-settled:not(.is-settled-hidden):not(.is-pushed) {
   display: block !important;
   position: relative !important;
   top: auto !important;

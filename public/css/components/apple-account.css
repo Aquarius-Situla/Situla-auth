@@ -212,23 +212,106 @@
     box-sizing: border-box;
 }
 
-/* Special danger row for Sign Out */
-.apple-row-danger {
-    justify-content: center;
+/* Special danger row for Sign Out & Key Removal */
+.apple-row-danger,
+.apple-danger-row {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.apple-row-danger .apple-row-label,
+.apple-danger-text {
+    color: var(--apple-red, #ff453a) !important;
+    font-weight: 500;
+    width: 100%;
     text-align: center;
 }
 
-.apple-row-danger .apple-row-label {
-    color: var(--apple-red, #ff453a);
-    font-weight: 500;
-}
-
 /* Row with prominent action button / link */
-.apple-row-action-link {
+.apple-row-action-link,
+.apple-action-text {
     color: var(--apple-blue, #0a84ff);
     font-size: 16px;
     font-weight: 400;
     cursor: pointer;
+}
+
+.apple-action-row {
+    cursor: pointer;
+}
+
+/* Two-line list item (IMG_0610.PNG) */
+.apple-two-line-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-bottom: 0.5px solid var(--apple-border, rgba(60, 60, 67, 0.14));
+}
+
+.apple-two-line-row:last-child {
+    border-bottom: none;
+}
+
+.apple-two-line-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.apple-two-line-title {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--apple-text-primary, #ffffff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apple-two-line-subtitle {
+    font-size: 13px;
+    color: var(--apple-text-secondary, rgba(235, 235, 245, 0.6));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Detail Subpage Hero Card (IMG_0627.PNG) */
+.apple-detail-hero-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.apple-detail-hero-body {
+    padding: 24px 20px 18px;
+    text-align: center;
+}
+
+.apple-detail-hero-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.apple-detail-hero-desc {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.apple-detail-hairline {
+    height: 0.5px;
+    background: var(--apple-border, rgba(60, 60, 67, 0.14));
+    width: 100%;
 }
 
 /* ============================================================================
