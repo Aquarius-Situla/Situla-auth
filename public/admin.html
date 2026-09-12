@@ -38,8 +38,8 @@
     </script>
 
     <!-- AquaKit Core Stylesheet & Application Overrides -->
-    <link rel="stylesheet" href="/css/uikit.css?v=20260912c">
-    <link rel="stylesheet" href="/css/style.css?v=20260912c">
+    <link rel="stylesheet" href="/css/uikit.css?v=20260912d">
+    <link rel="stylesheet" href="/css/style.css?v=20260912d">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="/js/simplewebauthn.js"></script>
@@ -424,35 +424,18 @@
                             <div class="subpage-footer-note" data-i18n="footer_two_factor_note">你的受信任设备和身份验证器用于在登录时验证你的身份。</div>
 
                             <!-- Group 3: Recovery Methods -->
-                            <div class="apple-group-header" data-i18n="section_recovery">恢复方法</div>
-                            <div class="settings-group" id="rcCard" style="display:none;">
-                                <div class="section">
-                                    <div class="section-header">
-                                        <div>
-                                            <h3 data-i18n="section_rc_title">恢复码</h3>
-                                            <span class="badge badge-disabled" id="rcBadge" data-i18n="badge_not_gen">未生成</span>
+                            <div class="apple-section-header apple-group-header" data-i18n="section_recovery">恢复方法</div>
+                            <div class="apple-card apple-inset-group" id="recoveryKeyGroup">
+                                <div class="apple-row apple-list-row has-badge apple-clickable" id="recoveryKeyRow" data-open-subpage="subpage-recovery" data-subpage-title="恢复密钥" data-parent-title="登录与安全性">
+                                    <div class="apple-row-left">
+                                        <div class="apple-badge badge-orange">
+                                            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                                         </div>
-                                        <span class="apple-row-value" id="summaryRcCount">未生成</span>
+                                        <span class="apple-row-label" data-i18n="row_recovery_codes">恢复密钥</span>
                                     </div>
-                                    <p class="desc" data-i18n="section_rc_desc">当无法使用双重认证设备时，可使用恢复码应急登录。每次生成 8 组一次性恢复码，每组仅可使用一次。</p>
-                                    <div class="btn-row">
-                                        <button class="btn-outline" id="genRcBtn" data-i18n="btn_gen_rc">生成恢复码</button>
-                                    </div>
-
-                                    <!-- Codes reveal panel -->
-                                    <div id="rcPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0;">
-                                        <p class="setup-step" style="color:#ff9500; margin-bottom:12px;" data-i18n="rc_warning">
-                                            请妥善保管以下恢复码。恢复码仅显示一次，遗失后需重新生成。
-                                        </p>
-                                        <div id="rcList" style="
-                                            background:var(--bg-secondary); border-radius:10px; padding:16px;
-                                            font-family:var(--font-mono); font-size:16px; line-height:2;
-                                            letter-spacing:1px; color:var(--text-primary);
-                                        "></div>
-                                        <div class="btn-row" style="margin-top:12px;">
-                                            <button class="btn-outline" id="copyRcBtn" data-i18n="btn_copy_all">复制全部恢复码</button>
-                                        </div>
-                                        <div class="msg" id="rcMsg"></div>
+                                    <div class="apple-row-right">
+                                        <span class="badge badge-disabled" id="recoveryKeyBadge" data-i18n="badge_not_gen">未生成</span>
+                                        <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                     </div>
                                 </div>
                             </div>
@@ -658,6 +641,56 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <!-- Subpage: 恢复密钥 (Recovery Key)                        -->
+                    <!-- ═══════════════════════════════════════════════════════ -->
+                    <div id="subpage-recovery" class="apple-subpage" data-title="恢复密钥">
+                        <div class="apple-group-container">
+                            <div class="apple-subpage-header">
+                                <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                    <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    <span class="apple-back-title" data-i18n="subpage_security">登录与安全性</span>
+                                </button>
+                                <div class="apple-subpage-title" data-i18n="recovery_subpage_title">恢复密钥</div>
+                                <div style="width: 48px;"></div>
+                            </div>
+
+                            <div class="subpage-footer-note" data-i18n="recovery_hero_desc" style="margin-top: 4px; margin-bottom: 16px;">恢复密钥是一组用于在重置密码或无法使用双重认证设备时，帮助你恢复账户访问权限的应急安全凭据。</div>
+
+                            <!-- Group 1: Status & Action -->
+                            <div class="apple-card apple-inset-group">
+                                <div class="apple-row apple-list-row">
+                                    <span class="apple-row-label" data-i18n="recovery_status_label">恢复密钥</span>
+                                    <div class="apple-row-right">
+                                        <span class="badge badge-disabled" id="recoveryDetailBadge" data-i18n="badge_not_gen">未生成</span>
+                                    </div>
+                                </div>
+                                <div class="apple-row apple-list-row apple-action-row apple-clickable" id="openGenRecoverySheetBtn">
+                                    <span class="apple-action-text" id="genRecoveryActionText" data-i18n="btn_gen_rc">设置恢复密钥</span>
+                                </div>
+                            </div>
+                            <div class="subpage-footer-note" data-i18n="recovery_warning_footer">出于安全考虑，如果重新生成恢复密钥，你之前拥有的所有旧恢复密钥将立即失效。请将恢复密钥打印或保存在密码管理器等安全地点。如果你丢失了恢复密钥并忘记密码，将可能永久失去对账户的访问权限。</div>
+
+                            <!-- Group 2: Generated Codes Display Card (Displayed when codes are freshly generated) -->
+                            <div class="apple-card apple-inset-group" id="recoveryCodesPanel" style="display: none; margin-top: 24px;">
+                                <div style="padding: 16px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="font-size: 13px; font-weight: 600; color: var(--apple-text-secondary); text-transform: uppercase;" data-i18n="label_your_recovery_codes">新生成的恢复密钥</span>
+                                        <span class="badge badge-enabled" data-i18n="badge_new_generated">已就绪</span>
+                                    </div>
+                                    <div class="apple-code-grid" id="recoveryCodesGrid" style="margin-bottom: 16px;">
+                                        <!-- Codes chips populated here -->
+                                    </div>
+                                    <button type="button" class="btn-outline" id="copyRecoveryCodesBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                        <span id="copyRecoveryCodesBtnText" data-i18n="btn_copy_all_codes">复制全部恢复密钥</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="subpage-integrations" class="apple-subpage" data-title="连接应用">
                         <div class="apple-group-container">
                             <div class="apple-subpage-header">
@@ -1125,6 +1158,24 @@
                         <button type="button" class="sheet-btn-capsule" id="passkeySuccessDoneBtn" data-i18n="btn_done">完成</button>
                     </div>
                 </div>
+
+                <!-- STEP 7: Recovery Key Display Sheet -->
+                <div class="sheet-step" id="stepRecoveryCodesDisplay" style="display: none;">
+                    <div class="sheet-hero-icon icon-orange">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                            <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="sheet-title" data-i18n="sheet_rc_title">已生成恢复密钥</div>
+                    <div class="sheet-desc" data-i18n="sheet_rc_desc">请妥善保管以下 8 组应急恢复密钥。每组仅可使用一次，此窗口关闭后将不再完整显示。</div>
+                    <div class="apple-code-grid" id="sheetRecoveryGrid" style="margin: 16px 0;">
+                        <!-- Monospace code chips injected here -->
+                    </div>
+                    <div class="sheet-actions" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" class="sheet-btn-capsule" id="sheetCopyRecoveryCodesBtn" data-i18n="btn_copy_all_codes">复制全部恢复密钥</button>
+                        <button type="button" class="sheet-btn-text" id="sheetRecoveryDoneBtn" data-i18n="btn_done">完成</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1374,6 +1425,6 @@
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=20260912c"></script>
+    <script type="module" src="/js/admin.js?v=20260912d"></script>
 </body>
 </html>

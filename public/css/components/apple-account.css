@@ -596,3 +596,43 @@ html.device-mobile .subpage-avatar-center {
     margin: 12px 0 24px 0;
 }
 
+/* ============================================================================
+ * Apple Recovery Key Code Grid & Monospace Chips
+ * ============================================================================ */
+.apple-code-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 320px) {
+    .apple-code-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.apple-code-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    background: var(--apple-bg-grouped, rgba(120, 120, 128, 0.12));
+    border-radius: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--apple-text-primary, #ffffff);
+    user-select: all;
+    -webkit-user-select: all;
+    border: 0.5px solid var(--apple-separator, rgba(255, 255, 255, 0.1));
+}
+
+html[data-theme="light"] .apple-code-chip {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #1d1d1f;
+}
+

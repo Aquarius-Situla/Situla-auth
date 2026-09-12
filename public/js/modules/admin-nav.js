@@ -25,7 +25,7 @@ const ADMIN_SEARCH_INDEX = [
     { id: 'security', tab: 'home', subpage: 'subpage-security', cardId: 'securityCard', titleKey: 'subpage_security', keywords: ['security', 'password', '2fa', 'passkey', 'totp', '安全', '密码', '修改密码'] },
     { id: 'passkeys', tab: 'home', subpage: 'subpage-passkeys', cardId: 'passkeyRow', titleKey: 'row_passkeys', keywords: ['passkey', 'webauthn', 'biometrics', '通行密钥', '面容', '指纹'] },
     { id: 'twofa', tab: 'home', subpage: 'subpage-twofa', cardId: 'twoFaRow', titleKey: 'row_two_factor', keywords: ['2fa', 'totp', 'fido2', 'yubikey', '双重认证', '身份验证器', '安全密钥'] },
-    { id: 'recovery', tab: 'home', subpage: 'subpage-security', cardId: 'rcCard', titleKey: 'row_recovery_codes', keywords: ['recovery', 'codes', 'backup', '恢复码', '应急', '备用码'] },
+    { id: 'recovery', tab: 'home', subpage: 'subpage-recovery', cardId: 'recoveryKeyRow', titleKey: 'row_recovery_codes', keywords: ['recovery', 'key', 'codes', 'backup', '恢复密钥', '恢复码', '应急', '备用码'] },
     { id: 'oidc', tab: 'home', subpage: 'subpage-integrations', cardId: 'oidcSection', titleKey: 'row_oidc_clients', keywords: ['oidc', 'oauth', 'sso', 'client', '授权应用', '单点登录'] },
     { id: 'npm', tab: 'home', subpage: 'subpage-integrations', cardId: 'npmSection', titleKey: 'row_forward_auth_gen', keywords: ['npm', 'nginx', 'forward-auth', 'proxy', '反向代理', '防护配置'] },
     { id: 'logs', tab: 'logs', subpage: null, cardId: 'loginLogsCard', titleKey: 'tab_logs', keywords: ['logs', 'audit', 'login', 'history', 'ip', '近期登录', '日志', '活动', '审计'] },
