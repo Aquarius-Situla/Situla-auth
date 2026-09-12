@@ -84,17 +84,28 @@ export function switchTab(rawTabId, updateHash = true) {
         document.querySelectorAll('.tab-pane').forEach(pane => {
             if (pane.id === `tab-pane-${tabId}`) {
                 pane.classList.add('active');
+                pane.style.display = '';
+                pane.style.transform = '';
+                pane.style.filter = '';
+                pane.style.opacity = '';
+                pane.classList.remove('is-pushed');
                 activePaneFound = true;
             } else {
                 pane.classList.remove('active');
+                pane.style.display = '';
             }
         });
 
-        /* Robust fallback to tab-pane-home if target pane wasn't found */
+        /* Robust fallback to tab-pane-home if target pane was not found */
         if (!activePaneFound) {
             const fallbackPane = document.getElementById('tab-pane-home');
             if (fallbackPane) {
                 fallbackPane.classList.add('active');
+                fallbackPane.style.display = '';
+                fallbackPane.style.transform = '';
+                fallbackPane.style.filter = '';
+                fallbackPane.style.opacity = '';
+                fallbackPane.classList.remove('is-pushed');
             }
         }
 

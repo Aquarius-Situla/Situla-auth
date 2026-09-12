@@ -1492,54 +1492,9 @@ html.apple-theme-light .apple-segment-btn.active {
 }
 
 /* ============================================================================
- * 8. Apple Native 12-Blade Activity Spinner
+ * 8. Apple Native 12-Blade Activity Spinner (Standardized in loaders.css)
  * ============================================================================ */
-.apple-spinner {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    display: inline-block;
-}
-
-.apple-spinner-blade {
-    position: absolute;
-    left: 46%;
-    top: 0;
-    width: 8%;
-    height: 26%;
-    background-color: var(--apple-text-secondary);
-    border-radius: 50px;
-    animation: apple-spinner-fade 1s linear infinite;
-    transform-origin: center 190%;
-}
-
-.apple-spinner-blade:nth-child(1)  { transform: rotate(0deg);   animation-delay: -1.000s; }
-.apple-spinner-blade:nth-child(2)  { transform: rotate(30deg);  animation-delay: -0.916s; }
-.apple-spinner-blade:nth-child(3)  { transform: rotate(60deg);  animation-delay: -0.833s; }
-.apple-spinner-blade:nth-child(4)  { transform: rotate(90deg);  animation-delay: -0.750s; }
-.apple-spinner-blade:nth-child(5)  { transform: rotate(120deg); animation-delay: -0.666s; }
-.apple-spinner-blade:nth-child(6)  { transform: rotate(150deg); animation-delay: -0.583s; }
-.apple-spinner-blade:nth-child(7)  { transform: rotate(180deg); animation-delay: -0.500s; }
-.apple-spinner-blade:nth-child(8)  { transform: rotate(210deg); animation-delay: -0.416s; }
-.apple-spinner-blade:nth-child(9)  { transform: rotate(240deg); animation-delay: -0.333s; }
-.apple-spinner-blade:nth-child(10) { transform: rotate(270deg); animation-delay: -0.250s; }
-.apple-spinner-blade:nth-child(11) { transform: rotate(300deg); animation-delay: -0.166s; }
-.apple-spinner-blade:nth-child(12) { transform: rotate(330deg); animation-delay: -0.083s; }
-
-@keyframes apple-spinner-fade {
-    0% { opacity: 1; }
-    100% { opacity: 0.15; }
-}
-
-.apple-spinner.apple-spinner-sm {
-    width: 16px;
-    height: 16px;
-}
-
-.apple-spinner.apple-spinner-lg {
-    width: 36px;
-    height: 36px;
-}
+/* Delegated directly to loaders.css to preserve Situla-auth 12-blade spinner */
 
 /* Apple Loading Overlay */
 .apple-loading-overlay {
@@ -1957,12 +1912,16 @@ html.apple-theme-dark .apple-health-bar {
     opacity: 0;
     pointer-events: none;
     z-index: 50;
-    box-shadow: -16px 0 36px rgba(0, 0, 0, 0.45);
-    transition: transform var(--apple-transition-push), opacity var(--apple-transition-push), box-shadow var(--apple-transition-push);
+    box-shadow: none;
+    transition: transform var(--apple-transition-push), opacity var(--apple-transition-push);
     box-sizing: border-box;
     will-change: transform, opacity;
     overscroll-behavior-x: none;
     -webkit-overscroll-behavior-x: none;
+}
+
+.apple-subpage.is-pushing {
+    box-shadow: -12px 0 24px rgba(0, 0, 0, 0.2);
 }
 
 .apple-subpage.active {
@@ -1970,17 +1929,23 @@ html.apple-theme-dark .apple-health-bar {
     transform: translate3d(0, 0, 0);
     opacity: 1;
     pointer-events: auto;
+    box-shadow: none !important;
 }
 
 .apple-subpage.is-exiting {
     transform: translate3d(100%, 0, 0);
     opacity: 0;
     transition: transform var(--apple-transition-pop), opacity var(--apple-transition-pop);
+    box-shadow: none !important;
 }
 
-html.device-mobile .apple-subpage {
-    background-color: var(--apple-bg-stage, #000000) !important;
+html.device-mobile .apple-subpage,
+body.device-mobile .apple-subpage {
+    background-color: var(--apple-bg-stage) !important;
     min-height: 100% !important;
+    min-height: calc(100vh - 44px - env(safe-area-inset-top, 0px) - 52px - env(safe-area-inset-bottom, 34px)) !important;
+    min-height: calc(100dvh - 44px - env(safe-area-inset-top, 0px) - 52px - env(safe-area-inset-bottom, 34px)) !important;
+    box-shadow: none !important;
 }
 
 /* Apple Subpage Header & Back Button */

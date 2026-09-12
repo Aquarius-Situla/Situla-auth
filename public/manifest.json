@@ -1,20 +1,30 @@
 {
-  "name": "身份验证",
-  "short_name": "Auth",
-  "description": "Situla Auth Portal",
+  "name": "Authenticator",
+  "short_name": "Authenticator",
+  "description": "Situla Authenticator",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f5f7",
-  "theme_color": "#ffffff",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
-      "src": "/assets/branding/favicon.svg",
+      "src": "/assets/branding/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/branding/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/branding/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     },
     {
       "src": "/assets/branding/favicon.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml"
     }
   ]

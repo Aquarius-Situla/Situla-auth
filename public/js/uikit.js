@@ -480,7 +480,7 @@ function pushSubpage(targetSubpage, options = {}) {
 
     /* Force reflow before adding active class to trigger CSS transition */
     void subpageEl.offsetWidth;
-    subpageEl.classList.add('active');
+    subpageEl.classList.add('active', 'is-pushing');
 
     /* Record entry in navigation stack */
     const prevScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
@@ -519,6 +519,9 @@ function pushSubpage(targetSubpage, options = {}) {
         subpageEl.style.width = '';
         subpageEl.style.transform = '';
         subpageEl.style.transition = '';
+        subpageEl.classList.remove('is-pushing');
+        subpageEl.classList.add('is-settled');
+        subpageEl.style.boxShadow = 'none';
         setTransitionState(false);
         if (typeof options.onPush === 'function') {
             options.onPush(subpageEl);
@@ -534,7 +537,37 @@ function pushSubpage(targetSubpage, options = {}) {
 function popSubpage(options = {}) {
     if (typeof document === 'undefined') return null;
     if (isTransitioning) return null;
-    if (navHistory.length === 0) return null;
+
+    if (navHistory.length === 0) {
+        /* Self-healing recovery if back button triggered but navigation stack was empty */
+        const activeSubpages = document.querySelectorAll('.apple-subpage.active');
+        activeSubpages.forEach(sp => {
+            sp.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled');
+            sp.style.display = 'none';
+        });
+        const homePane = document.getElementById('tab-pane-home');
+        if (homePane) {
+            homePane.classList.add('active');
+            homePane.style.display = '';
+            homePane.style.opacity = '';
+            homePane.style.transform = '';
+            homePane.classList.remove('is-pushed');
+        }
+        if (document.body) {
+            document.body.classList.remove('is-subpage');
+        }
+        const mobileTopNav = document.querySelector('.apple-top-nav');
+        if (mobileTopNav) {
+            mobileTopNav.classList.remove('has-back');
+            const mobileTitle = mobileTopNav.querySelector('.nav-title');
+            if (mobileTitle) {
+                mobileTitle.textContent = mobileTitle.getAttribute('data-prev-title') || '主页';
+                mobileTitle.removeAttribute('data-prev-title');
+            }
+        }
+        setTransitionState(false);
+        return null;
+    }
 
     setTransitionState(true);
     const currentEntry = navHistory.pop();
@@ -550,12 +583,17 @@ function popSubpage(options = {}) {
     }
 
     /* 1. Restore parent view to display before triggering transition */
-    if (parentView) {
-        parentView.style.display = '';
-        parentView.classList.add('is-pushed');
-        parentView.style.transform = '';
-        parentView.style.transition = '';
-        parentView.style.filter = '';
+    let effectiveParent = parentView;
+    if (!effectiveParent) {
+        effectiveParent = document.querySelector('.tab-pane.active') || document.getElementById('tab-pane-home');
+    }
+    if (effectiveParent) {
+        effectiveParent.style.display = '';
+        effectiveParent.classList.add('is-pushed');
+        effectiveParent.style.transform = '';
+        effectiveParent.style.transition = '';
+        effectiveParent.style.filter = '';
+        effectiveParent.style.opacity = '1';
     }
 
     /* 2. Anchor subpage absolutely so parent view can slide back in place */
@@ -565,17 +603,18 @@ function popSubpage(options = {}) {
         subpage.style.left = '0';
         subpage.style.width = '100%';
         subpage.style.transform = '';
+        subpage.style.boxShadow = 'none';
     }
 
     /* Force reflow */
-    if (parentView) void parentView.offsetWidth;
+    if (effectiveParent) void effectiveParent.offsetWidth;
 
     /* 3. Play Exit Slide Animation & Restore Parent */
     if (subpage) {
         subpage.classList.add('is-exiting');
     }
-    if (parentView) {
-        parentView.classList.remove('is-pushed');
+    if (effectiveParent) {
+        effectiveParent.classList.remove('is-pushed');
     }
 
     /* 4. Restore Mobile Top Nav & Tab Bar State */
@@ -610,8 +649,7 @@ function popSubpage(options = {}) {
 
     setTimeout(() => {
         if (subpage) {
-            subpage.classList.remove('active');
-            subpage.classList.remove('is-exiting');
+            subpage.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled');
             subpage.style.display = 'none';
             subpage.style.position = '';
             subpage.style.top = '';
@@ -619,13 +657,24 @@ function popSubpage(options = {}) {
             subpage.style.width = '';
             subpage.style.transform = '';
             subpage.style.transition = '';
+            subpage.style.boxShadow = '';
         }
-        if (parentView) {
-            parentView.style.transform = '';
-            parentView.style.transition = '';
-            parentView.style.filter = '';
-            parentView.classList.remove('is-pushed');
+        if (effectiveParent) {
+            effectiveParent.style.transform = '';
+            effectiveParent.style.transition = '';
+            effectiveParent.style.filter = '';
+            effectiveParent.style.opacity = '';
+            effectiveParent.classList.remove('is-pushed');
+            effectiveParent.style.display = '';
         }
+
+        /* Guarantee active tab pane is never trapped in display: none */
+        const activePane = document.querySelector('.tab-pane.active') || document.getElementById('tab-pane-home');
+        if (activePane) {
+            activePane.style.display = '';
+            activePane.classList.remove('is-pushed');
+        }
+
         if (typeof scrollY === 'number' && typeof window !== 'undefined') {
             window.scrollTo({ top: scrollY, behavior: 'instant' });
         }
@@ -645,7 +694,7 @@ function resetSubpageStack() {
     while (navHistory.length > 0) {
         const entry = navHistory.pop();
         if (entry.subpage) {
-            entry.subpage.classList.remove('active', 'is-exiting');
+            entry.subpage.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled');
             entry.subpage.style.display = 'none';
             entry.subpage.style.position = '';
             entry.subpage.style.top = '';
@@ -653,6 +702,7 @@ function resetSubpageStack() {
             entry.subpage.style.width = '';
             entry.subpage.style.transform = '';
             entry.subpage.style.transition = '';
+            entry.subpage.style.boxShadow = '';
         }
         if (entry.parentView) {
             entry.parentView.classList.remove('is-pushed');
@@ -660,18 +710,35 @@ function resetSubpageStack() {
             entry.parentView.style.transform = '';
             entry.parentView.style.transition = '';
             entry.parentView.style.filter = '';
+            entry.parentView.style.opacity = '';
         }
     }
-    if (typeof document !== 'undefined' && document.body) {
-        document.body.classList.remove('is-subpage');
-    }
-    const mobileTopNav = document.querySelector('.apple-top-nav');
-    if (mobileTopNav) {
-        mobileTopNav.classList.remove('has-back');
-        const mobileTitle = mobileTopNav.querySelector('.nav-title');
-        if (mobileTitle && mobileTitle.getAttribute('data-prev-title')) {
-            mobileTitle.textContent = mobileTitle.getAttribute('data-prev-title');
-            mobileTitle.removeAttribute('data-prev-title');
+    if (typeof document !== 'undefined') {
+        document.querySelectorAll('.apple-subpage').forEach(sub => {
+            sub.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled');
+            sub.style.display = 'none';
+            sub.style.position = '';
+            sub.style.transform = '';
+            sub.style.boxShadow = '';
+        });
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('is-pushed');
+            pane.style.display = '';
+            pane.style.transform = '';
+            pane.style.filter = '';
+            pane.style.opacity = '';
+        });
+        if (document.body) {
+            document.body.classList.remove('is-subpage');
+        }
+        const mobileTopNav = document.querySelector('.apple-top-nav');
+        if (mobileTopNav) {
+            mobileTopNav.classList.remove('has-back');
+            const mobileTitle = mobileTopNav.querySelector('.nav-title');
+            if (mobileTitle && mobileTitle.getAttribute('data-prev-title')) {
+                mobileTitle.textContent = mobileTitle.getAttribute('data-prev-title');
+                mobileTitle.removeAttribute('data-prev-title');
+            }
         }
     }
     setTransitionState(false);
@@ -721,6 +788,13 @@ function initNavigationStack(options = {}) {
     window.addEventListener('popstate', () => {
         if (isSubpageActive()) {
             popSubpage({ fromHistory: true });
+        } else {
+            /* Guarantee home tab is visible when returning via browser back */
+            const homePane = document.getElementById('tab-pane-home');
+            if (homePane && !document.querySelector('.tab-pane.active')) {
+                homePane.classList.add('active');
+                homePane.style.display = '';
+            }
         }
     });
 
@@ -1305,19 +1379,10 @@ function showLoading(targetEl, text = '') {
         overlay = document.createElement('div');
         overlay.className = 'apple-loading-overlay';
         overlay.innerHTML = `
-            <div class="apple-spinner apple-spinner-md">
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
-                <div class="apple-spinner-blade"></div>
+            <div class="apple-spinner apple-spinner-sm">
+                <div></div><div></div><div></div><div></div>
+                <div></div><div></div><div></div><div></div>
+                <div></div><div></div><div></div><div></div>
             </div>
             ${text ? `<div class="apple-loading-text">${text}</div>` : ''}
         `;
