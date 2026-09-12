@@ -1386,9 +1386,18 @@ function showLoading(targetEl, text = '') {
         overlay.className = 'apple-loading-overlay';
         overlay.innerHTML = `
             <div class="apple-spinner apple-spinner-sm">
-                <div></div><div></div><div></div><div></div>
-                <div></div><div></div><div></div><div></div>
-                <div></div><div></div><div></div><div></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
             </div>
             ${text ? `<div class="apple-loading-text">${text}</div>` : ''}
         `;

@@ -79,7 +79,13 @@ export async function loadStatus() {
     } finally {
         const loader = document.getElementById('pageLoader');
         const content = document.getElementById('appContent');
-        if (loader) loader.style.display = 'none';
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 260);
+        }
         if (content) content.style.opacity = '1';
     }
 }

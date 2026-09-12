@@ -47,7 +47,7 @@ export function renderTransportBadges(transports = []) {
 
 export function renderInlineLoader(textKey = 'status_updating') {
     const text = t(textKey) || '正在更新...';
-    return `<div class="apple-inline-updating"><div class="apple-spinner-sm"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><span>${text}</span></div>`;
+    return `<div class="apple-inline-updating"><div class="apple-spinner apple-spinner-sm"><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div></div><span>${text}</span></div>`;
 }
 
 export function setModalActionsLoading(actionsContainer, isLoading, textKey = 'status_updating') {
@@ -65,7 +65,7 @@ export function setModalActionsLoading(actionsContainer, isLoading, textKey = 's
         }
         const text = t(textKey) || '正在更新...';
         loader.className = 'apple-inline-updating';
-        loader.innerHTML = `<div class="apple-spinner-sm"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><span>${text}</span>`;
+        loader.innerHTML = `<div class="apple-spinner apple-spinner-sm"><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div><div class="apple-spinner-blade"></div></div><span>${text}</span>`;
         loader.style.display = 'flex';
     } else {
         if (loader) {

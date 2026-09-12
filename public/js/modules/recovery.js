@@ -10,6 +10,7 @@
 import { t, copyToClipboard, closeAllModals, openAppleSheet, closeAppleSheet, showAppleAlert } from './ui.js';
 import { fetchApi, enterSudoStep } from './api.js';
 
+let currentHas2FA = false;
 let currentRemaining = 0;
 let lastGeneratedCodes = [];
 
@@ -20,6 +21,7 @@ let lastGeneratedCodes = [];
  * @param {number} remaining - Number of unused recovery key pairs remaining.
  */
 export function updateRecoveryUI(has2FA, remaining = 0) {
+    currentHas2FA = !!has2FA;
     currentRemaining = Number(remaining) || 0;
 
     const recoveryGroup = document.getElementById('recoveryKeyGroup');
@@ -31,13 +33,13 @@ export function updateRecoveryUI(has2FA, remaining = 0) {
 
     /* If account does not have 2FA, hide recovery section */
     if (recoveryGroup) {
-        recoveryGroup.style.display = has2FA ? '' : 'none';
+        recoveryGroup.style.display = currentHas2FA ? '' : 'none';
     }
     if (legacyRcCard) {
-        legacyRcCard.style.display = has2FA ? '' : 'none';
+        legacyRcCard.style.display = currentHas2FA ? '' : 'none';
     }
 
-    if (!has2FA) return;
+    if (!currentHas2FA) return;
 
     let badgeText = '';
     let badgeClass = '';
@@ -47,12 +49,27 @@ export function updateRecoveryUI(has2FA, remaining = 0) {
         badgeClass = 'badge badge-disabled';
         if (genRecoveryActionText) {
             genRecoveryActionText.textContent = t('btn_gen_rc') || '设置恢复密钥';
+            genRecoveryActionText.setAttribute('data-i18n', 'btn_gen_rc');
+        }
+        if (recoveryKeyBadge) {
+            recoveryKeyBadge.setAttribute('data-i18n', 'badge_not_gen');
+        }
+        if (recoveryDetailBadge) {
+            recoveryDetailBadge.setAttribute('data-i18n', 'badge_not_gen');
         }
     } else {
         badgeText = t('badge_rc_remaining', currentRemaining) || `剩余 ${currentRemaining} 组`;
         badgeClass = currentRemaining <= 2 ? 'badge badge-warn' : 'badge badge-count';
         if (genRecoveryActionText) {
             genRecoveryActionText.textContent = t('btn_regen_rc') || '重新生成恢复密钥';
+            genRecoveryActionText.setAttribute('data-i18n', 'btn_regen_rc');
+        }
+        /* Crucial: remove static data-i18n so applyTranslations does not overwrite dynamic count */
+        if (recoveryKeyBadge) {
+            recoveryKeyBadge.removeAttribute('data-i18n');
+        }
+        if (recoveryDetailBadge) {
+            recoveryDetailBadge.removeAttribute('data-i18n');
         }
     }
 
@@ -69,6 +86,14 @@ export function updateRecoveryUI(has2FA, remaining = 0) {
         legacyRcBadge.className = badgeClass;
     }
 }
+
+/* Synchronize dynamic recovery status whenever language pack changes */
+window.addEventListener('i18n:localeChanged', () => {
+    updateRecoveryUI(currentHas2FA, currentRemaining);
+});
+window.addEventListener('situla:languagechange', () => {
+    updateRecoveryUI(currentHas2FA, currentRemaining);
+});
 
 /* Backward-compatible alias for existing callers */
 export const updateRcCard = updateRecoveryUI;
