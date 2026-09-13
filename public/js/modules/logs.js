@@ -16,12 +16,30 @@ import { fetchApi } from './api.js';
  */
 export async function loadAndRenderLogs(listEl) {
     if (!listEl) return;
-    listEl.innerHTML = `<div style="text-align: center; color: #86868b; padding: 24px;">${t('loading')}</div>`;
+    listEl.innerHTML = `
+        <div class="apple-inline-updating" style="padding: 36px 16px; justify-content: center; display: flex; align-items: center; gap: 10px;">
+            <div class="apple-spinner apple-spinner-md">
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+                <div class="apple-spinner-blade"></div>
+            </div>
+            <span style="font-size: 14px; color: var(--apple-text-secondary);">${t('loading')}</span>
+        </div>
+    `;
 
     try {
         const { ok, data: logs } = await fetchApi('/api/login-logs');
         if (!ok || !Array.isArray(logs) || logs.length === 0) {
-            listEl.innerHTML = `<div style="text-align: center; color: #86868b; padding: 24px;">${t('status_no_logs')}</div>`;
+            listEl.innerHTML = `<div style="text-align: center; color: var(--apple-text-secondary); padding: 36px 16px; font-size: 14px;">${t('status_no_logs')}</div>`;
             return;
         }
 
@@ -38,8 +56,6 @@ export async function loadAndRenderLogs(listEl) {
                 });
             }
 
-            const div = document.createElement('div');
-            div.className = 'log-item';
             let locStr = log.location || t('status_loc_unknown');
             if (locStr === 'Unknown Location' || locStr === 'Unknown' || locStr === '未知位置') {
                 locStr = t('status_loc_unknown');
@@ -53,15 +69,36 @@ export async function loadAndRenderLogs(listEl) {
                 devStr = t('status_dev_unknown');
             }
 
+            /* Distinguish mobile device vs desktop device for icon presentation */
+            const devLower = devStr.toLowerCase();
+            const isPhone = devLower.includes('iphone') || devLower.includes('mobile') || devLower.includes('android');
+            const iconSvg = isPhone ?
+                `<svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"></rect><circle cx="12" cy="18" r="1" fill="currentColor"></circle></svg>` :
+                `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"></line><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"></line></svg>`;
+
+            const div = document.createElement('div');
+            div.className = 'apple-row apple-list-row has-badge';
+            div.style.minHeight = '56px';
+            div.style.padding = '10px 14px';
+
             div.innerHTML = `
-                <div class="log-details">${escapeHTML(locStr)} · ${escapeHTML(devStr)}</div>
-                <div class="log-ip">${escapeHTML(log.ip || '')}</div>
-                <div class="log-time">${escapeHTML(localTime)}</div>
+                <div class="apple-row-left" style="gap: 12px;">
+                    <div class="apple-badge badge-blue" style="width: 28px; height: 28px; border-radius: 7px;">
+                        ${iconSvg}
+                    </div>
+                    <div class="apple-row-title-wrap">
+                        <span class="apple-row-label" style="font-weight: 500; font-size: 14px;">${escapeHTML(locStr)} · ${escapeHTML(devStr)}</span>
+                        <span class="apple-row-sublabel" style="font-family: var(--font-mono, monospace); font-size: 12px; color: var(--apple-text-secondary);">${escapeHTML(log.ip || '')}</span>
+                    </div>
+                </div>
+                <div class="apple-row-right" style="flex-direction: column; align-items: flex-end; gap: 2px;">
+                    <span class="apple-row-value" style="font-size: 12.5px; color: var(--apple-text-secondary);">${escapeHTML(localTime)}</span>
+                </div>
             `;
             listEl.appendChild(div);
         });
     } catch (e) {
-        listEl.innerHTML = `<div style="text-align: center; color: #ff3b30; padding: 24px;">${t('status_load_failed')}</div>`;
+        listEl.innerHTML = `<div style="text-align: center; color: var(--apple-red, #ff3b30); padding: 36px 16px; font-size: 14px;">${t('status_load_failed')}</div>`;
     }
 }
 

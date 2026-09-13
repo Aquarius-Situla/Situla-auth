@@ -38,15 +38,15 @@
     </script>
 
     <!-- AquaKit Core Stylesheet & Application Overrides -->
-    <link rel="stylesheet" href="/css/uikit.css?v=20260913a">
-    <link rel="stylesheet" href="/css/style.css?v=20260913a">
+    <link rel="stylesheet" href="/css/uikit.css?v=20260913c">
+    <link rel="stylesheet" href="/css/style.css?v=20260913c">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="/js/simplewebauthn.js"></script>
-    <script src="/i18n/locales/zh-CN.js?v=20260913a"></script>
-    <script src="/i18n/locales/en-US.js?v=20260913a"></script>
-    <script src="/i18n/i18n.js?v=20260913a"></script>
-    <script src="/js/uikit.js?v=20260913a"></script>
+    <script src="/i18n/locales/zh-CN.js?v=20260913c"></script>
+    <script src="/i18n/locales/en-US.js?v=20260913c"></script>
+    <script src="/i18n/i18n.js?v=20260913c"></script>
+    <script src="/js/uikit.js?v=20260913c"></script>
 </head>
 <body class="admin-body" data-page-title-key="admin_doc_title">
     <div id="pageLoader" style="position: fixed; inset: 0; background: var(--apple-bg-grouped, var(--bg-base)); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.25s ease;">
@@ -756,21 +756,14 @@
                 <!-- ═══════════════════════════════════════════════════════ -->
                 <section id="tab-pane-logs" class="tab-pane view-content" aria-labelledby="tab-logs">
                     <div class="apple-group-container" style="padding-top: 16px;">
-                        <div class="settings-group" id="loginLogsCard">
-                            <div class="section">
-                                <div class="section-header" style="align-items: center;">
-                                    <div>
-                                        <h3 data-i18n="logs_title">近期登录活动</h3>
-                                        <p class="desc" style="margin-bottom:0;" data-i18n="logs_modal_desc">显示最近最多 20 条登录记录。</p>
-                                    </div>
-                                    <button class="btn-outline" id="refreshLogsBtn" data-i18n="btn_refresh_logs">刷新日志</button>
-                                </div>
-
-                                <div id="liveLoginLogsList" class="log-list-container" style="margin-top: 16px;">
-                                    <!-- Live logs rendered via JS -->
-                                </div>
-                            </div>
+                        <div class="apple-section-header apple-group-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span data-i18n="logs_title">近期登录活动</span>
+                            <button type="button" class="btn-outline" id="refreshLogsBtn" style="font-size: 13px; padding: 4px 12px; border-radius: 999px; height: auto;" data-i18n="btn_refresh_logs">刷新日志</button>
                         </div>
+                        <div class="apple-card apple-inset-group" id="liveLoginLogsList" style="margin-bottom: 8px;">
+                            <!-- Live logs rendered via JS -->
+                        </div>
+                        <div class="subpage-footer-note" data-i18n="logs_modal_desc" style="margin-top: 6px; margin-bottom: 24px;">显示最近最多 20 条登录活动记录，包含 IP 地址、地理位置与设备类型。</div>
                     </div>
                 </section>
 
@@ -814,18 +807,18 @@
                         <!-- Group 2: About & Legal -->
                         <div class="apple-section-header apple-group-header" data-i18n="settings_about_legal">关于与声明 (ABOUT & LEGAL)</div>
                         <div class="apple-card apple-inset-group">
-                            <a class="apple-row apple-list-row has-badge apple-clickable" href="https://github.com/Aquarius-Situla/Situla-auth" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                            <div class="apple-row apple-list-row has-badge apple-clickable" id="settingAboutRow" data-open-subpage="subpage-about" data-subpage-title="关于" data-parent-title="设置">
                                 <div class="apple-row-left">
-                                    <div class="apple-badge badge-gray">
-                                        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                    <div class="apple-badge badge-blue">
+                                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                                     </div>
                                     <span class="apple-row-label" data-i18n="settings_about_app">关于 Situla Auth</span>
                                 </div>
                                 <div class="apple-row-right">
-                                    <span class="apple-row-value">GitHub ↗</span>
+                                    <span class="apple-row-value">v2.0.0</span>
                                     <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
-                            </a>
+                            </div>
                             <div class="apple-row apple-list-row has-badge apple-clickable" id="settingPrivacyRow">
                                 <div class="apple-row-left">
                                     <div class="apple-badge badge-teal">
@@ -989,6 +982,98 @@
                             </div>
                         </div>
                         <div class="subpage-footer-note" data-i18n="theme_footer_note" style="margin-top: 8px;">选择 Situla Auth 的外观显示主题。当选择“跟随系统”时，将根据设备系统设置自动切换。</div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- Subpage 7: 关于 (About Situla Auth)                     -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <div id="subpage-about" class="apple-subpage" data-title="关于">
+                    <div class="apple-group-container">
+                        <div class="apple-subpage-header">
+                            <button type="button" class="apple-nav-back-btn" data-close-subpage>
+                                <svg class="apple-nav-back-chevron" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span class="apple-back-title" data-i18n="tab_settings">设置</span>
+                            </button>
+                            <div class="apple-subpage-title" data-i18n="settings_about_app">关于</div>
+                            <div style="width: 48px;"></div>
+                        </div>
+
+                        <!-- App Hero Badge & Info -->
+                        <div class="apple-account-hero" style="margin-bottom: 24px; padding-top: 10px;">
+                            <div class="apple-badge badge-blue" style="width: 72px; height: 72px; border-radius: 18px; margin: 0 auto 12px auto; box-shadow: 0 4px 16px rgba(0, 113, 227, 0.28);">
+                                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 12.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                            </div>
+                            <h1 class="apple-account-name" style="font-size: 22px; font-weight: 700;">Situla Auth</h1>
+                            <p class="apple-account-email" style="font-size: 13px; color: var(--apple-text-secondary); margin-top: 4px;">版本 2.0.0 (Build 2026.09.13)</p>
+                        </div>
+
+                        <!-- Group 1: General Info -->
+                        <div class="apple-section-header apple-group-header" data-i18n="section_about_info">基本信息</div>
+                        <div class="apple-card apple-inset-group">
+                            <div class="apple-row apple-list-row has-badge">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-blue">
+                                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label">应用程序</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">Situla Auth</span>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row has-badge">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-orange">
+                                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.1 0 2 .9 2 2v1h1c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H9c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h1V9c0-1.1.9-2 2-2zm0 2c-.55 0-1 .45-1 1v1h2V9c0-.55-.45-1-1-1z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label">版本编号</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value" style="font-family: var(--font-mono, monospace);">2.0.0</span>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row has-badge">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-indigo">
+                                        <svg viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9.07l-9-7-9 7 1.63 1.2L12 16z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label">UI 规范架构</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">AquaKit UIKit</span>
+                                </div>
+                            </div>
+                            <div class="apple-row apple-list-row has-badge">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-green">
+                                        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label">开源许可证</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">GNU AGPLv3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 2: Official Links -->
+                        <div class="apple-section-header apple-group-header" data-i18n="section_about_links">官方链接</div>
+                        <div class="apple-card apple-inset-group">
+                            <a class="apple-row apple-list-row has-badge apple-clickable" href="https://github.com/Aquarius-Situla/Situla-auth" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                                <div class="apple-row-left">
+                                    <div class="apple-badge badge-gray">
+                                        <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                    </div>
+                                    <span class="apple-row-label">GitHub 仓库</span>
+                                </div>
+                                <div class="apple-row-right">
+                                    <span class="apple-row-value">Aquarius-Situla ↗</span>
+                                    <svg class="apple-chevron apple-row-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="subpage-footer-note" style="text-align: center; margin-top: 16px; margin-bottom: 24px;">Copyright © 2026 Aquarius & Situla Team. All rights reserved.</div>
                     </div>
                 </div>
 
@@ -1447,6 +1532,6 @@
         </div>
     </div>
 
-    <script type="module" src="/js/admin.js?v=20260913a"></script>
+    <script type="module" src="/js/admin.js?v=20260913c"></script>
 </body>
 </html>

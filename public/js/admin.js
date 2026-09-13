@@ -7,18 +7,18 @@
  * 3. All prose is written in English.
  * ============================================================================ */
 
-import { closeAllModals, fmtDate, t } from './modules/ui.js';
-import { fetchApi } from './modules/api.js';
-import { renderPasskeys, setupPasskeyEvents } from './modules/passkey.js';
-import { set2faBadge, renderFido2Keys, setupFido2Events } from './modules/fido2.js';
-import { openTotpSetup, setupTotpEvents } from './modules/totp.js';
-import { updateRcCard, setupRecoveryEvents } from './modules/recovery.js';
-import { loadOidcClients, setupOidcEvents } from './modules/oidc.js';
-import { setupProfileEvents } from './modules/profile.js';
-import { setupLogsEvents } from './modules/logs.js';
-import { setupNpmGenerator } from './modules/npm-generator.js';
-import { initDeviceLayout, initOrientationGuard } from './modules/device-detect.js';
-import { initAdminNav, syncSidebarProfile } from './modules/admin-nav.js';
+import { closeAllModals, fmtDate, t } from './modules/ui.js?v=20260913c';
+import { fetchApi } from './modules/api.js?v=20260913c';
+import { renderPasskeys, setupPasskeyEvents } from './modules/passkey.js?v=20260913c';
+import { set2faBadge, renderFido2Keys, setupFido2Events } from './modules/fido2.js?v=20260913c';
+import { openTotpSetup, setupTotpEvents } from './modules/totp.js?v=20260913c';
+import { updateRcCard, setupRecoveryEvents } from './modules/recovery.js?v=20260913c';
+import { loadOidcClients, setupOidcEvents } from './modules/oidc.js?v=20260913c';
+import { setupProfileEvents } from './modules/profile.js?v=20260913c';
+import { setupLogsEvents } from './modules/logs.js?v=20260913c';
+import { setupNpmGenerator } from './modules/npm-generator.js?v=20260913c';
+import { initDeviceLayout, initOrientationGuard } from './modules/device-detect.js?v=20260913c';
+import { initAdminNav, syncSidebarProfile } from './modules/admin-nav.js?v=20260913c';
 
 export async function loadStatus() {
     try {

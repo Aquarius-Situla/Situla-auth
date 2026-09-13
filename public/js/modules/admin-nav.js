@@ -28,8 +28,9 @@ const ADMIN_SEARCH_INDEX = [
     { id: 'recovery', tab: 'home', subpage: 'subpage-recovery', cardId: 'recoveryKeyRow', titleKey: 'row_recovery_codes', keywords: ['recovery', 'key', 'codes', 'backup', '恢复密钥', '恢复码', '应急', '备用码'] },
     { id: 'oidc', tab: 'home', subpage: 'subpage-integrations', cardId: 'oidcSection', titleKey: 'row_oidc_clients', keywords: ['oidc', 'oauth', 'sso', 'client', '授权应用', '单点登录'] },
     { id: 'npm', tab: 'home', subpage: 'subpage-integrations', cardId: 'npmSection', titleKey: 'row_forward_auth_gen', keywords: ['npm', 'nginx', 'forward-auth', 'proxy', '反向代理', '防护配置'] },
-    { id: 'logs', tab: 'logs', subpage: null, cardId: 'loginLogsCard', titleKey: 'tab_logs', keywords: ['logs', 'audit', 'login', 'history', 'ip', '近期登录', '日志', '活动', '审计'] },
+    { id: 'logs', tab: 'logs', subpage: null, cardId: 'liveLoginLogsList', titleKey: 'tab_logs', keywords: ['logs', 'audit', 'login', 'history', 'ip', '近期登录', '日志', '活动', '审计'] },
     { id: 'settings', tab: 'settings', subpage: null, cardId: 'preferencesCard', titleKey: 'tab_settings', keywords: ['settings', 'preferences', 'language', 'theme', 'appearance', '语言', '主题', '外观', '设置'] },
+    { id: 'about', tab: 'settings', subpage: 'subpage-about', cardId: 'settingAboutRow', titleKey: 'settings_about_app', keywords: ['about', 'version', 'github', 'license', '关于', '版本', '版权'] },
     { id: 'logout', tab: 'home', subpage: null, cardId: 'homeLogoutRow', titleKey: 'row_logout', keywords: ['logout', 'signout', 'session', '退出登录', '所有设备'] }
 ];
 

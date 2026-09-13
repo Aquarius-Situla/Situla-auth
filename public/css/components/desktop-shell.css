@@ -529,6 +529,7 @@ body.device-mobile .desktop-stage {
     max-width: 720px;
     min-height: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .tab-pane {

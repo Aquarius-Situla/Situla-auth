@@ -477,7 +477,7 @@ function pushSubpage(targetSubpage, options = {}) {
     subpageEl.style.top = '0';
     subpageEl.style.left = '0';
     subpageEl.style.width = '100%';
-    subpageEl.classList.remove('is-exiting');
+    subpageEl.classList.remove('is-exiting', 'is-popping', 'is-settled');
 
     /* Force reflow before adding active class to trigger CSS transition */
     void subpageEl.offsetWidth;
@@ -485,6 +485,17 @@ function pushSubpage(targetSubpage, options = {}) {
 
     /* Record entry in navigation stack */
     const prevScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+
+    /* Pin parent view visually if scrolled to eliminate push jumping */
+    if (parentView && prevScrollY > 0) {
+        parentView.style.position = 'absolute';
+        parentView.style.top = '-' + prevScrollY + 'px';
+        parentView.style.left = '0';
+        parentView.style.width = '100%';
+        if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }
 
     let historyPushed = false;
     if (typeof window !== 'undefined' && window.history && window.history.pushState && !options.skipHistory) {
@@ -513,7 +524,12 @@ function pushSubpage(targetSubpage, options = {}) {
         /* Once transition completes, make subpage in-flow and hide pushed parent view if separate */
         if (parentView && !parentView.contains(subpageEl)) {
             parentView.style.display = 'none';
+            parentView.style.position = '';
+            parentView.style.top = '';
+            parentView.style.left = '';
+            parentView.style.width = '';
             parentView.classList.add('is-settled-hidden');
+            parentView.classList.remove('is-pushing', 'is-pushed');
         }
         subpageEl.style.position = 'relative';
         subpageEl.style.top = '';
@@ -591,34 +607,38 @@ function popSubpage(options = {}) {
     }
     if (effectiveParent) {
         effectiveParent.style.display = '';
-        effectiveParent.classList.remove('is-settled-hidden');
-        effectiveParent.classList.add('is-pushed');
+        effectiveParent.classList.remove('is-settled-hidden', 'is-pushing');
+        if (typeof scrollY === 'number' && scrollY > 0) {
+            effectiveParent.style.position = 'absolute';
+            effectiveParent.style.top = '-' + scrollY + 'px';
+            effectiveParent.style.left = '0';
+            effectiveParent.style.width = '100%';
+        }
+        effectiveParent.classList.add('is-popping');
         effectiveParent.style.transform = '';
         effectiveParent.style.transition = '';
         effectiveParent.style.filter = '';
         effectiveParent.style.opacity = '1';
     }
 
-    /* 2. Anchor subpage absolutely so parent view can slide back in place */
+    /* 2. Anchor subpage absolutely so parent view can slide back in place without bleed */
     if (subpage) {
+        subpage.classList.remove('is-settled', 'is-pushing');
+        subpage.classList.add('is-popping', 'is-exiting');
         subpage.style.position = 'absolute';
         subpage.style.top = '0';
         subpage.style.left = '0';
         subpage.style.width = '100%';
+        subpage.style.zIndex = '50';
         subpage.style.transform = '';
-        subpage.style.boxShadow = 'none';
+        subpage.style.boxShadow = '';
     }
 
     /* Force reflow */
     if (effectiveParent) void effectiveParent.offsetWidth;
+    if (subpage) void subpage.offsetWidth;
 
-    /* 3. Play Exit Slide Animation & Restore Parent */
-    if (subpage) {
-        subpage.classList.add('is-exiting');
-    }
-    if (effectiveParent) {
-        effectiveParent.classList.remove('is-pushed');
-    }
+    /* 3. Subpage and Parent animations are actively executing */
 
     /* 4. Restore Mobile Top Nav & Tab Bar State */
     if (navHistory.length === 0 && typeof document !== 'undefined' && document.body) {
@@ -652,22 +672,27 @@ function popSubpage(options = {}) {
 
     setTimeout(() => {
         if (subpage) {
-            subpage.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled');
+            subpage.classList.remove('active', 'is-exiting', 'is-pushing', 'is-settled', 'is-popping');
             subpage.style.display = 'none';
             subpage.style.position = '';
             subpage.style.top = '';
             subpage.style.left = '';
             subpage.style.width = '';
+            subpage.style.zIndex = '';
             subpage.style.transform = '';
             subpage.style.transition = '';
             subpage.style.boxShadow = '';
         }
         if (effectiveParent) {
+            effectiveParent.style.position = '';
+            effectiveParent.style.top = '';
+            effectiveParent.style.left = '';
+            effectiveParent.style.width = '';
             effectiveParent.style.transform = '';
             effectiveParent.style.transition = '';
             effectiveParent.style.filter = '';
             effectiveParent.style.opacity = '';
-            effectiveParent.classList.remove('is-pushed', 'is-settled-hidden');
+            effectiveParent.classList.remove('is-pushed', 'is-settled-hidden', 'is-popping', 'is-pushing');
             effectiveParent.style.display = '';
             if (effectiveParent.classList.contains('apple-subpage')) {
                 effectiveParent.classList.add('is-settled');
@@ -678,7 +703,7 @@ function popSubpage(options = {}) {
         const activePane = document.querySelector('.tab-pane.active') || document.getElementById('tab-pane-home');
         if (activePane) {
             activePane.style.display = '';
-            activePane.classList.remove('is-pushed');
+            activePane.classList.remove('is-pushed', 'is-popping', 'is-pushing');
         }
 
         if (typeof scrollY === 'number' && typeof window !== 'undefined') {
@@ -829,6 +854,8 @@ function initNavigationStack(options = {}) {
                 sub.style.transition = '';
                 sub.style.position = 'relative';
                 sub.style.transform = '';
+                sub.style.zIndex = '';
+                sub.classList.add('is-settled');
             }, 260);
         }
         if (par) {
@@ -838,6 +865,7 @@ function initNavigationStack(options = {}) {
             setTimeout(() => {
                 par.style.transition = '';
                 par.style.display = 'none';
+                par.classList.add('is-settled-hidden');
             }, 260);
         }
     }
@@ -859,14 +887,17 @@ function initNavigationStack(options = {}) {
 
         if (activeParent) {
             activeParent.style.display = '';
+            activeParent.classList.remove('is-settled-hidden');
             activeParent.classList.add('is-pushed');
             activeParent.style.transition = 'none';
         }
         if (activeSubpage) {
+            activeSubpage.classList.remove('is-settled');
             activeSubpage.style.position = 'absolute';
             activeSubpage.style.top = '0';
             activeSubpage.style.left = '0';
             activeSubpage.style.width = '100%';
+            activeSubpage.style.zIndex = '50';
             activeSubpage.style.transition = 'none';
         }
     }, { passive: true });
